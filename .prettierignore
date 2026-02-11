@@ -1,7 +1,2 @@
-node_modules
-dist
-coverage
-*.lock
-package-lock.json
-.env
-.env.*
+resources/js/components/ui/*
+resources/views/mail/*
