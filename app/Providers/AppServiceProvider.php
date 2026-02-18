@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use App\Features\Auth\Infrastructure\Providers\FortifyServiceProvider;
+use App\Shared\Infrastructure\Providers\SharedServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +17,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        //Shared first
+        $this->app->register(SharedServiceProvider::class);
+        //Features second
+        $this->app->register(FortifyServiceProvider::class);
     }
 
     /**
