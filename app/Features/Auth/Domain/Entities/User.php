@@ -10,7 +10,7 @@ use App\Features\Auth\Domain\ValueObjects\Name;
 use App\Features\Auth\Domain\Events\UserCreated;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\HashedPassword;
-use App\Features\Auth\Domain\Events\UserPasswordHasBeenChanged;
+use App\Features\Auth\Domain\Events\UserPasswordUpdated;
 
 final class User extends AggregateRoot {
 
@@ -46,10 +46,10 @@ final class User extends AggregateRoot {
         return $user;
     }
 
-    public function resetPassword(HashedPassword $password): void
+    public function updatePassword(HashedPassword $password): void
     {
         $this->password = $password;
-        $this->recordDomainEvent(new UserPasswordHasBeenChanged($this));
+        $this->recordDomainEvent(new UserPasswordUpdated($this));
     }
 
     

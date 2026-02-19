@@ -36,6 +36,7 @@ final readonly class EloquentUserRepository implements UserRepositoryInterface {
 
     public function update(User $user): void
     {
-        $this->userMapper->toModel($user)->save();
+        $userModelAttributes = $this->userMapper->toModel($user)->getAttributes();
+        $this->userModel->where('id', $user->id()->value())->update($userModelAttributes);
     }
 }

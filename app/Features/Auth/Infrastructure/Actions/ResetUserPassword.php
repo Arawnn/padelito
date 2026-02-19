@@ -22,11 +22,11 @@ class ResetUserPassword implements ResetsUserPasswords
      */
     public function reset(User $user, array $input): void
     {
-        dd('   dwd ');
-        $command = new ResetUserPasswordCommand(
-            userId: $user->id->value(),
-            password: $input['password'],
-        );
-        $this->commandBus->dispatch($command);
+        // dd('dwd');
+        // $command = new ResetUserPasswordCommand(
+        //     userId: $user->id(),
+        //     password: $input['password'],
+        // );
+        // $this->commandBus->dispatch($command);
     }
 }

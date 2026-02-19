@@ -11,7 +11,7 @@ use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
-use App\Actions\Fortify\ResetUserPassword;
+use App\Features\Auth\Infrastructure\Actions\ResetUserPassword;
 use Illuminate\Support\Facades\RateLimiter;
 use App\Features\Auth\Infrastructure\Actions\FortifyRegisterUserCreator;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;

@@ -7,10 +7,10 @@ namespace App\Features\Auth\Domain\Events;
 use App\Features\Auth\Domain\Entities\User;
 use App\Shared\Domain\Events\DomainEvent;
 
-final class UserPasswordHasBeenChanged extends DomainEvent {
+final class UserPasswordUpdated extends DomainEvent {
     public function __construct(public User $user) {
         parent::__construct();
-        $this->eventName = 'UserPasswordHasBeenChanged';
+        $this->eventName = 'UserPasswordUpdated';
         $this->aggregateId = $user->id()->value();
     }
 }
