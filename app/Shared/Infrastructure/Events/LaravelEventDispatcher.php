@@ -7,6 +7,7 @@ namespace App\Shared\Infrastructure\Events;
 use App\Shared\Domain\Events\DomainEvent;
 use Illuminate\Contracts\Events\Dispatcher;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
+use App\Shared\Domain\Events\DomainEventCollection;
 
 final readonly class LaravelEventDispatcher implements EventDispatcherInterface {
     public function __construct(
@@ -16,5 +17,12 @@ final readonly class LaravelEventDispatcher implements EventDispatcherInterface 
     public function dispatch(DomainEvent $event): void
     {
         $this->laravelDispatcher->dispatch($event);
+    }
+
+    public function dispatchEvents(DomainEventCollection $events): void
+    {
+        foreach ($events as $event) {
+            $this->dispatch($event);
+        }
     }
 }

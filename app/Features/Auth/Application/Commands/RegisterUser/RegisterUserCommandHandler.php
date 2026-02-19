@@ -31,9 +31,7 @@ final readonly class RegisterUserCommandHandler {
         );
 
         $this->userRepository->create($user);
-        foreach ($user->pullDomainEvents() as $event) {
-            $this->eventDispatcher->dispatch($event);
-        }
+        $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
 
         return $user;
     }

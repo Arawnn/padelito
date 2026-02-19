@@ -16,7 +16,5 @@ abstract class DomainEvent {
         $this->eventId = \Ramsey\Uuid\Uuid::uuid4()->toString();
         $this->occurredOn = new \DateTimeImmutable();
     }
-
-
 }
     

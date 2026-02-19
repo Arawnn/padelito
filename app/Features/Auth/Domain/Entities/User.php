@@ -19,7 +19,9 @@ final class User extends AggregateRoot {
         private Name $name,
         private Email $email,
         private Password $password,
-    ) {}
+    ) {
+        parent::__construct();
+    }
 
     public static function register(Id $id, Name $name, Email $email, Password $password): self
     {
