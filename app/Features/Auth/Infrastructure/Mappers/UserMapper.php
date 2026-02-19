@@ -15,7 +15,7 @@ final readonly class UserMapper {
    
     public function toDomain(UserModel $userModel): User
     {
-        return new User(
+        return User::reconstitute(
             id: Id::fromString($userModel->id),
             name: Name::fromString($userModel->name),
             email: Email::fromString($userModel->email),

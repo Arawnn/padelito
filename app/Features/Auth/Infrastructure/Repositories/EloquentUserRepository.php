@@ -9,6 +9,7 @@ use App\Features\Auth\Infrastructure\Models\User as UserModel;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\Entities\User;
 use App\Features\Auth\Infrastructure\Mappers\UserMapper;
+use App\Features\Auth\Domain\ValueObjects\Id;
 
 final readonly class EloquentUserRepository implements UserRepositoryInterface {
     public function __construct(
@@ -18,7 +19,14 @@ final readonly class EloquentUserRepository implements UserRepositoryInterface {
 
     public function findByEmail(Email $email): ?User
     {
-        return $this->userModel->where('email', $email)->first();
+        $userModel = $this->userModel->where('email', $email->value())->first();
+        return $userModel ? $this->userMapper->toDomain($userModel) : null;
+    }
+
+    public function findById(Id $id): ?User
+    {
+        $userModel = $this->userModel->where('id', $id->value())->first();
+        return $userModel ? $this->userMapper->toDomain($userModel) : null;
     }
 
     public function create(User $user): void

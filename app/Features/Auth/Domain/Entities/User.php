@@ -23,6 +23,16 @@ final class User extends AggregateRoot {
         parent::__construct();
     }
 
+    public static function reconstitute(Id $id, Name $name, Email $email, Password $password): self
+    {
+        return new self(
+            id: $id,
+            name: $name,
+            email: $email,
+            password: $password,
+        );
+    }
+
     public static function register(Id $id, Name $name, Email $email, Password $password): self
     {
         $user = new self(
