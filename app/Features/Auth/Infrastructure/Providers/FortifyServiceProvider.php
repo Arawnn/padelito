@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\RateLimiter;
 use App\Features\Auth\Infrastructure\Actions\FortifyRegisterUserCreator;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Infrastructure\Repositories\EloquentUserRepository;
+use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
+use App\Features\Auth\Infrastructure\Security\LaravelPasswordHasher;
 
 final class FortifyServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,8 @@ final class FortifyServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
+
+        $this->app->bind(PasswordHasherInterface::class, LaravelPasswordHasher::class);
     }
 
     /**

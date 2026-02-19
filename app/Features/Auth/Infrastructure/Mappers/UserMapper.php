@@ -9,7 +9,7 @@ use App\Features\Auth\Infrastructure\Models\User as UserModel;
 use App\Features\Auth\Domain\ValueObjects\Id;
 use App\Features\Auth\Domain\ValueObjects\Name;
 use App\Features\Auth\Domain\ValueObjects\Email;
-use App\Features\Auth\Domain\ValueObjects\Password;
+use App\Features\Auth\Domain\ValueObjects\HashedPassword;
 
 final readonly class UserMapper {
    
@@ -19,7 +19,7 @@ final readonly class UserMapper {
             id: Id::fromString($userModel->id),
             name: Name::fromString($userModel->name),
             email: Email::fromString($userModel->email),
-            password: Password::fromHash($userModel->password),
+            password: HashedPassword::fromHash($userModel->password),
         );
     }
 

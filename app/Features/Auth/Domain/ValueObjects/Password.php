@@ -20,11 +20,6 @@ final readonly class Password {
         return new self($value);
     }
 
-    public static function fromHash(string $hash): self
-    {
-        return new self($hash);
-    }
-
     private static function validate(string $value): void
     {
        $violations = [];

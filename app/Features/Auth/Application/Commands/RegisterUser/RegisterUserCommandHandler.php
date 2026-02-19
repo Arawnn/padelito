@@ -14,10 +14,12 @@ use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use App\Features\Auth\Domain\Exceptions\UserAlreadyExistException;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommand;
+use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
 
 final readonly class RegisterUserCommandHandler {
     public function __construct(
         private UserRepositoryInterface $userRepository,
+        private PasswordHasherInterface $passwordHasher,
         private UuidGeneratorInterface $uuidGenerator,
         private EventDispatcherInterface $eventDispatcher
     ) {}
@@ -34,11 +36,15 @@ final readonly class RegisterUserCommandHandler {
             throw UserAlreadyExistException::fromEmail(Email::fromString($command->email));
         }
 
+        $hashedPassword = $this->passwordHasher->hash(
+            Password::fromPlainText($command->password)
+        );
+
         $user = User::register(
             id: $id,
             name: Name::fromString($command->name),
             email: Email::fromString($command->email),
-            password: Password::fromPlainText($command->password),
+            password: $hashedPassword,
         );
 
         $this->userRepository->create($user);
