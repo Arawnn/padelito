@@ -6,9 +6,11 @@ namespace App\Features\Auth\Infrastructure\Actions;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
+use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Shared\Application\Bus\QueryBusInterface;
 use App\Shared\Application\Bus\CommandBusInterface;
 use App\Features\Auth\Infrastructure\Mappers\UserMapper;
+use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
 use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommand;
 use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQuery;
 
@@ -28,6 +30,10 @@ final readonly class FortifyRegisterUserCreator implements CreatesNewUsers {
 
         $this->commandBus->dispatch($command);
         $user = $this->queryBus->ask(new GetUserByEmailQuery($command->email));
-        return $user ? $this->userMapper->toModel($user) : null;
+        
+        if (!$user) {
+            throw UserNotFoundException::fromEmail(Email::fromString($command->email));
+        }
+        return $this->userMapper->toModel($user);
     }
 }

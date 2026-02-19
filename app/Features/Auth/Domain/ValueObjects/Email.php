@@ -16,4 +16,7 @@ final readonly class Email {
     {
         return $this->value;
     }
+
+    //TODO: Add validation for email
+    //TODO: Move this value object to a shared value object
 }
