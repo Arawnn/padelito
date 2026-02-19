@@ -22,7 +22,7 @@ final readonly class RegisterUserCommandHandler {
         private EventDispatcherInterface $eventDispatcher
     ) {}
 
-    public function __invoke(RegisterUserCommand $command): User
+    public function __invoke(RegisterUserCommand $command): void
     {
         $id = Id::fromString($this->uuidGenerator->generate());
 
@@ -43,7 +43,5 @@ final readonly class RegisterUserCommandHandler {
 
         $this->userRepository->create($user);
         $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
-
-        return $user;
     }
 }

@@ -6,26 +6,28 @@ namespace App\Features\Auth\Infrastructure\Actions;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
-use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommand;
-use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommandHandler;
+use App\Shared\Application\Bus\QueryBusInterface;
+use App\Shared\Application\Bus\CommandBusInterface;
 use App\Features\Auth\Infrastructure\Mappers\UserMapper;
+use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommand;
+use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQuery;
 
 final readonly class FortifyRegisterUserCreator implements CreatesNewUsers {
     public function __construct(
-        private RegisterUserCommandHandler $handler,
+        private CommandBusInterface $commandBus,
+        private QueryBusInterface $queryBus,
         private UserMapper $userMapper
     ) {}
 
-    public function create(array $input): Authenticatable
-    {
+    public function create(array $input): Authenticatable {
         $command = new RegisterUserCommand(
             name: $input['name'],
             email: $input['email'],
             password: $input['password'],
         );
 
-        $user = ($this->handler)($command);
-        
-        return $this->userMapper->toModel($user);
+        $this->commandBus->dispatch($command);
+        $user = $this->queryBus->ask(new GetUserByEmailQuery($command->email));
+        return $user ? $this->userMapper->toModel($user) : null;
     }
 }
