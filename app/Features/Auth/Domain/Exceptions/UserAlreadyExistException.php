@@ -8,8 +8,6 @@ use App\Features\Auth\Domain\ValueObjects\Id;
 use App\Features\Auth\Domain\ValueObjects\Email;
 
 final class UserAlreadyExistException extends \Exception {
-    private function __construct() {}
-
     public static function fromEmail(Email $email): self
     {
         return new self('User already exists with email: ' . $email->value());
