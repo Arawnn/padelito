@@ -4,7 +4,7 @@ namespace App\Features\Auth\Infrastructure\Http\Controllers\Settings;
 
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Http\Controllers\Controller;
+use App\Shared\Infrastructure\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use App\Shared\Application\Bus\CommandBusInterface;
 use App\Features\Auth\Infrastructure\Http\Requests\Settings\PasswordUpdateRequest;

@@ -2,7 +2,7 @@
 
 namespace App\Features\Auth\Infrastructure\Http\Controllers\Settings;
 
-use App\Http\Controllers\Controller;
+use App\Shared\Infrastructure\Http\Controllers\Controller;
 use App\Features\Auth\Infrastructure\Http\Requests\Settings\TwoFactorAuthenticationRequest;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
