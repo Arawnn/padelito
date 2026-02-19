@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Settings;
+namespace App\Features\Auth\Infrastructure\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Settings\ProfileDeleteRequest;
-use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Features\Auth\Infrastructure\Http\Requests\Settings\ProfileDeleteRequest;
+use App\Features\Auth\Infrastructure\Http\Requests\Settings\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
