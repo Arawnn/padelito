@@ -7,7 +7,7 @@ use App\Features\Auth\Infrastructure\Models\User;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
 use App\Shared\Application\Bus\CommandBusInterface;
 use App\Features\Auth\Infrastructure\Concerns\PasswordValidationRules;
-use App\Features\Auth\Application\Commands\ResetUserPassword\ResetUserPasswordCommand;
+use App\Features\Auth\Application\Commands\UpdateUserPassword\UpdateUserPasswordCommand;
 
 class ResetUserPassword implements ResetsUserPasswords
 {
@@ -22,11 +22,9 @@ class ResetUserPassword implements ResetsUserPasswords
      */
     public function reset(User $user, array $input): void
     {
-        // dd('dwd');
-        // $command = new ResetUserPasswordCommand(
-        //     userId: $user->id(),
-        //     password: $input['password'],
-        // );
-        // $this->commandBus->dispatch($command);
+        $this->commandBus->dispatch(new UpdateUserPasswordCommand(
+            userId: $user->id,
+            password: $input['password'],
+        ));
     }
 }
