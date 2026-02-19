@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Features\Auth\Domain\Entities;
 
 use App\Features\Auth\Domain\ValueObjects\Id;
+use App\Shared\Domain\Entities\AggregateRoot;
 use App\Features\Auth\Domain\ValueObjects\Name;
+use App\Features\Auth\Domain\Events\UserCreated;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\HashedPassword;
-use App\Shared\Domain\Entities\AggregateRoot;
-use App\Features\Auth\Domain\Events\UserCreated;
+use App\Features\Auth\Domain\Events\UserPasswordHasBeenChanged;
 
 final class User extends AggregateRoot {
 
@@ -43,6 +44,12 @@ final class User extends AggregateRoot {
         );
         $user->recordDomainEvent(new UserCreated($user));
         return $user;
+    }
+
+    public function resetPassword(HashedPassword $password): void
+    {
+        $this->password = $password;
+        $this->recordDomainEvent(new UserPasswordHasBeenChanged($this));
     }
 
     

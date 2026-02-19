@@ -33,4 +33,9 @@ final readonly class EloquentUserRepository implements UserRepositoryInterface {
     {
         $this->userMapper->toModel($user)->save();
     }
+
+    public function update(User $user): void
+    {
+        $this->userMapper->toModel($user)->save();
+    }
 }

@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Features\Auth\Infrastructure\Actions;
+
+
+use App\Features\Auth\Infrastructure\Models\User;
+use Laravel\Fortify\Contracts\ResetsUserPasswords;
+use App\Shared\Application\Bus\CommandBusInterface;
+use App\Features\Auth\Infrastructure\Concerns\PasswordValidationRules;
+use App\Features\Auth\Application\Commands\ResetUserPassword\ResetUserPasswordCommand;
+
+class ResetUserPassword implements ResetsUserPasswords
+{
+    use PasswordValidationRules;
+    public function __construct(
+        private CommandBusInterface $commandBus,
+    ) {}
+    /**
+     * Validate and reset the user's forgotten password.
+     *
+     * @param  array<string, string>  $input
+     */
+    public function reset(User $user, array $input): void
+    {
+        dd('   dwd ');
+        $command = new ResetUserPasswordCommand(
+            userId: $user->id->value(),
+            password: $input['password'],
+        );
+        $this->commandBus->dispatch($command);
+    }
+}
