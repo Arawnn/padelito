@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Features\Auth\Infrastructure\Http\Requests\Settings;
+namespace App\Features\Auth\Infrastructure\Http\v1\Requests\Settings;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Laravel\Fortify\Features;

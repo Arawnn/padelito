@@ -1,6 +1,6 @@
 <?php
 
-use App\Features\Auth\Infrastructure\Http\Controllers\RegisterController;
+use App\Features\Auth\Infrastructure\Http\v1\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('register', RegisterController::class)->name('register');

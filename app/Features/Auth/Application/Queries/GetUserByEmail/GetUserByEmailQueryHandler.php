@@ -4,17 +4,22 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Application\Queries\GetUserByEmail;
 
-use App\Features\Auth\Domain\ValueObjects\Email;
-use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Domain\Entities\User;
+use App\Features\Auth\Domain\ValueObjects\Email;
+use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
+use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 
 final readonly class GetUserByEmailQueryHandler {
     public function __construct(
         private UserRepositoryInterface $userRepository,
     ) {}
 
-    public function __invoke(GetUserByEmailQuery $query): ?User
+    public function __invoke(GetUserByEmailQuery $query): User
     {
-        return $this->userRepository->findByEmail(Email::fromString($query->email)) ?? null;
+        $user = $this->userRepository->findByEmail(Email::fromString($query->email));
+        if (!$user) {
+            throw UserNotFoundException::fromEmail(Email::fromString($query->email));
+        }
+        return $user;
     }
 }
