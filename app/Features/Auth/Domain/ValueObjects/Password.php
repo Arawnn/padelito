@@ -14,6 +14,11 @@ final readonly class Password {
         return $this->value;
     }
 
+    public static function forVerification(string $value): self
+    {
+        return new self($value);
+    }
+
     public static function fromPlainText(string $value): self
     {
         self::validate($value);

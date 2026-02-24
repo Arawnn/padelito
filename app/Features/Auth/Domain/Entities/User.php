@@ -9,8 +9,9 @@ use App\Shared\Domain\Entities\AggregateRoot;
 use App\Features\Auth\Domain\ValueObjects\Name;
 use App\Features\Auth\Domain\Events\UserCreated;
 use App\Features\Auth\Domain\ValueObjects\Email;
-use App\Features\Auth\Domain\ValueObjects\HashedPassword;
+use App\Features\Auth\Domain\Events\UserLoggedIn;
 use App\Features\Auth\Domain\Events\UserPasswordUpdated;
+use App\Features\Auth\Domain\ValueObjects\HashedPassword;
 
 final class User extends AggregateRoot {
 
@@ -44,6 +45,11 @@ final class User extends AggregateRoot {
         );
         $user->recordDomainEvent(new UserCreated($user));
         return $user;
+    }
+
+    public function login(): void
+    {
+        $this->recordDomainEvent(new UserLoggedIn($this));
     }
 
     public function updatePassword(HashedPassword $password): void

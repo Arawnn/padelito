@@ -2,13 +2,9 @@
 
 namespace App\Features\Auth\Infrastructure\Providers;
 
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Foundation\Configuration\Exceptions;
 use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Infrastructure\Security\SanctumTokenCreator;
@@ -16,8 +12,6 @@ use App\Features\Auth\Infrastructure\Security\LaravelPasswordHasher;
 use App\Features\Auth\Infrastructure\Contracts\TokenCreatorInterface;
 use App\Features\Auth\Infrastructure\Exceptions\AuthExceptionHandler;
 use App\Features\Auth\Infrastructure\Repositories\EloquentUserRepository;
-use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
-use Illuminate\Foundation\Exceptions\Handler;
 
 final class AuthServiceProvider extends ServiceProvider
 {
@@ -42,10 +36,6 @@ final class AuthServiceProvider extends ServiceProvider
             ->group(function () {
                 $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
         });
-
-        /** @var Handler $handler */
-        $handler = $this->app->make(ExceptionHandlerContract::class);
-        $this->app->make(AuthExceptionHandler::class)->register($handler);
     }
 
 
