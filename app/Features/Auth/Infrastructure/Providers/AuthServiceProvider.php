@@ -2,6 +2,14 @@
 
 namespace App\Features\Auth\Infrastructure\Providers;
 
+use App\Features\Auth\Application\Commands\LoginUser\LoginUserCommand;
+use App\Features\Auth\Application\Commands\LoginUser\LoginUserCommandHandler;
+use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommand;
+use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommandHandler;
+use App\Features\Auth\Application\Commands\UpdateUserPassword\UpdateUserPasswordCommand;
+use App\Features\Auth\Application\Commands\UpdateUserPassword\UpdateUserPasswordCommandHandler;
+use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQuery;
+use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQueryHandler;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -12,6 +20,9 @@ use App\Features\Auth\Infrastructure\Security\LaravelPasswordHasher;
 use App\Features\Auth\Infrastructure\Contracts\TokenCreatorInterface;
 use App\Features\Auth\Infrastructure\Exceptions\AuthExceptionHandler;
 use App\Features\Auth\Infrastructure\Repositories\EloquentUserRepository;
+use App\Shared\Application\Bus\HandlerMap;
+use App\Shared\Application\Transaction\TransactionManagerInterface;
+use App\Shared\Infrastructure\Transaction\LaravalTransactionManager;
 
 final class AuthServiceProvider extends ServiceProvider
 {
@@ -24,6 +35,16 @@ final class AuthServiceProvider extends ServiceProvider
 
         $this->app->bind(PasswordHasherInterface::class, LaravelPasswordHasher::class);
         $this->app->bind(TokenCreatorInterface::class, SanctumTokenCreator::class);
+        $this->app->bind(TransactionManagerInterface::class, LaravalTransactionManager::class);
+        $this->app->singleton(HandlerMap::class, function() {
+            $map = new HandlerMap();
+            $map->register(RegisterUserCommand::class, RegisterUserCommandHandler::class);
+            $map->register(LoginUserCommand::class, LoginUserCommandHandler::class);
+            $map->register(UpdateUserPasswordCommand::class, UpdateUserPasswordCommandHandler::class);
+            $map->register(GetUserByEmailQuery::class, GetUserByEmailQueryHandler::class);
+
+            return $map;
+        });
     }
 
     /**

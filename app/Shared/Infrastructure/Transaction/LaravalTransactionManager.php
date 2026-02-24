@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Shared\Infrastructure\Transaction;
+
+use App\Shared\Application\Transaction\TransactionManagerInterface;
+use Illuminate\Support\Facades\DB;
+
+
+final class LaravalTransactionManager implements TransactionManagerInterface
+{
+    public function run(callable $fn): mixed
+    {
+        return DB::transaction($fn);
+    }
+
+    public function afterCommit(callable $fn): void
+    {
+        DB::afterCommit($fn);
+    }
+}

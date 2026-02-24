@@ -15,10 +15,12 @@ use App\Features\Auth\Domain\Exceptions\UserAlreadyExistException;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommand;
 use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
+use App\Shared\Application\Transaction\TransactionManagerInterface;
 
 final readonly class RegisterUserCommandHandler {
     public function __construct(
         private UserRepositoryInterface $userRepository,
+        private TransactionManagerInterface $tx,
         private PasswordHasherInterface $passwordHasher,
         private UuidGeneratorInterface $uuidGenerator,
         private EventDispatcherInterface $eventDispatcher
@@ -36,18 +38,20 @@ final readonly class RegisterUserCommandHandler {
             throw UserAlreadyExistException::fromEmail(Email::fromString($command->email));
         }
 
-        $hashedPassword = $this->passwordHasher->hash(
-            Password::fromPlainText($command->password)
-        );
-
-        $user = User::register(
-            id: $id,
-            name: Name::fromString($command->name),
-            email: Email::fromString($command->email),
-            password: $hashedPassword,
-        );
-
-        $this->userRepository->create($user);
-        $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
+        $this->tx->run(function() use ($command, $id) {
+            $hashedPassword = $this->passwordHasher->hash(
+                Password::fromPlainText($command->password)
+            );
+    
+            $user = User::register(
+                id: $id,
+                name: Name::fromString($command->name),
+                email: Email::fromString($command->email),
+                password: $hashedPassword,
+            );
+    
+            $this->userRepository->create($user);
+            $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
+        });
     }
 }
