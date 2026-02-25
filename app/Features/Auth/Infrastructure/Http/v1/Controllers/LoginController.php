@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Infrastructure\Http\v1\Controllers;
 
-use Illuminate\Http\JsonResponse;
+use App\Features\Auth\Application\Commands\LoginUser\LoginUserCommand;
+use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQuery;
+use App\Features\Auth\Infrastructure\Contracts\TokenCreatorInterface;
+use App\Features\Auth\Infrastructure\Http\v1\Exceptions\AuthExceptionMapper;
+use App\Features\Auth\Infrastructure\Http\v1\Requests\LoginRequest;
 use App\Shared\Application\Bus\CommandBusInterface;
 use App\Shared\Application\Bus\QueryBusInterface;
 use App\Shared\Infrastructure\Http\Controllers\Controller;
-use App\Features\Auth\Infrastructure\Http\v1\Requests\LoginRequest;
-use App\Features\Auth\Infrastructure\Contracts\TokenCreatorInterface;
-use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQuery;
-use App\Features\Auth\Application\Commands\LoginUser\LoginUserCommand;
+use Illuminate\Http\JsonResponse;
 
 class LoginController extends Controller
 {
@@ -23,12 +24,16 @@ class LoginController extends Controller
 
     public function __invoke(LoginRequest $request): JsonResponse
     {
-        $this->commandBus->dispatch(new LoginUserCommand(
+        $result = $this->commandBus->dispatch(new LoginUserCommand(
             email: $request->email,
             password: $request->password,
         ));
 
-        $user = $this->queryBus->ask(new GetUserByEmailQuery($request->email));
+        if (!$result->isOk()) {
+            return AuthExceptionMapper::toResponse($result->error());
+        }
+
+        $user = $result->value();
         $token = $this->tokenCreator->createFor($user);
 
         return response()->json([

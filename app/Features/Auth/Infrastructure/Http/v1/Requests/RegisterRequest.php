@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Infrastructure\Http\v1\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
+use App\Features\Auth\Infrastructure\Http\v1\Rules\PasswordRuleAdapter;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 class RegisterRequest extends FormRequest
 {
@@ -21,7 +22,7 @@ class RegisterRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|string|min:12',
+            'password' => ['required', 'string', new PasswordRuleAdapter()],
         ];
     }
 

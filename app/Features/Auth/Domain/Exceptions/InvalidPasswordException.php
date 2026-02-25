@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Domain\Exceptions;
 
-final class InvalidPasswordException extends \Exception
+use App\Shared\Domain\Exceptions\DomainException;
+
+final class InvalidPasswordException extends DomainException
 {
     private function __construct(
         private readonly array $violations
     ) {
-        parent::__construct(implode(', ', $violations));
+        parent::__construct(
+            implode(', ', $violations),
+            domainCode: 'INVALID_PASSWORD',
+            meta: ['violations' => $violations]
+        );
     }
 
     public static function fromViolations(array $violations): self
@@ -20,5 +26,10 @@ final class InvalidPasswordException extends \Exception
     public function violations(): array
     {
         return $this->violations;
+    }
+
+    protected function getDefaultCode(): string
+    {
+        return 'INVALID_PASSWORD';
     }
 }

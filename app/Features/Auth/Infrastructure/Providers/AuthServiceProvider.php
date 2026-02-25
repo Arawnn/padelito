@@ -12,13 +12,13 @@ use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQuery;
 use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQueryHandler;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Foundation\Configuration\Exceptions;
+
 use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Infrastructure\Security\SanctumTokenCreator;
 use App\Features\Auth\Infrastructure\Security\LaravelPasswordHasher;
 use App\Features\Auth\Infrastructure\Contracts\TokenCreatorInterface;
-use App\Features\Auth\Infrastructure\Exceptions\AuthExceptionHandler;
+
 use App\Features\Auth\Infrastructure\Repositories\EloquentUserRepository;
 use App\Shared\Application\Bus\HandlerMap;
 use App\Shared\Application\Transaction\TransactionManagerInterface;
