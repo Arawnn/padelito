@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Domain\Entities;
 
-use App\Features\Auth\Domain\ValueObjects\Id;
-use App\Shared\Domain\Entities\AggregateRoot;
-use App\Features\Auth\Domain\ValueObjects\Name;
 use App\Features\Auth\Domain\Events\UserCreated;
-use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\Events\UserLoggedIn;
+use App\Features\Auth\Domain\Events\UserLoggedOut;
 use App\Features\Auth\Domain\Events\UserPasswordUpdated;
+use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\HashedPassword;
+use App\Features\Auth\Domain\ValueObjects\Id;
+use App\Features\Auth\Domain\ValueObjects\Name;
+use App\Shared\Domain\Entities\AggregateRoot;
 
 final class User extends AggregateRoot {
 
@@ -50,6 +51,11 @@ final class User extends AggregateRoot {
     public function login(): void
     {
         $this->recordDomainEvent(new UserLoggedIn($this));
+    }
+
+    public function logout(): void
+    {
+        $this->recordDomainEvent(new UserLoggedOut($this));
     }
 
     public function updatePassword(HashedPassword $password): void
