@@ -5,8 +5,7 @@ namespace App\Features\Auth\Infrastructure\Http\Controllers\Settings;
 
 use App\Shared\Infrastructure\Http\Controllers\Controller;
 use Illuminate\Routing\Controllers\HasMiddleware;
-use Inertia\Inertia;
-use Inertia\Response;
+
 
 class TwoFactorAuthenticationController extends Controller implements HasMiddleware
 {
@@ -21,11 +20,8 @@ class TwoFactorAuthenticationController extends Controller implements HasMiddlew
     /**
      * Show the user's two-factor authentication settings page.
      */
-    public function show(): Response
+    public function show(): void
     {
-        return Inertia::render('settings/TwoFactor', [
-            'twoFactorEnabled' => true,
-            'requiresConfirmation' => false,
-        ]);
+       
     }
 }

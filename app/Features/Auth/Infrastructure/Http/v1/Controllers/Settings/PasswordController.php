@@ -7,8 +7,6 @@ use App\Features\Auth\Infrastructure\Http\v1\Exceptions\AuthExceptionMapper;
 use App\Features\Auth\Infrastructure\Http\v1\Requests\Settings\PasswordUpdateRequest;
 use App\Shared\Application\Bus\CommandBusInterface;
 use App\Shared\Infrastructure\Http\Controllers\Controller;
-use Inertia\Inertia;
-use Inertia\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class PasswordController extends Controller
