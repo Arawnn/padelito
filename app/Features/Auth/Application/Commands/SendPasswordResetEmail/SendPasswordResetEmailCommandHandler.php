@@ -29,7 +29,9 @@ final readonly class SendPasswordResetEmailCommandHandler
 
         $token = $this->tokenRepository->create($email);
 
-       $this->mailer->to($user->email()->value(), $user->name()->value(), $token);
+        //I choose to send the mail in this handler to keep thing simpler for now but later on
+        //A domain event should be published and a subscriber should handle the emailing in reaction of this event
+        $this->mailer->to($user->email()->value(), $user->name()->value(), $token);
 
         return Result::ok(null);
     }

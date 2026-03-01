@@ -34,6 +34,7 @@ final readonly class ConfirmPasswordResetCommandHandler
             return Result::fail(InvalidResetTokenException::expiredOrInvalid());
         }
 
+        //Better to generate a domain event a subscriber should handle to dispatch this command ?
         $result = $this->commandBus->dispatch(new UpdateUserPasswordCommand(
             userId: $user->id()->value(),
             password: $command->password,
