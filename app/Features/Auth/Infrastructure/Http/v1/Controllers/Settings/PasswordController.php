@@ -16,14 +16,7 @@ class PasswordController extends Controller
     public function __construct(
         private CommandBusInterface $commandBus,
     ) {}
-    /**
-     * Show the user's password settings page.
-     */
-    public function edit(): Response
-    {
-        return Inertia::render('settings/Password');
-    }
-
+    
     /**
      * Update the user's password.
      */
