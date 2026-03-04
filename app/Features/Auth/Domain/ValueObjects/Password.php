@@ -4,7 +4,8 @@ namespace App\Features\Auth\Domain\ValueObjects;
 
 use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
 
-final readonly class Password {
+final readonly class Password
+{
     private function __construct(
         private string $value
     ) {}
@@ -22,12 +23,13 @@ final readonly class Password {
     public static function fromPlainText(string $value): self
     {
         self::validate($value);
+
         return new self($value);
     }
 
     private static function validate(string $value): void
     {
-       $violations = [];
+        $violations = [];
 
         if (strlen($value) < 12) {
             $violations[] = 'Password must be at least 12 characters long';

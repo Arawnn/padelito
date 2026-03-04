@@ -8,7 +8,8 @@ use App\Shared\Application\Bus\HandlerMap;
 use App\Shared\Application\Bus\QueryBusInterface;
 use App\Shared\Domain\ValueObjects\Result;
 
-final readonly class LaravelQueryBus implements QueryBusInterface {
+final readonly class LaravelQueryBus implements QueryBusInterface
+{
     public function __construct(
         private HandlerMap $handlers
     ) {}
@@ -17,6 +18,7 @@ final readonly class LaravelQueryBus implements QueryBusInterface {
     {
         $handlerClass = $this->handlers->handlerFor($query);
         $handler = app($handlerClass);
+
         return $handler($query);
     }
 }

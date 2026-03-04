@@ -7,7 +7,8 @@ namespace App\Shared\Domain\Entities;
 use App\Shared\Domain\Events\DomainEvent;
 use App\Shared\Domain\Events\DomainEventCollection;
 
-abstract class AggregateRoot {
+abstract class AggregateRoot
+{
     private DomainEventCollection $domainEvents;
 
     public function __construct()
@@ -19,6 +20,7 @@ abstract class AggregateRoot {
     {
         $events = $this->domainEvents;
         $this->domainEvents = new DomainEventCollection();
+
         return $events;
     }
 

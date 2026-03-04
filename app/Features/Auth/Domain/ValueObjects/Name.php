@@ -2,7 +2,8 @@
 
 namespace App\Features\Auth\Domain\ValueObjects;
 
-final readonly class Name {
+final readonly class Name
+{
     private function __construct(
         private string $value
     ) {}

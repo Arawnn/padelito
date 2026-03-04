@@ -3,7 +3,7 @@
 namespace App\Features\Auth\Infrastructure\Http\Controllers\Settings;
 
 use App\Features\Auth\Application\Commands\UpdateUserPassword\UpdateUserPasswordCommand;
-use App\Features\Auth\Infrastructure\Http\v1\Exceptions\AuthExceptionMapper;        
+use App\Features\Auth\Infrastructure\Http\v1\Exceptions\AuthExceptionMapper;
 use App\Features\Auth\Infrastructure\Http\v1\Requests\Settings\PasswordUpdateRequest;
 use App\Shared\Application\Bus\CommandBusInterface;
 use App\Shared\Infrastructure\Http\Controllers\Controller;
@@ -14,7 +14,7 @@ class PasswordController extends Controller
     public function __construct(
         private CommandBusInterface $commandBus,
     ) {}
-    
+
     /**
      * Update the user's password.
      */

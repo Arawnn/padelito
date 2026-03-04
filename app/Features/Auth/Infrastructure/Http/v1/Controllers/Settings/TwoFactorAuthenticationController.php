@@ -1,11 +1,11 @@
 <?php
 
-//TODO to migrate to API format without Inertia
+// TODO to migrate to API format without Inertia
+
 namespace App\Features\Auth\Infrastructure\Http\Controllers\Settings;
 
 use App\Shared\Infrastructure\Http\Controllers\Controller;
 use Illuminate\Routing\Controllers\HasMiddleware;
-
 
 class TwoFactorAuthenticationController extends Controller implements HasMiddleware
 {
@@ -20,8 +20,5 @@ class TwoFactorAuthenticationController extends Controller implements HasMiddlew
     /**
      * Show the user's two-factor authentication settings page.
      */
-    public function show(): void
-    {
-       
-    }
+    public function show(): void {}
 }

@@ -1,5 +1,7 @@
 <?php
-//TODO to migrate to API format without Inertia
+
+// TODO to migrate to API format without Inertia
+
 namespace App\Features\Auth\Infrastructure\Http\Controllers\Settings;
 
 use App\Shared\Infrastructure\Http\Controllers\Controller;
@@ -11,21 +13,19 @@ class ProfileController extends Controller
     /**
      * Show the user's profile settings page.
      */
-    public function edit(Request $request): void
-    {
-        
-    }
+    public function edit(Request $request): void {}
 
     /**
      * Update the user's profile information.
+     *
+     * @param mixed $request
      */
-    public function update($request): void
-    {
-        
-    }
+    public function update($request): void {}
 
     /**
      * Delete the user's profile.
+     *
+     * @param mixed $request
      */
     public function destroy($request): void
     {

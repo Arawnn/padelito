@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Shared\Domain\Events;
 
-final class DomainEventCollection implements \IteratorAggregate, \Countable {
+final class DomainEventCollection implements \IteratorAggregate, \Countable
+{
     private array $events = [];
 
     public function getIterator(): \Traversable
@@ -19,5 +21,14 @@ final class DomainEventCollection implements \IteratorAggregate, \Countable {
     public function add(DomainEvent $event): void
     {
         $this->events[] = $event;
+    }
+
+    public function first(): DomainEvent
+    {
+        if (empty($this->events)) {
+            throw new \LogicException('Collection is empty');
+        }
+
+        return $this->events[0];
     }
 }

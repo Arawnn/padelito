@@ -18,10 +18,13 @@ final readonly class SendPasswordResetEmailCommandHandler
         private MailerInterface $mailer
     ) {}
 
+    /**
+     * @return Result<null>
+     */
     public function __invoke(SendPasswordResetEmailCommand $command): Result
     {
         $email = Email::fromString($command->email);
-        $user  = $this->userRepository->findByEmail($email);
+        $user = $this->userRepository->findByEmail($email);
 
         if (!$user) {
             return Result::ok(null);
@@ -29,8 +32,8 @@ final readonly class SendPasswordResetEmailCommandHandler
 
         $token = $this->tokenRepository->create($email);
 
-        //I choose to send the mail in this handler to keep thing simpler for now but later on
-        //A domain event should be published and a subscriber should handle the emailing in reaction of this event
+        // I choose to send the mail in this handler to keep thing simpler for now but later on
+        // A domain event should be published and a subscriber should handle the emailing in reaction of this event
         $this->mailer->to($user->email()->value(), $user->name()->value(), $token);
 
         return Result::ok(null);

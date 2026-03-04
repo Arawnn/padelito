@@ -2,23 +2,21 @@
 
 namespace App\Features\Auth\Infrastructure\Providers;
 
+use App\Features\Auth\Application\Commands\ConfirmPasswordReset\ConfirmPasswordResetCommand;
+use App\Features\Auth\Application\Commands\ConfirmPasswordReset\ConfirmPasswordResetCommandHandler;
 use App\Features\Auth\Application\Commands\LoginUser\LoginUserCommand;
 use App\Features\Auth\Application\Commands\LoginUser\LoginUserCommandHandler;
 use App\Features\Auth\Application\Commands\LogoutUser\LogoutUserCommand;
 use App\Features\Auth\Application\Commands\LogoutUser\LogoutUserCommandHandler;
 use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommand;
 use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommandHandler;
-use App\Features\Auth\Application\Commands\ConfirmPasswordReset\ConfirmPasswordResetCommand;
-use App\Features\Auth\Application\Commands\ConfirmPasswordReset\ConfirmPasswordResetCommandHandler;
 use App\Features\Auth\Application\Commands\SendPasswordResetEmail\SendPasswordResetEmailCommand;
 use App\Features\Auth\Application\Commands\SendPasswordResetEmail\SendPasswordResetEmailCommandHandler;
 use App\Features\Auth\Application\Commands\UpdateUserPassword\UpdateUserPasswordCommand;
 use App\Features\Auth\Application\Commands\UpdateUserPassword\UpdateUserPasswordCommandHandler;
-use App\Features\Auth\Application\EventHandlers\CreateUserProfileOnUserCreated;
 use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQuery;
 use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQueryHandler;
 use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
-use App\Features\Auth\Domain\Events\UserCreated;
 use App\Features\Auth\Domain\Repositories\PasswordResetTokenRepositoryInterface;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Infrastructure\Contracts\TokenCreatorInterface;
@@ -29,8 +27,6 @@ use App\Features\Auth\Infrastructure\Security\SanctumTokenCreator;
 use App\Shared\Application\Bus\HandlerMap;
 use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Infrastructure\Transaction\LaravalTransactionManager;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 final class AuthServiceProvider extends ServiceProvider
@@ -46,7 +42,7 @@ final class AuthServiceProvider extends ServiceProvider
         $this->app->bind(PasswordHasherInterface::class, LaravelPasswordHasher::class);
         $this->app->bind(TokenCreatorInterface::class, SanctumTokenCreator::class);
         $this->app->bind(TransactionManagerInterface::class, LaravalTransactionManager::class);
-        $this->app->singleton(HandlerMap::class, function() {
+        $this->app->singleton(HandlerMap::class, function () {
             $map = new HandlerMap();
             $map->register(RegisterUserCommand::class, RegisterUserCommandHandler::class);
             $map->register(LoginUserCommand::class, LoginUserCommandHandler::class);
@@ -67,7 +63,6 @@ final class AuthServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
     }
-
 
     /**
      * Configure rate limiting.

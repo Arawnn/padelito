@@ -22,8 +22,8 @@ final class EloquentPasswordResetTokenRepository implements PasswordResetTokenRe
 
         DB::table(self::TABLE)->upsert(
             [
-                'email'      => $email->value(),
-                'token'      => Hash::make($token),
+                'email' => $email->value(),
+                'token' => Hash::make($token),
                 'created_at' => now(),
             ],
             uniqueBy: ['email'],
@@ -37,7 +37,8 @@ final class EloquentPasswordResetTokenRepository implements PasswordResetTokenRe
     {
         $record = DB::table(self::TABLE)
             ->where('email', $email->value())
-            ->first();
+            ->first()
+        ;
 
         if (!$record) {
             return false;
@@ -45,7 +46,8 @@ final class EloquentPasswordResetTokenRepository implements PasswordResetTokenRe
 
         $isExpired = Carbon::parse($record->created_at)
             ->addMinutes(self::EXPIRY_MINUTES)
-            ->isPast();
+            ->isPast()
+        ;
 
         if ($isExpired) {
             return false;
@@ -58,6 +60,7 @@ final class EloquentPasswordResetTokenRepository implements PasswordResetTokenRe
     {
         DB::table(self::TABLE)
             ->where('email', $email->value())
-            ->delete();
+            ->delete()
+        ;
     }
 }

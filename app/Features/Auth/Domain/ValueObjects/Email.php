@@ -2,7 +2,8 @@
 
 namespace App\Features\Auth\Domain\ValueObjects;
 
-final readonly class Email {
+final readonly class Email
+{
     private function __construct(
         private string $value
     ) {}
@@ -17,6 +18,6 @@ final readonly class Email {
         return $this->value;
     }
 
-    //TODO: Add validation for email
-    //TODO: Move this value object to a shared value object
+    // TODO: Add validation for email
+    // TODO: Move this value object to a shared value object
 }

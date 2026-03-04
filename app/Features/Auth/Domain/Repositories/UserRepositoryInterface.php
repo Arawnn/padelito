@@ -6,9 +6,13 @@ use App\Features\Auth\Domain\Entities\User;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\Id;
 
-interface UserRepositoryInterface {
+interface UserRepositoryInterface
+{
     public function findByEmail(Email $email): ?User;
+
     public function findById(Id $id): ?User;
+
     public function create(User $user): void;
+
     public function update(User $user): void;
 }

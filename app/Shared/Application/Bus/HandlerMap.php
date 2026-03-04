@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Application\Bus;
 
-final class HandlerMap 
+final class HandlerMap
 {
     /** @var array<class-string, class-string> */
     private array $map = [];
@@ -20,6 +20,7 @@ final class HandlerMap
         if (!isset($this->map[$cls])) {
             throw new \RuntimeException("No handler registered for {$cls}");
         }
+
         return $this->map[$cls];
     }
 }

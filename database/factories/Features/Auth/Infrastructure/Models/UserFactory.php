@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Features\Auth\Infrastructure\Models;
 
+use App\Features\Auth\Infrastructure\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -16,7 +17,7 @@ class UserFactory extends Factory
      */
     protected static ?string $password;
 
-    protected $model = \App\Features\Auth\Infrastructure\Models\User::class;
+    protected $model = User::class;
 
     /**
      * Define the model's default state.

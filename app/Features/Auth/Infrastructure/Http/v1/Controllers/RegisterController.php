@@ -34,7 +34,7 @@ class RegisterController extends Controller
         $user = $result->value();
         $token = $this->tokenCreator->createFor($user);
 
-        //TODO create a resource object
+        // TODO create a resource object
         return response()->json([
             'data' => [
                 'user' => [

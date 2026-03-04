@@ -5,7 +5,6 @@ use App\Features\Auth\Infrastructure\Http\Controllers\Settings\ProfileController
 use App\Features\Auth\Infrastructure\Http\Controllers\Settings\TwoFactorAuthenticationController;
 use Illuminate\Support\Facades\Route;
 
-
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', '/settings/profile');
 
@@ -20,12 +19,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::put('settings/password', [PasswordController::class, 'update'])
         ->middleware('throttle:6,1')
-        ->name('user-password.update');
+        ->name('user-password.update')
+    ;
 
-    Route::get('settings/appearance', function () {
-        
-    })->name('appearance.edit');
+    Route::get('settings/appearance', function () {})->name('appearance.edit');
 
     Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])
-        ->name('two-factor.show');
+        ->name('two-factor.show')
+    ;
 });

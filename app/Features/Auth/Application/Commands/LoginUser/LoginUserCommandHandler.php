@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Auth\Application\Commands\LoginUser;
 
 use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
+use App\Features\Auth\Domain\Entities\User;
 use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
 use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
@@ -13,7 +14,8 @@ use App\Features\Auth\Domain\ValueObjects\Password;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use App\Shared\Domain\ValueObjects\Result;
 
-final readonly class LoginUserCommandHandler {
+final readonly class LoginUserCommandHandler
+{
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private PasswordHasherInterface $passwordHasher,

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Features\Auth\Infrastructure\Http\v1\Controllers;
 
 use App\Features\Auth\Application\Commands\LoginUser\LoginUserCommand;
-use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQuery;
 use App\Features\Auth\Infrastructure\Contracts\TokenCreatorInterface;
 use App\Features\Auth\Infrastructure\Http\v1\Exceptions\AuthExceptionMapper;
 use App\Features\Auth\Infrastructure\Http\v1\Requests\LoginRequest;

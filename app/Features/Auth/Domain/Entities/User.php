@@ -14,9 +14,8 @@ use App\Features\Auth\Domain\ValueObjects\Id;
 use App\Features\Auth\Domain\ValueObjects\Name;
 use App\Shared\Domain\Entities\AggregateRoot;
 
-final class User extends AggregateRoot {
-
-
+final class User extends AggregateRoot
+{
     private function __construct(
         private Id $id,
         private Name $name,
@@ -45,6 +44,7 @@ final class User extends AggregateRoot {
             password: $password,
         );
         $user->recordDomainEvent(new UserCreated($user));
+
         return $user;
     }
 
@@ -64,9 +64,23 @@ final class User extends AggregateRoot {
         $this->recordDomainEvent(new UserPasswordUpdated($this));
     }
 
-    
-    public function id(): Id { return $this->id; }
-    public function name(): Name { return $this->name; }
-    public function email(): Email { return $this->email; }
-    public function password(): HashedPassword { return $this->password; }
+    public function id(): Id
+    {
+        return $this->id;
+    }
+
+    public function name(): Name
+    {
+        return $this->name;
+    }
+
+    public function email(): Email
+    {
+        return $this->email;
+    }
+
+    public function password(): HashedPassword
+    {
+        return $this->password;
+    }
 }

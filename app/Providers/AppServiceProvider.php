@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
+use App\Features\Auth\Infrastructure\Providers\AuthServiceProvider;
+use App\Shared\Infrastructure\Providers\SharedServiceProvider;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
-use App\Features\Auth\Infrastructure\Providers\AuthServiceProvider;
-use App\Shared\Infrastructure\Providers\SharedServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,9 +17,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //Shared first
+        // Shared first
         $this->app->register(SharedServiceProvider::class);
-        //Features second
+        // Features second
         $this->app->register(AuthServiceProvider::class);
     }
 
@@ -42,7 +42,8 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
+        Password::defaults(
+            fn (): ?Password => app()->isProduction()
             ? Password::min(12)
                 ->mixedCase()
                 ->letters()

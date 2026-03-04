@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Shared\Domain\Exceptions;
 
-use App\Shared\Domain\Exceptions\DomainExceptionInterface;
-
 abstract class DomainException extends \Exception implements DomainExceptionInterface
 {
     public function __construct(

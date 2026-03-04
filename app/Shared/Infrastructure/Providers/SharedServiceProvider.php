@@ -16,7 +16,8 @@ use App\Shared\Infrastructure\Helpers\UuidGenerator;
 use App\Shared\Infrastructure\Services\LaravelMailer;
 use Illuminate\Support\ServiceProvider;
 
-final class SharedServiceProvider extends ServiceProvider {
+final class SharedServiceProvider extends ServiceProvider
+{
     public function register(): void
     {
         $this->app->bind(UuidGeneratorInterface::class, UuidGenerator::class);

@@ -8,6 +8,9 @@ use App\Shared\Domain\Exceptions\DomainException;
 
 final class InvalidPasswordException extends DomainException
 {
+    /**
+     * @param array<int, string> $violations
+     */
     private function __construct(
         private readonly array $violations
     ) {
@@ -18,11 +21,17 @@ final class InvalidPasswordException extends DomainException
         );
     }
 
+    /**
+     * @param array<int, string> $violations
+     */
     public static function fromViolations(array $violations): self
     {
         return new self($violations);
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function violations(): array
     {
         return $this->violations;

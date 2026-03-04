@@ -13,8 +13,8 @@ class ConfirmPasswordResetRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email'    => ['required', 'email'],
-            'token'    => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'token' => ['required', 'string'],
             'password' => ['required', 'string', 'confirmed'],
         ];
     }
@@ -23,7 +23,7 @@ class ConfirmPasswordResetRequest extends FormRequest
     {
         throw new HttpResponseException(response()->json([
             'error' => [
-                'code'    => 'VALIDATION_ERROR',
+                'code' => 'VALIDATION_ERROR',
                 'message' => 'The given data was invalid.',
                 'details' => $validator->errors(),
             ],

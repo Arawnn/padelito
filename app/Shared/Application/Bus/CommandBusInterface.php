@@ -6,6 +6,7 @@ namespace App\Shared\Application\Bus;
 
 use App\Shared\Domain\ValueObjects\Result;
 
-interface CommandBusInterface {
+interface CommandBusInterface
+{
     public function dispatch(object $command): Result;
 }

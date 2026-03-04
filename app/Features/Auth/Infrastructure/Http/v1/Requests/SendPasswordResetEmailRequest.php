@@ -21,7 +21,7 @@ class SendPasswordResetEmailRequest extends FormRequest
     {
         throw new HttpResponseException(response()->json([
             'error' => [
-                'code'    => 'VALIDATION_ERROR',
+                'code' => 'VALIDATION_ERROR',
                 'message' => 'The given data was invalid.',
                 'details' => $validator->errors(),
             ],
