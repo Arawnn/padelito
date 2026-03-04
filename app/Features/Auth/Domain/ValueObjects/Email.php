@@ -2,6 +2,8 @@
 
 namespace App\Features\Auth\Domain\ValueObjects;
 
+use App\Features\Auth\Domain\Exceptions\InvalidEmailException;
+
 final readonly class Email
 {
     private function __construct(
@@ -10,6 +12,7 @@ final readonly class Email
 
     public static function fromString(string $value): self
     {
+        self::validate($value);
         return new self($value);
     }
 
@@ -18,6 +21,17 @@ final readonly class Email
         return $this->value;
     }
 
-    // TODO: Add validation for email
-    // TODO: Move this value object to a shared value object
+
+    private static function validate(string $value): void
+    {
+        $violations = [];
+
+        if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            $violations[] = "Invalid email format";
+        }
+
+        if (!empty($violations)) {
+            throw InvalidEmailException::fromViolations($violations);
+        }
+    }
 }
