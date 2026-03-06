@@ -13,6 +13,7 @@ final readonly class Email
     public static function fromString(string $value): self
     {
         self::validate($value);
+
         return new self($value);
     }
 
@@ -21,13 +22,12 @@ final readonly class Email
         return $this->value;
     }
 
-
     private static function validate(string $value): void
     {
         $violations = [];
 
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            $violations[] = "Invalid email format";
+            $violations[] = 'Invalid email format';
         }
 
         if (!empty($violations)) {

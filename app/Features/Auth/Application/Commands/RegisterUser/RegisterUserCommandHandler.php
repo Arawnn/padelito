@@ -61,16 +61,15 @@ final readonly class RegisterUserCommandHandler
                 );
 
                 $this->userRepository->create($user);
+                $this->tx->afterCommit(function () use ($user) {
+                    $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
+                });
 
                 return $user;
             });
         } catch (InvalidPasswordException $e) {
             return Result::fail(InvalidPasswordException::fromViolations($e->violations()));
         }
-
-        $this->tx->afterCommit(function () use ($user) {
-            $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
-        });
 
         return Result::ok($user);
     }

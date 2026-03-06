@@ -6,15 +6,14 @@ namespace App\Features\Auth\Domain\Exceptions;
 
 use App\Shared\Domain\Exceptions\DomainException;
 
-final class  InvalidNameException extends DomainException
+final class InvalidNameException extends DomainException
 {
     /**
      * @param array<int, string> $violations
      */
     private function __construct(
         private readonly array $violations
-    )
-    {
+    ) {
         parent::__construct(
             implode(', ', $violations),
             domainCode: 'INVALID_NAME',
@@ -22,7 +21,7 @@ final class  InvalidNameException extends DomainException
         );
     }
 
-     /**
+    /**
      * @param array<int, string> $violations
      */
     public static function fromViolations(array $violations): self

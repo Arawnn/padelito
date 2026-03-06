@@ -7,9 +7,14 @@ namespace Tests\Unit\Features\Auth\Domain\Exceptions;
 use App\Features\Auth\Domain\Exceptions\InvalidResetTokenException;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class InvalidResetTokenExceptionTest extends TestCase
 {
-    public function test_it_creates_expired_or_invalid_exception(): void
+    public function testItCreatesExpiredOrInvalidException(): void
     {
         $exception = InvalidResetTokenException::expiredOrInvalid();
 

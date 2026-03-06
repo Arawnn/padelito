@@ -15,6 +15,7 @@ final readonly class Name
     public static function fromString(string $value): self
     {
         self::validate($value);
+
         return new self($value);
     }
 
@@ -27,7 +28,7 @@ final readonly class Name
     {
         $violations = [];
 
-        if (strlen($value) === 0 || trim($value) === '') {
+        if (0 === strlen($value) || '' === trim($value)) {
             $violations[] = 'Name cannot be empty';
         } elseif (strlen($value) < 3) {
             $violations[] = 'Name must be at least 3 characters long';

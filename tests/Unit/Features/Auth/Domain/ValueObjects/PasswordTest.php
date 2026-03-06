@@ -8,61 +8,67 @@ use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
 use App\Features\Auth\Domain\ValueObjects\Password;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class PasswordTest extends TestCase
 {
-    public function test_it_rejects_a_password_that_is_too_short(): void
+    public function testItRejectsAPasswordThatIsTooShort(): void
     {
         $this->expectException(InvalidPasswordException::class);
         $this->expectExceptionMessage('Password must be at least 12 characters long');
         Password::fromPlainText('Short1!');
     }
 
-    public function test_it_rejects_a_password_that_does_not_contain_an_uppercase_letter(): void
+    public function testItRejectsAPasswordThatDoesNotContainAnUppercaseLetter(): void
     {
         $this->expectException(InvalidPasswordException::class);
         $this->expectExceptionMessage('Password must contain at least one uppercase letter');
         Password::fromPlainText('password123!');
     }
 
-    public function test_it_rejects_a_password_that_does_not_contain_a_lowercase_letter(): void
+    public function testItRejectsAPasswordThatDoesNotContainALowercaseLetter(): void
     {
         $this->expectException(InvalidPasswordException::class);
         $this->expectExceptionMessage('Password must contain at least one lowercase letter');
         Password::fromPlainText('PASSWORD123!');
     }
 
-    public function test_it_rejects_a_password_that_does_not_contain_a_number(): void
+    public function testItRejectsAPasswordThatDoesNotContainANumber(): void
     {
         $this->expectException(InvalidPasswordException::class);
         $this->expectExceptionMessage('Password must contain at least one number');
         Password::fromPlainText('PasswordAbc!');
     }
 
-    public function test_it_rejects_a_password_that_does_not_contain_a_special_character(): void
+    public function testItRejectsAPasswordThatDoesNotContainASpecialCharacter(): void
     {
         $this->expectException(InvalidPasswordException::class);
         $this->expectExceptionMessage('Password must contain at least one special character');
         Password::fromPlainText('Password1234');
     }
 
-    public function test_it_accepts_a_valid_password(): void
+    public function testItAcceptsAValidPassword(): void
     {
         $password = Password::fromPlainText('Password123!');
         $this->assertEquals('Password123!', $password->value());
     }
 
-    public function test_for_verification_bypasses_validation(): void
+    public function testForVerificationBypassesValidation(): void
     {
         $password = Password::forVerification('weak');
         $this->assertEquals('weak', $password->value());
     }
 
-    public function test_it_collects_multiple_violations(): void
+    public function testItCollectsMultipleViolations(): void
     {
         try {
             Password::fromPlainText('');
         } catch (InvalidPasswordException $e) {
             $this->assertCount(5, $e->violations());
+
             return;
         }
         $this->fail('Expected InvalidPasswordException to be thrown');

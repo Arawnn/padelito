@@ -9,9 +9,14 @@ use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\Id;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class UserNotFoundExceptionTest extends TestCase
 {
-    public function test_it_creates_exception_from_email(): void
+    public function testItCreatesExceptionFromEmail(): void
     {
         $email = Email::fromString('john.doe@example.com');
 
@@ -20,7 +25,7 @@ final class UserNotFoundExceptionTest extends TestCase
         $this->assertStringContainsString('john.doe@example.com', $exception->getMessage());
     }
 
-    public function test_it_creates_exception_from_id(): void
+    public function testItCreatesExceptionFromId(): void
     {
         $id = Id::fromString('user-123');
 
