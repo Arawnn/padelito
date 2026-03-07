@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Application\Commands\RegisterUser;
 
+use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommand;
 use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
 use App\Features\Auth\Domain\Entities\User;
+use App\Features\Auth\Domain\Exceptions\InvalidEmailException;
+use App\Features\Auth\Domain\Exceptions\InvalidNameException;
 use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
 use App\Features\Auth\Domain\Exceptions\UserAlreadyExistException;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
@@ -41,14 +44,16 @@ final readonly class RegisterUserCommandHandler
             );
         }
 
-        if ($this->userRepository->findByEmail(Email::fromString($command->email))) {
-            return Result::fail(
-                UserAlreadyExistException::fromEmail(Email::fromString($command->email))
-            );
-        }
-
         try {
-            $user = $this->tx->run(function () use ($command, $id) {
+            $email = Email::fromString($command->email);
+
+            if ($this->userRepository->findByEmail($email)) {
+                return Result::fail(
+                    UserAlreadyExistException::fromEmail($email)
+                );
+            }
+
+            $user = $this->tx->run(function () use ($command, $id, $email) {
                 $hashedPassword = $this->passwordHasher->hash(
                     Password::fromPlainText($command->password)
                 );
@@ -56,7 +61,7 @@ final readonly class RegisterUserCommandHandler
                 $user = User::register(
                     id: $id,
                     name: Name::fromString($command->name),
-                    email: Email::fromString($command->email),
+                    email: $email,
                     password: $hashedPassword,
                 );
 
@@ -69,6 +74,10 @@ final readonly class RegisterUserCommandHandler
             });
         } catch (InvalidPasswordException $e) {
             return Result::fail(InvalidPasswordException::fromViolations($e->violations()));
+        } catch (InvalidEmailException $e) {
+            return Result::fail(InvalidEmailException::fromViolations($e->violations()));
+        } catch (InvalidNameException $e) {
+            return Result::fail(InvalidNameException::fromViolations($e->violations()));
         }
 
         return Result::ok($user);

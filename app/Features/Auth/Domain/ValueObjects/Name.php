@@ -27,9 +27,13 @@ final readonly class Name
     private static function validate(string $value): void
     {
         $violations = [];
-
+        
         if (0 === strlen($value) || '' === trim($value)) {
             $violations[] = 'Name cannot be empty';
+        } elseif (!preg_match('/[a-zA-Z]/', $value)) {
+            $violations[] = 'Name must contain at least one letter';
+        } elseif (!preg_match('/^[a-zA-Z0-9\s]+$/', $value)) {
+            $violations[] = 'Name must contain only letters, numbers and spaces';
         } elseif (strlen($value) < 3) {
             $violations[] = 'Name must be at least 3 characters long';
         } elseif (strlen($value) > 255) {
