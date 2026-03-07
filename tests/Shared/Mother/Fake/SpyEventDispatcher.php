@@ -26,10 +26,7 @@ final class SpyEventDispatcher implements EventDispatcherInterface
 
     public function dispatched(string $eventClass): bool
     {
-        dump($this->dispatched);
         foreach ($this->dispatched as $event) {
-            dump($event);
-            dump($eventClass);
             if ($event instanceof $eventClass) {
                 return true;
             }
