@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Application\Commands\RegisterUser;
 
-use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommand;
 use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
 use App\Features\Auth\Domain\Entities\User;
 use App\Features\Auth\Domain\Exceptions\InvalidEmailException;

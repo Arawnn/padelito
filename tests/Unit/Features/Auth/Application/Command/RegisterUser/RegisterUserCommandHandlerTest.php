@@ -12,8 +12,6 @@ use App\Features\Auth\Domain\Exceptions\InvalidEmailException;
 use App\Features\Auth\Domain\Exceptions\InvalidNameException;
 use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
 use App\Features\Auth\Domain\Exceptions\UserAlreadyExistException;
-use App\Features\Auth\Domain\ValueObjects\Email;
-use App\Features\Auth\Domain\ValueObjects\Id;
 use Tests\Shared\Mother\Fake\FakePasswordHasher;
 use Tests\Shared\Mother\Fake\FakeUuidGenerator;
 use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
@@ -45,6 +43,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $this->passwordHasher = new FakePasswordHasher();
         $this->eventDispatcher = new SpyEventDispatcher();
     }
+
     public function testItRegistersAUser(): void
     {
         $handler = new RegisterUserCommandHandler(
@@ -67,7 +66,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
 
         $this->assertNotNull($user);
         $this->assertTrue($result->isOk());
-        
+
         $this->assertEquals('john.doe@example.com', $user->email()->value());
         $this->assertEquals('John Doe', $user->name()->value());
         $this->assertEquals('00000000-0000-0000-0000-000000000000', $user->id()->value());
@@ -79,7 +78,10 @@ final class RegisterUserCommandHandlerTest extends TestCase
 
     public function testItReturnsAnExceptionIfTheUserEmailAlreadyExists(): void
     {
-        $this->repository->create(UserMother::withEmail(Email::fromString('john.doe@example.com')));
+        $this->repository->create(
+            UserMother::create()->withEmail('john.doe@example.com')->build()
+        );
+
         $handler = new RegisterUserCommandHandler(
             $this->repository,
             $this->tx,
@@ -95,6 +97,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         );
 
         $result = $handler($command);
+
         $this->assertTrue($result->isFail());
         $this->assertInstanceOf(UserAlreadyExistException::class, $result->error());
         $this->assertStringContainsString('USER_ALREADY_EXISTS', $result->error()->getDomainCode());
@@ -102,7 +105,10 @@ final class RegisterUserCommandHandlerTest extends TestCase
 
     public function testItReturnsAnExceptionIfTheUserIdAlreadyExists(): void
     {
-        $this->repository->create(UserMother::withId(Id::fromString('00000000-0000-0000-0000-000000000000')));
+        $this->repository->create(
+            UserMother::create()->withId('00000000-0000-0000-0000-000000000000')->build()
+        );
+
         $handler = new RegisterUserCommandHandler(
             $this->repository,
             $this->tx,
@@ -118,6 +124,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         );
 
         $result = $handler($command);
+
         $this->assertTrue($result->isFail());
         $this->assertInstanceOf(UserAlreadyExistException::class, $result->error());
         $this->assertStringContainsString('USER_ALREADY_EXISTS', $result->error()->getDomainCode());
@@ -140,6 +147,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         );
 
         $result = $handler($command);
+
         $this->assertTrue($result->isFail());
         $this->assertInstanceOf(InvalidPasswordException::class, $result->error());
         $this->assertStringContainsString('INVALID_PASSWORD', $result->error()->getDomainCode());
@@ -161,6 +169,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         );
 
         $result = $handler($command);
+
         $this->assertTrue($result->isFail());
         $this->assertInstanceOf(InvalidEmailException::class, $result->error());
         $this->assertStringContainsString('INVALID_EMAIL', $result->error()->getDomainCode());
@@ -182,6 +191,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         );
 
         $result = $handler($command);
+
         $this->assertTrue($result->isFail());
         $this->assertInstanceOf(InvalidNameException::class, $result->error());
         $this->assertStringContainsString('INVALID_NAME', $result->error()->getDomainCode());

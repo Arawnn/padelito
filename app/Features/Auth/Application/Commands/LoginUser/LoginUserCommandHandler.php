@@ -6,6 +6,7 @@ namespace App\Features\Auth\Application\Commands\LoginUser;
 
 use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
 use App\Features\Auth\Domain\Entities\User;
+use App\Features\Auth\Domain\Exceptions\InvalidEmailException;
 use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
 use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
@@ -27,9 +28,15 @@ final readonly class LoginUserCommandHandler
      */
     public function __invoke(LoginUserCommand $command): Result
     {
-        $user = $this->userRepository->findByEmail(Email::fromString($command->email));
+        try {
+            $email = Email::fromString($command->email);
+        } catch (InvalidEmailException $e) {
+            return Result::fail(InvalidEmailException::fromViolations($e->violations()));
+        }
+
+        $user = $this->userRepository->findByEmail($email);
         if (!$user) {
-            return Result::fail(UserNotFoundException::fromEmail(Email::fromString($command->email)));
+            return Result::fail(UserNotFoundException::fromEmail($email));
         }
 
         if (!$this->passwordHasher->verify(Password::forVerification($command->password), $user->password())) {

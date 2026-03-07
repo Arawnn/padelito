@@ -21,7 +21,7 @@ final class UserTest extends TestCase
 {
     public function testItCreatesAUser(): void
     {
-        $user = UserMother::register();
+        $user = UserMother::create()->registered()->build();
 
         $this->assertSame('id-fixe-test', $user->id()->value());
         $this->assertSame('John Doe', $user->name()->value());
@@ -37,7 +37,7 @@ final class UserTest extends TestCase
 
     public function testItDispatchesAUserLoggedInEvent(): void
     {
-        $user = UserMother::reconstitute();
+        $user = UserMother::create()->build();
 
         $user->login();
 
@@ -48,7 +48,7 @@ final class UserTest extends TestCase
 
     public function testItDispatchesAUserLoggedOutEvent(): void
     {
-        $user = UserMother::reconstitute();
+        $user = UserMother::create()->build();
 
         $user->logout();
 
@@ -59,7 +59,7 @@ final class UserTest extends TestCase
 
     public function testItUpdatesAPassword(): void
     {
-        $user = UserMother::reconstitute();
+        $user = UserMother::create()->build();
 
         $newPassword = HashedPassword::fromHash('new-hash-pour-test');
         $user->updatePassword($newPassword);
@@ -73,7 +73,7 @@ final class UserTest extends TestCase
 
     public function testItClearsDomainEventsAfterPullingThem(): void
     {
-        $user = UserMother::register();
+        $user = UserMother::create()->registered()->build();
 
         $first = $user->pullDomainEvents();
         $second = $user->pullDomainEvents();
@@ -83,7 +83,7 @@ final class UserTest extends TestCase
 
     public function testItDoesNotEmitEventsWhenReconstituted(): void
     {
-        $user = UserMother::reconstitute();
+        $user = UserMother::create()->build();
         $this->assertCount(0, $user->pullDomainEvents());
     }
 }

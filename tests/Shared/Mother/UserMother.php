@@ -12,63 +12,70 @@ use App\Features\Auth\Domain\ValueObjects\Name;
 
 final class UserMother
 {
-    public static function register(): User
+    private string $id = 'id-fixe-test';
+    private string $name = 'John Doe';
+    private string $email = 'john.doe@example.com';
+    private string $hashedPassword = 'hash-fake-pour-test';
+    private bool $useRegister = false;
+
+    private function __construct() {}
+
+    public static function create(): self
     {
-        return User::register(
-            id: Id::fromString('id-fixe-test'),
-            name: Name::fromString('John Doe'),
-            email: Email::fromString('john.doe@example.com'),
-            password: HashedPassword::fromHash('hash-fake-pour-test')
-        );
+        return new self();
     }
 
-    public static function reconstitute(): User
+    public function withId(string $id): self
     {
-        return User::reconstitute(
-            id: Id::fromString('id-fixe-test'),
-            name: Name::fromString('John Doe'),
-            email: Email::fromString('john.doe@example.com'),
-            password: HashedPassword::fromHash('hash-fake-pour-test')
-        );
+        $clone = clone $this;
+        $clone->id = $id;
+
+        return $clone;
     }
 
-    public static function withId(Id $id): User
+    public function withEmail(string $email): self
     {
-        return User::reconstitute(
-            id: $id,
-            name: Name::fromString('John Doe'),
-            email: Email::fromString('john.doe@example.com'),
-            password: HashedPassword::fromHash('hash-fake-pour-test')
-        );
+        $clone = clone $this;
+        $clone->email = $email;
+
+        return $clone;
     }
 
-    public static function withEmail(Email $email): User
+    public function withHashedPassword(string $hashedPassword): self
     {
-        return User::reconstitute(
-            id: Id::fromString('id-fixe-test'),
-            name: Name::fromString('John Doe'),
-            email: $email,
-            password: HashedPassword::fromHash('hash-fake-pour-test')
-        );
+        $clone = clone $this;
+        $clone->hashedPassword = $hashedPassword;
+
+        return $clone;
     }
 
-    public static function withPassword(HashedPassword $password): User
+    public function withName(string $name): self
     {
-        return User::reconstitute(
-            id: Id::fromString('id-fixe-test'),
-            name: Name::fromString('John Doe'),
-            email: Email::fromString('john.doe@example.com'),
-            password: $password
-        );
+        $clone = clone $this;
+        $clone->name = $name;
+
+        return $clone;
     }
 
-    public static function withName(Name $name): User
+    public function registered(): self
     {
-        return User::reconstitute(
-            id: Id::fromString('id-fixe-test'),
-            name: $name,
-            email: Email::fromString('john.doe@example.com'),
-            password: HashedPassword::fromHash('hash-fake-pour-test')
-        );
-    }   
+        $clone = clone $this;
+        $clone->useRegister = true;
+
+        return $clone;
+    }
+
+    public function build(): User
+    {
+        $id = Id::fromString($this->id);
+        $name = Name::fromString($this->name);
+        $email = Email::fromString($this->email);
+        $password = HashedPassword::fromHash($this->hashedPassword);
+
+        if ($this->useRegister) {
+            return User::register(id: $id, name: $name, email: $email, password: $password);
+        }
+
+        return User::reconstitute(id: $id, name: $name, email: $email, password: $password);
+    }
 }

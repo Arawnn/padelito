@@ -38,6 +38,7 @@ final readonly class UpdateUserPasswordCommandHandler
         } catch (InvalidPasswordException $e) {
             return Result::fail(InvalidPasswordException::fromViolations($e->violations()));
         }
+
         $user->updatePassword($hashedPassword);
         $this->userRepository->update($user);
         $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());

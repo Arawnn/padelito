@@ -27,7 +27,7 @@ final readonly class Name
     private static function validate(string $value): void
     {
         $violations = [];
-        
+
         if (0 === strlen($value) || '' === trim($value)) {
             $violations[] = 'Name cannot be empty';
         } elseif (!preg_match('/[a-zA-Z]/', $value)) {
