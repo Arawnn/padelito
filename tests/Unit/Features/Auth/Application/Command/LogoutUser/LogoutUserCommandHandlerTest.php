@@ -25,16 +25,21 @@ final class LogoutUserCommandHandlerTest extends TestCase
         $this->eventDispatcher = new SpyEventDispatcher();
     }
 
+    private function makeHandler(): LogoutUserCommandHandler
+    {
+        return new LogoutUserCommandHandler(
+            $this->repository,
+            $this->eventDispatcher
+        );
+    }
+
     public function testItLogsOutAUser(): void
     {
         $user = UserMother::create()->build();
         $this->repository->create($user);
 
         $command = new LogoutUserCommand(userId: $user->id()->value());
-        $handler = new LogoutUserCommandHandler(
-            $this->repository,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $result = $handler($command);
 
@@ -46,10 +51,7 @@ final class LogoutUserCommandHandlerTest extends TestCase
     public function testItReturnsAnExceptionIfTheUserIsNotFound(): void
     {
         $command = new LogoutUserCommand(userId: 'invalid-user-id');
-        $handler = new LogoutUserCommandHandler(
-            $this->repository,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $result = $handler($command);
 

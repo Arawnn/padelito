@@ -32,6 +32,15 @@ final class LoginUserCommandHandlerTest extends TestCase
         $this->eventDispatcher = new SpyEventDispatcher();
     }
 
+    private function makeHandler(): LoginUserCommandHandler
+    {
+        return new LoginUserCommandHandler(
+            $this->repository,
+            $this->passwordHasher,
+            $this->eventDispatcher
+        );
+    }
+
     public function testItLogsInAUser(): void
     {
         $plainPassword = 'fake-pour-test';
@@ -47,11 +56,7 @@ final class LoginUserCommandHandlerTest extends TestCase
             email: 'john.doe@example.com',
             password: $plainPassword,
         );
-        $handler = new LoginUserCommandHandler(
-            $this->repository,
-            $this->passwordHasher,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $result = $handler($command);
 
@@ -70,11 +75,7 @@ final class LoginUserCommandHandlerTest extends TestCase
             email: 'john.doe@example.com',
             password: 'Password123!',
         );
-        $handler = new LoginUserCommandHandler(
-            $this->repository,
-            $this->passwordHasher,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $result = $handler($command);
 
@@ -95,11 +96,7 @@ final class LoginUserCommandHandlerTest extends TestCase
             email: 'john.doe@example.com',
             password: 'Password123!',
         );
-        $handler = new LoginUserCommandHandler(
-            $this->repository,
-            $this->passwordHasher,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $result = $handler($command);
 
@@ -114,11 +111,7 @@ final class LoginUserCommandHandlerTest extends TestCase
             email: 'invalid-email',
             password: 'Password123!',
         );
-        $handler = new LoginUserCommandHandler(
-            $this->repository,
-            $this->passwordHasher,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $result = $handler($command);
 

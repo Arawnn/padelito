@@ -8,11 +8,6 @@ use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
 use App\Features\Auth\Domain\ValueObjects\Password;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- *
- * @coversNothing
- */
 final class PasswordTest extends TestCase
 {
     public function testItRejectsAPasswordThatIsTooShort(): void

@@ -39,15 +39,20 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $this->eventDispatcher = new SpyEventDispatcher();
     }
 
-    public function testItRegistersAUser(): void
+    private function makeHandler(): RegisterUserCommandHandler
     {
-        $handler = new RegisterUserCommandHandler(
+        return new RegisterUserCommandHandler(
             $this->repository,
             $this->tx,
             $this->passwordHasher,
             $this->uuidGenerator,
             $this->eventDispatcher
         );
+    }
+
+    public function testItRegistersAUser(): void
+    {
+        $handler = $this->makeHandler();
 
         $command = new RegisterUserCommand(
             name: 'John Doe',
@@ -77,13 +82,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
             UserMother::create()->withEmail('john.doe@example.com')->build()
         );
 
-        $handler = new RegisterUserCommandHandler(
-            $this->repository,
-            $this->tx,
-            $this->passwordHasher,
-            $this->uuidGenerator,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $command = new RegisterUserCommand(
             name: 'John Doe',
@@ -104,13 +103,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
             UserMother::create()->withId('00000000-0000-0000-0000-000000000000')->build()
         );
 
-        $handler = new RegisterUserCommandHandler(
-            $this->repository,
-            $this->tx,
-            $this->passwordHasher,
-            $this->uuidGenerator,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $command = new RegisterUserCommand(
             name: 'John Doe',
@@ -127,13 +120,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
 
     public function testItReturnsAnExceptionIfThePasswordIsInvalid(): void
     {
-        $handler = new RegisterUserCommandHandler(
-            $this->repository,
-            $this->tx,
-            $this->passwordHasher,
-            $this->uuidGenerator,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $command = new RegisterUserCommand(
             name: 'John Doe',
@@ -155,13 +142,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
             email: 'invalid-email',
             password: 'Password123!',
         );
-        $handler = new RegisterUserCommandHandler(
-            $this->repository,
-            $this->tx,
-            $this->passwordHasher,
-            $this->uuidGenerator,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $result = $handler($command);
 
@@ -173,17 +154,11 @@ final class RegisterUserCommandHandlerTest extends TestCase
     public function testItReturnsAnExceptionIfTheNameIsInvalid(): void
     {
         $command = new RegisterUserCommand(
-            name: '123',
+            name: 'Jo',
             email: 'john.doe@example.com',
             password: 'Password123!',
         );
-        $handler = new RegisterUserCommandHandler(
-            $this->repository,
-            $this->tx,
-            $this->passwordHasher,
-            $this->uuidGenerator,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $result = $handler($command);
 

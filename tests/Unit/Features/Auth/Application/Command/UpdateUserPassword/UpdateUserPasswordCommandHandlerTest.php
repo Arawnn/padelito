@@ -30,6 +30,15 @@ final class UpdateUserPasswordCommandHandlerTest extends TestCase
         $this->eventDispatcher = new SpyEventDispatcher();
     }
 
+    private function makeHandler(): UpdateUserPasswordCommandHandler
+    {
+        return new UpdateUserPasswordCommandHandler(
+            $this->repository,
+            $this->passwordHasher,
+            $this->eventDispatcher
+        );
+    }
+
     public function testItUpdatesAPassword(): void
     {
         $newPlainPassword = 'Password123!';
@@ -44,11 +53,7 @@ final class UpdateUserPasswordCommandHandlerTest extends TestCase
             userId: $user->id()->value(),
             password: $newPlainPassword,
         );
-        $handler = new UpdateUserPasswordCommandHandler(
-            $this->repository,
-            $this->passwordHasher,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $result = $handler($command);
 
@@ -69,11 +74,7 @@ final class UpdateUserPasswordCommandHandlerTest extends TestCase
             userId: 'invalid-user-id',
             password: 'Password123!',
         );
-        $handler = new UpdateUserPasswordCommandHandler(
-            $this->repository,
-            $this->passwordHasher,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $result = $handler($command);
 
@@ -91,11 +92,7 @@ final class UpdateUserPasswordCommandHandlerTest extends TestCase
             userId: $user->id()->value(),
             password: 'invalid-password',
         );
-        $handler = new UpdateUserPasswordCommandHandler(
-            $this->repository,
-            $this->passwordHasher,
-            $this->eventDispatcher
-        );
+        $handler = $this->makeHandler();
 
         $result = $handler($command);
 
