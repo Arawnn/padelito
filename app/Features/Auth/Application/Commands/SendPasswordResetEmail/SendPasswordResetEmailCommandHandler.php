@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Application\Commands\SendPasswordResetEmail;
 
+use App\Features\Auth\Domain\Exceptions\InvalidEmailException;
 use App\Features\Auth\Domain\Repositories\PasswordResetTokenRepositoryInterface;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\Email;
@@ -23,7 +24,12 @@ final readonly class SendPasswordResetEmailCommandHandler
      */
     public function __invoke(SendPasswordResetEmailCommand $command): Result
     {
-        $email = Email::fromString($command->email);
+        try {
+            $email = Email::fromString($command->email);
+        } catch (InvalidEmailException $e) {
+            return Result::fail(InvalidEmailException::fromViolations($e->violations()));
+        }
+
         $user = $this->userRepository->findByEmail($email);
 
         if (!$user) {

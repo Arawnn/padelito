@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Auth\Application\Commands\ConfirmPasswordReset;
 
 use App\Features\Auth\Application\Commands\UpdateUserPassword\UpdateUserPasswordCommand;
+use App\Features\Auth\Domain\Exceptions\InvalidEmailException;
 use App\Features\Auth\Domain\Exceptions\InvalidResetTokenException;
 use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
 use App\Features\Auth\Domain\Repositories\PasswordResetTokenRepositoryInterface;
@@ -26,7 +27,11 @@ final readonly class ConfirmPasswordResetCommandHandler
      */
     public function __invoke(ConfirmPasswordResetCommand $command): Result
     {
-        $email = Email::fromString($command->email);
+        try {
+            $email = Email::fromString($command->email);
+        } catch (InvalidEmailException $e) {
+            return Result::fail(InvalidEmailException::fromViolations($e->violations()));
+        }
 
         $user = $this->userRepository->findByEmail($email);
         if (!$user) {
