@@ -8,11 +8,6 @@ use App\Features\Auth\Domain\Exceptions\InvalidNameException;
 use App\Features\Auth\Domain\ValueObjects\Name;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- *
- * @coversNothing
- */
 final class NameTest extends TestCase
 {
     public function testItValidatesAName(): void

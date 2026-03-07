@@ -20,11 +20,6 @@ use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\UserMother;
 use Tests\TestCase;
 
-/**
- * @internal
- *
- * @coversNothing
- */
 final class RegisterUserCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $repository;

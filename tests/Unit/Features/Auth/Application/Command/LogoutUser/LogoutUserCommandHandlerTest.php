@@ -13,11 +13,6 @@ use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\UserMother;
 use Tests\TestCase;
 
-/**
- * @internal
- *
- * @coversNothing
- */
 final class LogoutUserCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $repository;

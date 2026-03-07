@@ -12,11 +12,6 @@ use App\Features\Auth\Domain\ValueObjects\HashedPassword;
 use PHPUnit\Framework\TestCase;
 use Tests\Shared\Mother\UserMother;
 
-/**
- * @internal
- *
- * @coversNothing
- */
 final class UserTest extends TestCase
 {
     public function testItCreatesAUser(): void

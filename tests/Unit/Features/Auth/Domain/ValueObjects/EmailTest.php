@@ -8,11 +8,6 @@ use App\Features\Auth\Domain\Exceptions\InvalidEmailException;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- *
- * @coversNothing
- */
 final class EmailTest extends TestCase
 {
     public function testItValidatesAnEmail(): void

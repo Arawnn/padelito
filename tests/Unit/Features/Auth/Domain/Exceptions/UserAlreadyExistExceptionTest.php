@@ -9,11 +9,6 @@ use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\Id;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- *
- * @coversNothing
- */
 final class UserAlreadyExistExceptionTest extends TestCase
 {
     public function testItCreatesExceptionFromEmail(): void
