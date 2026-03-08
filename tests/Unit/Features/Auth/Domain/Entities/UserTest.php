@@ -19,7 +19,7 @@ use Tests\Shared\Mother\UserMother;
  */
 final class UserTest extends TestCase
 {
-    public function testItCreatesAUser(): void
+    public function test_it_creates_a_user(): void
     {
         $user = UserMother::create()->registered()->build();
 
@@ -35,7 +35,7 @@ final class UserTest extends TestCase
         $this->assertSame($user->id()->value(), $event->aggregateId);
     }
 
-    public function testItDispatchesAUserLoggedInEvent(): void
+    public function test_it_dispatches_a_user_logged_in_event(): void
     {
         $user = UserMother::create()->build();
 
@@ -46,7 +46,7 @@ final class UserTest extends TestCase
         $this->assertInstanceOf(UserLoggedIn::class, $events->first());
     }
 
-    public function testItDispatchesAUserLoggedOutEvent(): void
+    public function test_it_dispatches_a_user_logged_out_event(): void
     {
         $user = UserMother::create()->build();
 
@@ -57,7 +57,7 @@ final class UserTest extends TestCase
         $this->assertInstanceOf(UserLoggedOut::class, $events->first());
     }
 
-    public function testItUpdatesAPassword(): void
+    public function test_it_updates_a_password(): void
     {
         $user = UserMother::create()->build();
 
@@ -71,7 +71,7 @@ final class UserTest extends TestCase
         $this->assertInstanceOf(UserPasswordUpdated::class, $events->first());
     }
 
-    public function testItClearsDomainEventsAfterPullingThem(): void
+    public function test_it_clears_domain_events_after_pulling_them(): void
     {
         $user = UserMother::create()->registered()->build();
 
@@ -81,7 +81,7 @@ final class UserTest extends TestCase
         $this->assertCount(0, $second);
     }
 
-    public function testItDoesNotEmitEventsWhenReconstituted(): void
+    public function test_it_does_not_emit_events_when_reconstituted(): void
     {
         $user = UserMother::create()->build();
         $this->assertCount(0, $user->pullDomainEvents());

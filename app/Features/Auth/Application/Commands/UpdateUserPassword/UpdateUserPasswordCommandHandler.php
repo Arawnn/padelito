@@ -27,7 +27,7 @@ final readonly class UpdateUserPasswordCommandHandler
     public function __invoke(UpdateUserPasswordCommand $command): Result
     {
         $user = $this->userRepository->findById(Id::fromString($command->userId));
-        if (!$user) {
+        if (! $user) {
             return Result::fail(UserNotFoundException::fromId(Id::fromString($command->userId)));
         }
 

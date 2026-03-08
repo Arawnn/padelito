@@ -14,7 +14,7 @@ use Tests\FeatureTestCase;
  */
 final class SendPasswordResetEmailEndpointTest extends FeatureTestCase
 {
-    public function testItReturnsSuccessWhenUserExists(): void
+    public function test_it_returns_success_when_user_exists(): void
     {
         User::factory()->create(['name' => 'John Doe', 'email' => 'john@example.com']);
 
@@ -24,33 +24,31 @@ final class SendPasswordResetEmailEndpointTest extends FeatureTestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure(['message'])
-            ->assertJsonPath('message', 'If an account with that email exists, a password reset link has been sent.')
-        ;
+            ->assertJsonPath('message', 'If an account with that email exists, a password reset link has been sent.');
 
         $this->assertDatabaseHas('password_reset_tokens', ['email' => 'john@example.com']);
     }
 
-    public function testItReturnsSuccessEvenWhenUserDoesNotExist(): void
+    public function test_it_returns_success_even_when_user_does_not_exist(): void
     {
         $response = $this->postJson('/api/v1/reset-password', [
             'email' => 'unknown@example.com',
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonPath('message', 'If an account with that email exists, a password reset link has been sent.')
-        ;
+            ->assertJsonPath('message', 'If an account with that email exists, a password reset link has been sent.');
 
         $this->assertDatabaseMissing('password_reset_tokens', ['email' => 'unknown@example.com']);
     }
 
-    public function testItRejectsMissingEmail(): void
+    public function test_it_rejects_missing_email(): void
     {
         $response = $this->postJson('/api/v1/reset-password', []);
 
         $response->assertStatus(422);
     }
 
-    public function testItRejectsAnInvalidEmailFormat(): void
+    public function test_it_rejects_an_invalid_email_format(): void
     {
         $response = $this->postJson('/api/v1/reset-password', [
             'email' => 'not-an-email',

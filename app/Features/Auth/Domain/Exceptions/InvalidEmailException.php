@@ -9,7 +9,7 @@ use App\Shared\Domain\Exceptions\DomainException;
 final class InvalidEmailException extends DomainException
 {
     /**
-     * @param array<int, string> $violations
+     * @param  array<int, string>  $violations
      */
     private function __construct(
         private readonly array $violations
@@ -22,7 +22,7 @@ final class InvalidEmailException extends DomainException
     }
 
     /**
-     * @param array<int, string> $violations
+     * @param  array<int, string>  $violations
      */
     public static function fromViolations(array $violations): self
     {

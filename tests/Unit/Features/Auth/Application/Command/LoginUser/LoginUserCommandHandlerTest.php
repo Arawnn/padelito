@@ -26,26 +26,27 @@ use Tests\TestCase;
 final class LoginUserCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $repository;
+
     private FakePasswordHasher $passwordHasher;
+
     private SpyEventDispatcher $eventDispatcher;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new InMemoryUserRepository();
-        $this->passwordHasher = new FakePasswordHasher();
-        $this->eventDispatcher = new SpyEventDispatcher();
+        $this->repository = new InMemoryUserRepository;
+        $this->passwordHasher = new FakePasswordHasher;
+        $this->eventDispatcher = new SpyEventDispatcher;
     }
 
-    public function testItLogsInAUser(): void
+    public function test_it_logs_in_a_user(): void
     {
         $plainPassword = 'fake-pour-test';
         $hashedPassword = $this->passwordHasher->hash(Password::forVerification($plainPassword));
 
         $user = UserMother::create()
             ->withHashedPassword($hashedPassword->value())
-            ->build()
-        ;
+            ->build();
         $this->repository->create($user);
 
         $command = new LoginUserCommand(
@@ -65,7 +66,7 @@ final class LoginUserCommandHandlerTest extends TestCase
         $this->assertEquals($hashedPassword->value(), $result->value()->password()->value());
     }
 
-    public function testItReturnsAnExceptionIfTheUserIsNotFound(): void
+    public function test_it_returns_an_exception_if_the_user_is_not_found(): void
     {
         $command = new LoginUserCommand(
             email: 'john.doe@example.com',
@@ -80,12 +81,11 @@ final class LoginUserCommandHandlerTest extends TestCase
         $this->assertStringContainsString('USER_NOT_FOUND', $result->error()->getDomainCode());
     }
 
-    public function testItReturnsAnExceptionIfThePasswordIsInvalid(): void
+    public function test_it_returns_an_exception_if_the_password_is_invalid(): void
     {
         $user = UserMother::create()
             ->withHashedPassword('hashed_fake-pour-test')
-            ->build()
-        ;
+            ->build();
         $this->repository->create($user);
 
         $command = new LoginUserCommand(
@@ -101,7 +101,7 @@ final class LoginUserCommandHandlerTest extends TestCase
         $this->assertStringContainsString('INVALID_PASSWORD', $result->error()->getDomainCode());
     }
 
-    public function testItReturnsAnExceptionIfTheEmailIsInvalid(): void
+    public function test_it_returns_an_exception_if_the_email_is_invalid(): void
     {
         $command = new LoginUserCommand(
             email: 'invalid-email',

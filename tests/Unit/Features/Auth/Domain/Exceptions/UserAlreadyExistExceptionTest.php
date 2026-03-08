@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class UserAlreadyExistExceptionTest extends TestCase
 {
-    public function testItCreatesExceptionFromEmail(): void
+    public function test_it_creates_exception_from_email(): void
     {
         $email = Email::fromString('john.doe@example.com');
 
@@ -25,7 +25,7 @@ final class UserAlreadyExistExceptionTest extends TestCase
         $this->assertStringContainsString('john.doe@example.com', $exception->getMessage());
     }
 
-    public function testItCreatesExceptionFromId(): void
+    public function test_it_creates_exception_from_id(): void
     {
         $id = Id::fromString('user-123');
 

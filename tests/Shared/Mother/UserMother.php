@@ -13,16 +13,20 @@ use App\Features\Auth\Domain\ValueObjects\Name;
 final class UserMother
 {
     private string $id = 'id-fixe-test';
+
     private string $name = 'John Doe';
+
     private string $email = 'john.doe@example.com';
+
     private string $hashedPassword = 'hash-fake-pour-test';
+
     private bool $useRegister = false;
 
     private function __construct() {}
 
     public static function create(): self
     {
-        return new self();
+        return new self;
     }
 
     public function withId(string $id): self

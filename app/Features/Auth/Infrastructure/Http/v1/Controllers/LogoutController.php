@@ -23,7 +23,7 @@ class LogoutController extends Controller
             userId: $request->user()->id,
         ));
 
-        if (!$result->isOk()) {
+        if (! $result->isOk()) {
             return AuthExceptionMapper::toResponse($result->error());
         }
 

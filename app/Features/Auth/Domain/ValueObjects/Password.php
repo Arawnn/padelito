@@ -34,20 +34,20 @@ final readonly class Password
         if (strlen($value) < 12) {
             $violations[] = 'Password must be at least 12 characters long';
         }
-        if (!preg_match('/[A-Z]/', $value)) {
+        if (! preg_match('/[A-Z]/', $value)) {
             $violations[] = 'Password must contain at least one uppercase letter';
         }
-        if (!preg_match('/[a-z]/', $value)) {
+        if (! preg_match('/[a-z]/', $value)) {
             $violations[] = 'Password must contain at least one lowercase letter';
         }
-        if (!preg_match('/[0-9]/', $value)) {
+        if (! preg_match('/[0-9]/', $value)) {
             $violations[] = 'Password must contain at least one number';
         }
-        if (!preg_match('/[!@#$%^&*()\-_=+{};:,<.>]/', $value)) {
+        if (! preg_match('/[!@#$%^&*()\-_=+{};:,<.>]/', $value)) {
             $violations[] = 'Password must contain at least one special character';
         }
 
-        if (!empty($violations)) {
+        if (! empty($violations)) {
             throw InvalidPasswordException::fromViolations($violations);
         }
     }

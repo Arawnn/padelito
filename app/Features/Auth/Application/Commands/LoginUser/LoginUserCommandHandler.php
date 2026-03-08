@@ -35,11 +35,11 @@ final readonly class LoginUserCommandHandler
         }
 
         $user = $this->userRepository->findByEmail($email);
-        if (!$user) {
+        if (! $user) {
             return Result::fail(UserNotFoundException::fromEmail($email));
         }
 
-        if (!$this->passwordHasher->verify(Password::forVerification($command->password), $user->password())) {
+        if (! $this->passwordHasher->verify(Password::forVerification($command->password), $user->password())) {
             return Result::fail(InvalidPasswordException::fromViolations(['Invalid password']));
         }
 

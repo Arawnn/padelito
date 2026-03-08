@@ -21,7 +21,7 @@ final class LaravelPasswordHasherTest extends IntegrationTestCase
         $this->hasher = app(LaravelPasswordHasher::class);
     }
 
-    public function testItHashesAPassword(): void
+    public function test_it_hashes_a_password(): void
     {
         $password = Password::fromPlainText('Password123!');
         $hashed = $this->hasher->hash($password);
@@ -30,7 +30,7 @@ final class LaravelPasswordHasherTest extends IntegrationTestCase
         $this->assertNotEmpty($hashed->value());
     }
 
-    public function testItVerifiesACorrectPassword(): void
+    public function test_it_verifies_a_correct_password(): void
     {
         $password = Password::fromPlainText('Password123!');
         $hashed = $this->hasher->hash($password);
@@ -40,7 +40,7 @@ final class LaravelPasswordHasherTest extends IntegrationTestCase
         );
     }
 
-    public function testItReturnsFalseForWrongPassword(): void
+    public function test_it_returns_false_for_wrong_password(): void
     {
         $password = Password::fromPlainText('Password123!');
         $hashed = $this->hasher->hash($password);

@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 final class EloquentPasswordResetTokenRepository implements PasswordResetTokenRepositoryInterface
 {
     private const TABLE = 'password_reset_tokens';
+
     private const EXPIRY_MINUTES = 60;
 
     public function create(Email $email): string
@@ -37,17 +38,15 @@ final class EloquentPasswordResetTokenRepository implements PasswordResetTokenRe
     {
         $record = DB::table(self::TABLE)
             ->where('email', $email->value())
-            ->first()
-        ;
+            ->first();
 
-        if (!$record) {
+        if (! $record) {
             return false;
         }
 
         $isExpired = Carbon::parse($record->created_at)
             ->addMinutes(self::EXPIRY_MINUTES)
-            ->isPast()
-        ;
+            ->isPast();
 
         if ($isExpired) {
             return false;
@@ -60,7 +59,6 @@ final class EloquentPasswordResetTokenRepository implements PasswordResetTokenRe
     {
         DB::table(self::TABLE)
             ->where('email', $email->value())
-            ->delete()
-        ;
+            ->delete();
     }
 }

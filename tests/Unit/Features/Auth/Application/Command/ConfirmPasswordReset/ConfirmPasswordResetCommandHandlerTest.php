@@ -26,19 +26,21 @@ use Tests\TestCase;
 final class ConfirmPasswordResetCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $userRepository;
+
     private InMemoryPasswordResetTokenRepository $tokenRepository;
+
     private FakeCommandBus $commandBus;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->userRepository = new InMemoryUserRepository();
-        $this->tokenRepository = new InMemoryPasswordResetTokenRepository();
-        $this->commandBus = new FakeCommandBus();
+        $this->userRepository = new InMemoryUserRepository;
+        $this->tokenRepository = new InMemoryPasswordResetTokenRepository;
+        $this->commandBus = new FakeCommandBus;
     }
 
-    public function testItConfirmsAPasswordReset(): void
+    public function test_it_confirms_a_password_reset(): void
     {
         $email = 'john.doe@example.com';
         $user = UserMother::create()->withEmail($email)->build();
@@ -65,7 +67,7 @@ final class ConfirmPasswordResetCommandHandlerTest extends TestCase
         $this->assertFalse($this->tokenRepository->isValid(Email::fromString($email), $token));
     }
 
-    public function testItReturnsAnExceptionIfTheUserIsNotFound(): void
+    public function test_it_returns_an_exception_if_the_user_is_not_found(): void
     {
         $command = new ConfirmPasswordResetCommand(
             email: 'unknown@example.com',
@@ -85,7 +87,7 @@ final class ConfirmPasswordResetCommandHandlerTest extends TestCase
         $this->assertStringContainsString('USER_NOT_FOUND', $result->error()->getDomainCode());
     }
 
-    public function testItReturnsAnExceptionIfTheTokenIsInvalid(): void
+    public function test_it_returns_an_exception_if_the_token_is_invalid(): void
     {
         $email = 'john.doe@example.com';
         $user = UserMother::create()->withEmail($email)->build();
@@ -110,7 +112,7 @@ final class ConfirmPasswordResetCommandHandlerTest extends TestCase
         $this->assertStringContainsString('INVALID_RESET_TOKEN', $result->error()->getDomainCode());
     }
 
-    public function testItPropagatesTheErrorIfThePasswordUpdateFails(): void
+    public function test_it_propagates_the_error_if_the_password_update_fails(): void
     {
         $email = 'john.doe@example.com';
         $user = UserMother::create()->withEmail($email)->build();
@@ -141,7 +143,7 @@ final class ConfirmPasswordResetCommandHandlerTest extends TestCase
         $this->assertTrue($this->tokenRepository->isValid(Email::fromString($email), $token));
     }
 
-    public function testItReturnsAnExceptionIfTheEmailIsInvalid(): void
+    public function test_it_returns_an_exception_if_the_email_is_invalid(): void
     {
         $command = new ConfirmPasswordResetCommand(
             email: 'invalid-email',

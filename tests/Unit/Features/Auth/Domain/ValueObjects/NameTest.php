@@ -15,47 +15,47 @@ use PHPUnit\Framework\TestCase;
  */
 final class NameTest extends TestCase
 {
-    public function testItValidatesAName(): void
+    public function test_it_validates_a_name(): void
     {
         $name = Name::fromString('John Doe');
         $this->assertEquals('John Doe', $name->value());
     }
 
-    public function testItRejectsANameThatIsTooShort(): void
+    public function test_it_rejects_a_name_that_is_too_short(): void
     {
         $this->expectException(InvalidNameException::class);
         $this->expectExceptionMessage('Name must be at least 3 characters long');
         Name::fromString('Jo');
     }
 
-    public function testItRejectsANameThatIsTooLong(): void
+    public function test_it_rejects_a_name_that_is_too_long(): void
     {
         $this->expectException(InvalidNameException::class);
         $this->expectExceptionMessage('Name must be less than 256 characters long');
         Name::fromString('John Doe'.str_repeat('a', 256));
     }
 
-    public function testItAcceptsANameOfExactly255Characters(): void
+    public function test_it_accepts_a_name_of_exactly255_characters(): void
     {
         $name = Name::fromString(str_repeat('a', 255));
         $this->assertEquals(str_repeat('a', 255), $name->value());
     }
 
-    public function testItRejectsEmptyName(): void
+    public function test_it_rejects_empty_name(): void
     {
         $this->expectException(InvalidNameException::class);
         $this->expectExceptionMessage('Name cannot be empty');
         Name::fromString('');
     }
 
-    public function testItRejectsANameOfExactly256Characters(): void
+    public function test_it_rejects_a_name_of_exactly256_characters(): void
     {
         $this->expectException(InvalidNameException::class);
         $this->expectExceptionMessage('Name must be less than 256 characters long');
         Name::fromString(str_repeat('a', 256));
     }
 
-    public function testItRejectsAWhitespaceOnlyName(): void
+    public function test_it_rejects_a_whitespace_only_name(): void
     {
         $this->expectException(InvalidNameException::class);
         $this->expectExceptionMessage('Name cannot be empty');

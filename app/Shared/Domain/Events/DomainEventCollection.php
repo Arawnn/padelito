@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Domain\Events;
 
-final class DomainEventCollection implements \IteratorAggregate, \Countable
+final class DomainEventCollection implements \Countable, \IteratorAggregate
 {
     private array $events = [];
 

@@ -23,7 +23,7 @@ final readonly class LogoutUserCommandHandler
     public function __invoke(LogoutUserCommand $command): Result
     {
         $user = $this->userRepository->findById(Id::fromString($command->userId));
-        if (!$user) {
+        if (! $user) {
             return Result::fail(UserNotFoundException::fromId(Id::fromString($command->userId)));
         }
 

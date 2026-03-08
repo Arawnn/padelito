@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class InvalidResetTokenExceptionTest extends TestCase
 {
-    public function testItCreatesExpiredOrInvalidException(): void
+    public function test_it_creates_expired_or_invalid_exception(): void
     {
         $exception = InvalidResetTokenException::expiredOrInvalid();
 
