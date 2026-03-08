@@ -16,6 +16,11 @@ use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\UserMother;
 use Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class UpdateUserPasswordCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $repository;
@@ -28,15 +33,6 @@ final class UpdateUserPasswordCommandHandlerTest extends TestCase
         $this->repository = new InMemoryUserRepository();
         $this->passwordHasher = new FakePasswordHasher();
         $this->eventDispatcher = new SpyEventDispatcher();
-    }
-
-    private function makeHandler(): UpdateUserPasswordCommandHandler
-    {
-        return new UpdateUserPasswordCommandHandler(
-            $this->repository,
-            $this->passwordHasher,
-            $this->eventDispatcher
-        );
     }
 
     public function testItUpdatesAPassword(): void
@@ -99,5 +95,14 @@ final class UpdateUserPasswordCommandHandlerTest extends TestCase
         $this->assertTrue($result->isFail());
         $this->assertInstanceOf(InvalidPasswordException::class, $result->error());
         $this->assertStringContainsString('INVALID_PASSWORD', $result->error()->getDomainCode());
+    }
+
+    private function makeHandler(): UpdateUserPasswordCommandHandler
+    {
+        return new UpdateUserPasswordCommandHandler(
+            $this->repository,
+            $this->passwordHasher,
+            $this->eventDispatcher
+        );
     }
 }

@@ -13,6 +13,11 @@ use Tests\Shared\Mother\Fake\InMemoryUserRepository;
 use Tests\Shared\Mother\UserMother;
 use Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class GetUserByEmailQueryHandlerTest extends TestCase
 {
     private InMemoryUserRepository $userRepository;

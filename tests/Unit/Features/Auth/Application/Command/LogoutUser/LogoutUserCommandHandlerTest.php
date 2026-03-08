@@ -13,6 +13,11 @@ use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\UserMother;
 use Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class LogoutUserCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $repository;
@@ -23,14 +28,6 @@ final class LogoutUserCommandHandlerTest extends TestCase
         parent::setUp();
         $this->repository = new InMemoryUserRepository();
         $this->eventDispatcher = new SpyEventDispatcher();
-    }
-
-    private function makeHandler(): LogoutUserCommandHandler
-    {
-        return new LogoutUserCommandHandler(
-            $this->repository,
-            $this->eventDispatcher
-        );
     }
 
     public function testItLogsOutAUser(): void
@@ -58,5 +55,13 @@ final class LogoutUserCommandHandlerTest extends TestCase
         $this->assertTrue($result->isFail());
         $this->assertInstanceOf(UserNotFoundException::class, $result->error());
         $this->assertStringContainsString('USER_NOT_FOUND', $result->error()->getDomainCode());
+    }
+
+    private function makeHandler(): LogoutUserCommandHandler
+    {
+        return new LogoutUserCommandHandler(
+            $this->repository,
+            $this->eventDispatcher
+        );
     }
 }

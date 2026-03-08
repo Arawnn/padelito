@@ -8,6 +8,11 @@ use App\Features\Auth\Domain\Exceptions\InvalidNameException;
 use App\Features\Auth\Domain\ValueObjects\Name;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class NameTest extends TestCase
 {
     public function testItValidatesAName(): void
@@ -45,14 +50,15 @@ final class NameTest extends TestCase
 
     public function testItRejectsANameOfExactly256Characters(): void
     {
-        $this->expectExceptionMessage('Name must be less than 256 characters long');
         $this->expectException(InvalidNameException::class);
+        $this->expectExceptionMessage('Name must be less than 256 characters long');
         Name::fromString(str_repeat('a', 256));
     }
 
     public function testItRejectsAWhitespaceOnlyName(): void
     {
         $this->expectException(InvalidNameException::class);
+        $this->expectExceptionMessage('Name cannot be empty');
         Name::fromString('   ');
     }
 }

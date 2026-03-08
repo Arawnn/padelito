@@ -18,6 +18,11 @@ use Tests\Shared\Mother\Fake\InMemoryUserRepository;
 use Tests\Shared\Mother\UserMother;
 use Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class ConfirmPasswordResetCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $userRepository;

@@ -13,7 +13,11 @@ use Tests\Shared\Mother\Fake\SpyMailer;
 use Tests\Shared\Mother\UserMother;
 use Tests\TestCase;
 
-
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class SendPasswordResetEmailCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $userRepository;

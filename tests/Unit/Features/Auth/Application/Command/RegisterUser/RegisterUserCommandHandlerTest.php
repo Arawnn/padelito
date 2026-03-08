@@ -20,6 +20,11 @@ use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\UserMother;
 use Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class RegisterUserCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $repository;
@@ -37,17 +42,6 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $this->uuidGenerator = new FakeUuidGenerator();
         $this->passwordHasher = new FakePasswordHasher();
         $this->eventDispatcher = new SpyEventDispatcher();
-    }
-
-    private function makeHandler(): RegisterUserCommandHandler
-    {
-        return new RegisterUserCommandHandler(
-            $this->repository,
-            $this->tx,
-            $this->passwordHasher,
-            $this->uuidGenerator,
-            $this->eventDispatcher
-        );
     }
 
     public function testItRegistersAUser(): void
@@ -165,5 +159,16 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $this->assertTrue($result->isFail());
         $this->assertInstanceOf(InvalidNameException::class, $result->error());
         $this->assertStringContainsString('INVALID_NAME', $result->error()->getDomainCode());
+    }
+
+    private function makeHandler(): RegisterUserCommandHandler
+    {
+        return new RegisterUserCommandHandler(
+            $this->repository,
+            $this->tx,
+            $this->passwordHasher,
+            $this->uuidGenerator,
+            $this->eventDispatcher
+        );
     }
 }

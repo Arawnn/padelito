@@ -18,6 +18,11 @@ use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\UserMother;
 use Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class LoginUserCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $repository;
@@ -30,15 +35,6 @@ final class LoginUserCommandHandlerTest extends TestCase
         $this->repository = new InMemoryUserRepository();
         $this->passwordHasher = new FakePasswordHasher();
         $this->eventDispatcher = new SpyEventDispatcher();
-    }
-
-    private function makeHandler(): LoginUserCommandHandler
-    {
-        return new LoginUserCommandHandler(
-            $this->repository,
-            $this->passwordHasher,
-            $this->eventDispatcher
-        );
     }
 
     public function testItLogsInAUser(): void
@@ -118,5 +114,14 @@ final class LoginUserCommandHandlerTest extends TestCase
         $this->assertTrue($result->isFail());
         $this->assertInstanceOf(InvalidEmailException::class, $result->error());
         $this->assertStringContainsString('INVALID_EMAIL', $result->error()->getDomainCode());
+    }
+
+    private function makeHandler(): LoginUserCommandHandler
+    {
+        return new LoginUserCommandHandler(
+            $this->repository,
+            $this->passwordHasher,
+            $this->eventDispatcher
+        );
     }
 }
