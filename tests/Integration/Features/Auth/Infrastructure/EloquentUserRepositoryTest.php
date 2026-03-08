@@ -18,6 +18,7 @@ use Tests\Shared\Mother\UserMother;
 final class EloquentUserRepositoryTest extends IntegrationTestCase
 {
     private EloquentUserRepository $repository;
+
     private PasswordHasherInterface $passwordHasher;
 
     protected function setUp(): void
@@ -27,7 +28,7 @@ final class EloquentUserRepositoryTest extends IntegrationTestCase
         $this->passwordHasher = app(PasswordHasherInterface::class);
     }
 
-    public function testItPersistsAndRetrievesAUserById(): void
+    public function test_it_persists_and_retrieves_a_user_by_id(): void
     {
         $user = UserMother::create()->registered()->build();
         $this->repository->create($user);
@@ -40,7 +41,7 @@ final class EloquentUserRepositoryTest extends IntegrationTestCase
         $this->assertEquals($user->name()->value(), $found->name()->value());
     }
 
-    public function testItPersistsAndRetrievesAUserByEmail(): void
+    public function test_it_persists_and_retrieves_a_user_by_email(): void
     {
         $user = UserMother::create()->registered()->build();
         $this->repository->create($user);
@@ -51,19 +52,19 @@ final class EloquentUserRepositoryTest extends IntegrationTestCase
         $this->assertEquals($user->id()->value(), $found->id()->value());
     }
 
-    public function testItReturnsNullWhenUserNotFoundById(): void
+    public function test_it_returns_null_when_user_not_found_by_id(): void
     {
         $found = $this->repository->findById(Id::fromString('non-existent-id'));
         $this->assertNull($found);
     }
 
-    public function testItReturnsNullWhenUserNotFoundByEmail(): void
+    public function test_it_returns_null_when_user_not_found_by_email(): void
     {
         $found = $this->repository->findByEmail(Email::fromString('nobody@example.com'));
         $this->assertNull($found);
     }
 
-    public function testItUpdatesAUser(): void
+    public function test_it_updates_a_user(): void
     {
         $user = UserMother::create()->registered()->build();
         $this->repository->create($user);

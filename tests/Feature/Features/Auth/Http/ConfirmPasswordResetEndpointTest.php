@@ -19,13 +19,13 @@ final class ConfirmPasswordResetEndpointTest extends FeatureTestCase
 {
     private PasswordResetTokenRepositoryInterface $tokenRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->tokenRepository = app(PasswordResetTokenRepositoryInterface::class);
     }
 
-    public function testItResetsThePassword(): void
+    public function test_it_resets_the_password(): void
     {
         User::factory()->create([
             'name' => 'John Doe',
@@ -42,8 +42,7 @@ final class ConfirmPasswordResetEndpointTest extends FeatureTestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonPath('message', 'Password has been reset successfully.')
-        ;
+            ->assertJsonPath('message', 'Password has been reset successfully.');
 
         $this->assertDatabaseMissing('password_reset_tokens', ['email' => 'john@example.com']);
 
@@ -51,7 +50,7 @@ final class ConfirmPasswordResetEndpointTest extends FeatureTestCase
         $this->assertTrue(Hash::check('NewPassword123!', $updatedUser->password));
     }
 
-    public function testItReturnsNotFoundIfUserDoesNotExist(): void
+    public function test_it_returns_not_found_if_user_does_not_exist(): void
     {
         $response = $this->postJson('/api/v1/reset-password/confirm', [
             'email' => 'unknown@example.com',
@@ -63,7 +62,7 @@ final class ConfirmPasswordResetEndpointTest extends FeatureTestCase
         $response->assertStatus(404);
     }
 
-    public function testItRejectsAnInvalidToken(): void
+    public function test_it_rejects_an_invalid_token(): void
     {
         User::factory()->create(['name' => 'John Doe', 'email' => 'john@example.com']);
 
@@ -77,7 +76,7 @@ final class ConfirmPasswordResetEndpointTest extends FeatureTestCase
         $response->assertStatus(422);
     }
 
-    public function testItRejectsNonMatchingPasswordConfirmation(): void
+    public function test_it_rejects_non_matching_password_confirmation(): void
     {
         User::factory()->create(['name' => 'John Doe', 'email' => 'john@example.com']);
 
@@ -91,7 +90,7 @@ final class ConfirmPasswordResetEndpointTest extends FeatureTestCase
         $response->assertStatus(422);
     }
 
-    public function testItRejectsMissingFields(): void
+    public function test_it_rejects_missing_fields(): void
     {
         $response = $this->postJson('/api/v1/reset-password/confirm', []);
 

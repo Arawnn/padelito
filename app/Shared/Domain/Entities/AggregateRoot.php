@@ -13,13 +13,13 @@ abstract class AggregateRoot
 
     public function __construct()
     {
-        $this->domainEvents = new DomainEventCollection();
+        $this->domainEvents = new DomainEventCollection;
     }
 
     public function pullDomainEvents(): DomainEventCollection
     {
         $events = $this->domainEvents;
-        $this->domainEvents = new DomainEventCollection();
+        $this->domainEvents = new DomainEventCollection;
 
         return $events;
     }

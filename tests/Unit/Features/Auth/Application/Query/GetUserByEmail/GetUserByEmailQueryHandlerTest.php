@@ -22,14 +22,14 @@ final class GetUserByEmailQueryHandlerTest extends TestCase
 {
     private InMemoryUserRepository $userRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->userRepository = new InMemoryUserRepository();
+        $this->userRepository = new InMemoryUserRepository;
     }
 
-    public function testItReturnsAUserByEmail(): void
+    public function test_it_returns_a_user_by_email(): void
     {
         $user = UserMother::create()->withEmail('john.doe@example.com')->build();
         $this->userRepository->create($user);
@@ -45,7 +45,7 @@ final class GetUserByEmailQueryHandlerTest extends TestCase
         $this->assertEquals($user->name()->value(), $result->name()->value());
     }
 
-    public function testItThrowsAnExceptionIfTheUserIsNotFound(): void
+    public function test_it_throws_an_exception_if_the_user_is_not_found(): void
     {
         $this->expectException(UserNotFoundException::class);
 
@@ -55,7 +55,7 @@ final class GetUserByEmailQueryHandlerTest extends TestCase
         $handler($query);
     }
 
-    public function testItThrowsAnExceptionIfTheEmailIsInvalid(): void
+    public function test_it_throws_an_exception_if_the_email_is_invalid(): void
     {
         $this->expectException(InvalidEmailException::class);
 

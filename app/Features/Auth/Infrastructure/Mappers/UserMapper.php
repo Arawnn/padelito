@@ -25,7 +25,7 @@ final readonly class UserMapper
 
     public function toModel(User $user): UserModel
     {
-        $model = new UserModel();
+        $model = new UserModel;
         $model->forceFill([
             'id' => $user->id()->value(),
             'name' => $user->name()->value(),

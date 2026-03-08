@@ -28,23 +28,27 @@ use Tests\TestCase;
 final class RegisterUserCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $repository;
+
     private ImmediateTransactionManager $tx;
+
     private FakeUuidGenerator $uuidGenerator;
+
     private FakePasswordHasher $passwordHasher;
+
     private SpyEventDispatcher $eventDispatcher;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->repository = new InMemoryUserRepository();
-        $this->tx = new ImmediateTransactionManager();
-        $this->uuidGenerator = new FakeUuidGenerator();
-        $this->passwordHasher = new FakePasswordHasher();
-        $this->eventDispatcher = new SpyEventDispatcher();
+        $this->repository = new InMemoryUserRepository;
+        $this->tx = new ImmediateTransactionManager;
+        $this->uuidGenerator = new FakeUuidGenerator;
+        $this->passwordHasher = new FakePasswordHasher;
+        $this->eventDispatcher = new SpyEventDispatcher;
     }
 
-    public function testItRegistersAUser(): void
+    public function test_it_registers_a_user(): void
     {
         $handler = $this->makeHandler();
 
@@ -70,7 +74,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $this->assertTrue($this->eventDispatcher->dispatched(UserCreated::class));
     }
 
-    public function testItReturnsAnExceptionIfTheUserEmailAlreadyExists(): void
+    public function test_it_returns_an_exception_if_the_user_email_already_exists(): void
     {
         $this->repository->create(
             UserMother::create()->withEmail('john.doe@example.com')->build()
@@ -91,7 +95,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $this->assertStringContainsString('USER_ALREADY_EXISTS', $result->error()->getDomainCode());
     }
 
-    public function testItReturnsAnExceptionIfTheUserIdAlreadyExists(): void
+    public function test_it_returns_an_exception_if_the_user_id_already_exists(): void
     {
         $this->repository->create(
             UserMother::create()->withId('00000000-0000-0000-0000-000000000000')->build()
@@ -112,7 +116,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $this->assertStringContainsString('USER_ALREADY_EXISTS', $result->error()->getDomainCode());
     }
 
-    public function testItReturnsAnExceptionIfThePasswordIsInvalid(): void
+    public function test_it_returns_an_exception_if_the_password_is_invalid(): void
     {
         $handler = $this->makeHandler();
 
@@ -129,7 +133,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $this->assertStringContainsString('INVALID_PASSWORD', $result->error()->getDomainCode());
     }
 
-    public function testItReturnsAnExceptionIfTheEmailIsInvalid(): void
+    public function test_it_returns_an_exception_if_the_email_is_invalid(): void
     {
         $command = new RegisterUserCommand(
             name: 'John',
@@ -145,7 +149,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $this->assertStringContainsString('INVALID_EMAIL', $result->error()->getDomainCode());
     }
 
-    public function testItReturnsAnExceptionIfTheNameIsInvalid(): void
+    public function test_it_returns_an_exception_if_the_name_is_invalid(): void
     {
         $command = new RegisterUserCommand(
             name: 'Jo',

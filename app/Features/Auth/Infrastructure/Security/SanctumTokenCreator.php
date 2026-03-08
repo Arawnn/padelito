@@ -17,7 +17,6 @@ final readonly class SanctumTokenCreator implements TokenCreatorInterface
         return $this->userMapper
             ->toModel($user)
             ->createToken('auth_token')
-            ->plainTextToken
-        ;
+            ->plainTextToken;
     }
 }

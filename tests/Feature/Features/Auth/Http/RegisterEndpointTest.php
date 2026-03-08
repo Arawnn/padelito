@@ -11,7 +11,7 @@ use Tests\FeatureTestCase;
  */
 final class RegisterEndpointTest extends FeatureTestCase
 {
-    public function testItRegistersAUser(): void
+    public function test_it_registers_a_user(): void
     {
         $response = $this->postJson('/api/v1/register', [
             'name' => 'John Doe',
@@ -25,13 +25,12 @@ final class RegisterEndpointTest extends FeatureTestCase
                 'token',
                 'message',
             ])
-            ->assertJsonPath('data.user.email', 'john@example.com')
-        ;
+            ->assertJsonPath('data.user.email', 'john@example.com');
 
         $this->assertDatabaseHas('users', ['email' => 'john@example.com']);
     }
 
-    public function testItRejectsAnAlreadyUsedEmail(): void
+    public function test_it_rejects_an_already_used_email(): void
     {
         $this->postJson('/api/v1/register', [
             'name' => 'John Doe',
@@ -48,7 +47,7 @@ final class RegisterEndpointTest extends FeatureTestCase
         $response->assertStatus(422);
     }
 
-    public function testItRejectsAnInvalidPassword(): void
+    public function test_it_rejects_an_invalid_password(): void
     {
         $response = $this->postJson('/api/v1/register', [
             'name' => 'John Doe',
@@ -59,7 +58,7 @@ final class RegisterEndpointTest extends FeatureTestCase
         $response->assertStatus(422);
     }
 
-    public function testItRejectsMissingFields(): void
+    public function test_it_rejects_missing_fields(): void
     {
         $response = $this->postJson('/api/v1/register', []);
         $response->assertStatus(422);

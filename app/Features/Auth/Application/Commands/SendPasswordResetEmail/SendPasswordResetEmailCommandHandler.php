@@ -32,7 +32,7 @@ final readonly class SendPasswordResetEmailCommandHandler
 
         $user = $this->userRepository->findByEmail($email);
 
-        if (!$user) {
+        if (! $user) {
             return Result::ok(null);
         }
 

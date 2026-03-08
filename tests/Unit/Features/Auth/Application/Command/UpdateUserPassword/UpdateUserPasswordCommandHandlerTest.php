@@ -24,25 +24,26 @@ use Tests\TestCase;
 final class UpdateUserPasswordCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $repository;
+
     private FakePasswordHasher $passwordHasher;
+
     private SpyEventDispatcher $eventDispatcher;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new InMemoryUserRepository();
-        $this->passwordHasher = new FakePasswordHasher();
-        $this->eventDispatcher = new SpyEventDispatcher();
+        $this->repository = new InMemoryUserRepository;
+        $this->passwordHasher = new FakePasswordHasher;
+        $this->eventDispatcher = new SpyEventDispatcher;
     }
 
-    public function testItUpdatesAPassword(): void
+    public function test_it_updates_a_password(): void
     {
         $newPlainPassword = 'Password123!';
 
         $user = UserMother::create()
             ->withHashedPassword('hashed_old-password')
-            ->build()
-        ;
+            ->build();
         $this->repository->create($user);
 
         $command = new UpdateUserPasswordCommand(
@@ -64,7 +65,7 @@ final class UpdateUserPasswordCommandHandlerTest extends TestCase
         $this->assertEquals($expectedHash, $persisted->password()->value());
     }
 
-    public function testItReturnsAnExceptionIfTheUserIsNotFound(): void
+    public function test_it_returns_an_exception_if_the_user_is_not_found(): void
     {
         $command = new UpdateUserPasswordCommand(
             userId: 'invalid-user-id',
@@ -79,7 +80,7 @@ final class UpdateUserPasswordCommandHandlerTest extends TestCase
         $this->assertStringContainsString('USER_NOT_FOUND', $result->error()->getDomainCode());
     }
 
-    public function testItReturnsAnExceptionIfThePasswordIsInvalid(): void
+    public function test_it_returns_an_exception_if_the_password_is_invalid(): void
     {
         $user = UserMother::create()->build();
         $this->repository->create($user);

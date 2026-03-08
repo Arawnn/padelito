@@ -28,11 +28,11 @@ final readonly class Name
     {
         $violations = [];
 
-        if (0 === strlen($value) || '' === trim($value)) {
+        if (strlen($value) === 0 || trim($value) === '') {
             $violations[] = 'Name cannot be empty';
-        } elseif (!preg_match('/[a-zA-Z]/', $value)) {
+        } elseif (! preg_match('/[a-zA-Z]/', $value)) {
             $violations[] = 'Name must contain at least one letter';
-        } elseif (!preg_match('/^[a-zA-Z0-9\s]+$/', $value)) {
+        } elseif (! preg_match('/^[a-zA-Z0-9\s]+$/', $value)) {
             $violations[] = 'Name must contain only letters, numbers and spaces';
         } elseif (strlen($value) < 3) {
             $violations[] = 'Name must be at least 3 characters long';
@@ -40,7 +40,7 @@ final readonly class Name
             $violations[] = 'Name must be less than 256 characters long';
         }
 
-        if (!empty($violations)) {
+        if (! empty($violations)) {
             throw InvalidNameException::fromViolations($violations);
         }
     }

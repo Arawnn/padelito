@@ -34,11 +34,11 @@ final readonly class ConfirmPasswordResetCommandHandler
         }
 
         $user = $this->userRepository->findByEmail($email);
-        if (!$user) {
+        if (! $user) {
             return Result::fail(UserNotFoundException::fromEmail($email));
         }
 
-        if (!$this->tokenRepository->isValid($email, $command->token)) {
+        if (! $this->tokenRepository->isValid($email, $command->token)) {
             return Result::fail(InvalidResetTokenException::expiredOrInvalid());
         }
 
@@ -48,7 +48,7 @@ final readonly class ConfirmPasswordResetCommandHandler
             password: $command->password,
         ));
 
-        if (!$result->isOk()) {
+        if (! $result->isOk()) {
             return $result;
         }
 

@@ -26,11 +26,11 @@ final readonly class Email
     {
         $violations = [];
 
-        if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+        if (! filter_var($value, FILTER_VALIDATE_EMAIL)) {
             $violations[] = 'Invalid email format';
         }
 
-        if (!empty($violations)) {
+        if (! empty($violations)) {
             throw InvalidEmailException::fromViolations($violations);
         }
     }

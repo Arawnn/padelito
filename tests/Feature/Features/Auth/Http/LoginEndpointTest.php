@@ -15,7 +15,7 @@ use Tests\FeatureTestCase;
  */
 final class LoginEndpointTest extends FeatureTestCase
 {
-    public function testItLogsInAUser(): void
+    public function test_it_logs_in_a_user(): void
     {
         User::factory()->create([
             'name' => 'John Doe',
@@ -34,11 +34,10 @@ final class LoginEndpointTest extends FeatureTestCase
                 'token',
                 'message',
             ])
-            ->assertJsonPath('data.user.email', 'john@example.com')
-        ;
+            ->assertJsonPath('data.user.email', 'john@example.com');
     }
 
-    public function testItRejectsWrongPassword(): void
+    public function test_it_rejects_wrong_password(): void
     {
         User::factory()->create([
             'name' => 'John Doe',
@@ -54,7 +53,7 @@ final class LoginEndpointTest extends FeatureTestCase
         $response->assertStatus(422);
     }
 
-    public function testItRejectsNonExistentUser(): void
+    public function test_it_rejects_non_existent_user(): void
     {
         $response = $this->postJson('/api/v1/login', [
             'email' => 'nobody@example.com',
@@ -64,7 +63,7 @@ final class LoginEndpointTest extends FeatureTestCase
         $response->assertStatus(404);
     }
 
-    public function testItRejectsMissingFields(): void
+    public function test_it_rejects_missing_fields(): void
     {
         $response = $this->postJson('/api/v1/login', []);
         $response->assertStatus(422);

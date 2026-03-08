@@ -21,16 +21,17 @@ use Tests\TestCase;
 final class LogoutUserCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $repository;
+
     private SpyEventDispatcher $eventDispatcher;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new InMemoryUserRepository();
-        $this->eventDispatcher = new SpyEventDispatcher();
+        $this->repository = new InMemoryUserRepository;
+        $this->eventDispatcher = new SpyEventDispatcher;
     }
 
-    public function testItLogsOutAUser(): void
+    public function test_it_logs_out_a_user(): void
     {
         $user = UserMother::create()->build();
         $this->repository->create($user);
@@ -45,7 +46,7 @@ final class LogoutUserCommandHandlerTest extends TestCase
         $this->assertTrue($this->eventDispatcher->dispatched(UserLoggedOut::class));
     }
 
-    public function testItReturnsAnExceptionIfTheUserIsNotFound(): void
+    public function test_it_returns_an_exception_if_the_user_is_not_found(): void
     {
         $command = new LogoutUserCommand(userId: 'invalid-user-id');
         $handler = $this->makeHandler();

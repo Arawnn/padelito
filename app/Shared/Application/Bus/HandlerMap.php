@@ -17,7 +17,7 @@ final class HandlerMap
     public function handlerFor(object $message): string
     {
         $cls = $message::class;
-        if (!isset($this->map[$cls])) {
+        if (! isset($this->map[$cls])) {
             throw new \RuntimeException("No handler registered for {$cls}");
         }
 

@@ -43,7 +43,7 @@ final class AuthServiceProvider extends ServiceProvider
         $this->app->bind(TokenCreatorInterface::class, SanctumTokenCreator::class);
         $this->app->bind(TransactionManagerInterface::class, LaravalTransactionManager::class);
         $this->app->singleton(HandlerMap::class, function () {
-            $map = new HandlerMap();
+            $map = new HandlerMap;
             $map->register(RegisterUserCommand::class, RegisterUserCommandHandler::class);
             $map->register(LoginUserCommand::class, LoginUserCommandHandler::class);
             $map->register(LogoutUserCommand::class, LogoutUserCommandHandler::class);

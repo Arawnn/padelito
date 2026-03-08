@@ -21,19 +21,21 @@ use Tests\TestCase;
 final class SendPasswordResetEmailCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $userRepository;
+
     private InMemoryPasswordResetTokenRepository $tokenRepository;
+
     private SpyMailer $mailer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->userRepository = new InMemoryUserRepository();
-        $this->tokenRepository = new InMemoryPasswordResetTokenRepository();
-        $this->mailer = new SpyMailer();
+        $this->userRepository = new InMemoryUserRepository;
+        $this->tokenRepository = new InMemoryPasswordResetTokenRepository;
+        $this->mailer = new SpyMailer;
     }
 
-    public function testItSendsAPasswordResetEmail(): void
+    public function test_it_sends_a_password_reset_email(): void
     {
         $user = UserMother::create()->withEmail('john.doe@example.com')->build();
         $this->userRepository->create($user);
@@ -53,7 +55,7 @@ final class SendPasswordResetEmailCommandHandlerTest extends TestCase
         $this->assertEquals(1, $this->mailer->count());
     }
 
-    public function testItDoesNotSendAnEmailIfTheUserDoesNotExist(): void
+    public function test_it_does_not_send_an_email_if_the_user_does_not_exist(): void
     {
         $command = new SendPasswordResetEmailCommand(email: 'unknown@example.com');
         $handler = new SendPasswordResetEmailCommandHandler(
@@ -69,7 +71,7 @@ final class SendPasswordResetEmailCommandHandlerTest extends TestCase
         $this->assertEquals(0, $this->mailer->count());
     }
 
-    public function testItReturnsAnExceptionIfTheEmailIsInvalid(): void
+    public function test_it_returns_an_exception_if_the_email_is_invalid(): void
     {
         $command = new SendPasswordResetEmailCommand(email: 'invalid-email');
         $handler = new SendPasswordResetEmailCommandHandler(

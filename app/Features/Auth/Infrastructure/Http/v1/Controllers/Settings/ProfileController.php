@@ -18,14 +18,14 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      *
-     * @param mixed $request
+     * @param  mixed  $request
      */
     public function update($request): void {}
 
     /**
      * Delete the user's profile.
      *
-     * @param mixed $request
+     * @param  mixed  $request
      */
     public function destroy($request): void
     {

@@ -18,7 +18,7 @@ final readonly class GetUserByEmailQueryHandler
     public function __invoke(GetUserByEmailQuery $query): User
     {
         $user = $this->userRepository->findByEmail(Email::fromString($query->email));
-        if (!$user) {
+        if (! $user) {
             throw UserNotFoundException::fromEmail(Email::fromString($query->email));
         }
 

@@ -25,7 +25,7 @@ class ConfirmPasswordResetController extends Controller
             password: $request->password,
         ));
 
-        if (!$result->isOk()) {
+        if (! $result->isOk()) {
             return AuthExceptionMapper::toResponse($result->error());
         }
 
