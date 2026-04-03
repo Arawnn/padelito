@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Application\Bus;
 
-use App\Shared\Domain\ValueObjects\Result;
+use App\Shared\Application\Result;
 
 interface CommandBusInterface
 {

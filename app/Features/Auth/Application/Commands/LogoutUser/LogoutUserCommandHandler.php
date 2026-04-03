@@ -8,7 +8,7 @@ use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\Id;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
-use App\Shared\Domain\ValueObjects\Result;
+use App\Shared\Application\Result;
 
 final readonly class LogoutUserCommandHandler
 {
@@ -30,6 +30,6 @@ final readonly class LogoutUserCommandHandler
         $user->logout();
         $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
 
-        return Result::ok(null);
+        return Result::void();
     }
 }

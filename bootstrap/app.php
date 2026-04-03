@@ -1,9 +1,12 @@
 <?php
 
+use App\Shared\Domain\Exceptions\DomainExceptionInterface;
+use App\Shared\Infrastructure\Http\Exceptions\ApiExceptionMapper;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,4 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {})->create();
+    ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->renderable(function (DomainExceptionInterface $e) {
+            return ApiExceptionMapper::toResponse($e, Response::HTTP_INTERNAL_SERVER_ERROR);
+        });
+    })->create();

@@ -8,6 +8,7 @@ use App\Features\Auth\Domain\Entities\User;
 use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\Email;
+use App\Shared\Application\Result;
 
 final readonly class GetUserByEmailQueryHandler
 {
@@ -15,13 +16,25 @@ final readonly class GetUserByEmailQueryHandler
         private UserRepositoryInterface $userRepository,
     ) {}
 
-    public function __invoke(GetUserByEmailQuery $query): User
+    /**
+     * @return Result<User>
+     */
+    public function __invoke(GetUserByEmailQuery $query): Result
     {
-        $user = $this->userRepository->findByEmail(Email::fromString($query->email));
+        return Result::try(fn () => Email::fromString($query->email))
+            ->flatMap(fn (Email $email) => $this->findUser($email));
+    }
+
+    /**
+     * @return Result<User>
+     */
+    private function findUser(Email $email): Result
+    {
+        $user = $this->userRepository->findByEmail($email);
         if (! $user) {
-            throw UserNotFoundException::fromEmail(Email::fromString($query->email));
+            return Result::fail(UserNotFoundException::fromEmail($email));
         }
 
-        return $user;
+        return Result::ok($user);
     }
 }

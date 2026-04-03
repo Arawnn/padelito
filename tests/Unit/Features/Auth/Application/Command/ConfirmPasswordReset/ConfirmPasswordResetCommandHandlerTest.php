@@ -11,7 +11,7 @@ use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
 use App\Features\Auth\Domain\Exceptions\InvalidResetTokenException;
 use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
 use App\Features\Auth\Domain\ValueObjects\Email;
-use App\Shared\Domain\ValueObjects\Result;
+use App\Shared\Application\Result;
 use Tests\Shared\Mother\Fake\FakeCommandBus;
 use Tests\Shared\Mother\Fake\InMemoryPasswordResetTokenRepository;
 use Tests\Shared\Mother\Fake\InMemoryUserRepository;

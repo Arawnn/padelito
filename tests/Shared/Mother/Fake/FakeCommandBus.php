@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Shared\Mother\Fake;
 
 use App\Shared\Application\Bus\CommandBusInterface;
-use App\Shared\Domain\ValueObjects\Result;
+use App\Shared\Application\Result;
 
 final class FakeCommandBus implements CommandBusInterface
 {
@@ -13,7 +13,7 @@ final class FakeCommandBus implements CommandBusInterface
 
     public function __construct()
     {
-        $this->response = Result::ok(null);
+        $this->response = Result::void();
     }
 
     public function willReturn(Result $result): void
