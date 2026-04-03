@@ -7,8 +7,8 @@ namespace App\Features\Auth\Application\Commands\LogoutUser;
 use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\Id;
-use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use App\Shared\Application\Result;
+use App\Shared\Domain\Contracts\EventDispatcherInterface;
 
 final readonly class LogoutUserCommandHandler
 {

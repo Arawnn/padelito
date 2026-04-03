@@ -19,14 +19,14 @@ final class Profile extends AggregateRoot
     private function __construct(
         private readonly Id $id,
         private Username $username,
-        private ?PlayerPreferences $preferences = null,
-        private ?PlayerIdentity $identity = null,
+        private ?PlayerPreferences $preferences,
+        private ?PlayerIdentity $identity,
         private PlayerStats $stats,
         private PadelCoins $padelCoins,
         private Localization $localization,
     ) {}
 
-    public static function create(Id $id, Username $username, ?PlayerPreferences $preferences = null, ?PlayerIdentity $identity = null, PlayerStats $stats, PadelCoins $coins, Localization $localization): self
+    public static function create(Id $id, Username $username, ?PlayerPreferences $preferences, ?PlayerIdentity $identity, PlayerStats $stats, PadelCoins $coins, Localization $localization): self
     {
         $profile = new self(
             $id,
@@ -43,7 +43,7 @@ final class Profile extends AggregateRoot
         return $profile;
     }
 
-    public static function reconstitute(Id $id, Username $username, ?PlayerPreferences $preferences = null, ?PlayerIdentity $identity = null, PlayerStats $stats, PadelCoins $coins, Localization $localization): self
+    public static function reconstitute(Id $id, Username $username, ?PlayerPreferences $preferences, ?PlayerIdentity $identity, PlayerStats $stats, PadelCoins $coins, Localization $localization): self
     {
         return new self(
             $id,
