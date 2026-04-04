@@ -31,7 +31,7 @@ final class EloquentUserRepositoryTest extends IntegrationTestCase
     public function test_it_persists_and_retrieves_a_user_by_id(): void
     {
         $user = UserMother::create()->registered()->build();
-        $this->repository->create($user);
+        $this->repository->save($user);
 
         $found = $this->repository->findById($user->id());
 
@@ -44,7 +44,7 @@ final class EloquentUserRepositoryTest extends IntegrationTestCase
     public function test_it_persists_and_retrieves_a_user_by_email(): void
     {
         $user = UserMother::create()->registered()->build();
-        $this->repository->create($user);
+        $this->repository->save($user);
 
         $found = $this->repository->findByEmail($user->email());
 
@@ -67,7 +67,7 @@ final class EloquentUserRepositoryTest extends IntegrationTestCase
     public function test_it_updates_a_user(): void
     {
         $user = UserMother::create()->registered()->build();
-        $this->repository->create($user);
+        $this->repository->save($user);
 
         $newPassword = Password::fromPlainText('NewPassword123!');
         $newPassword = $this->passwordHasher->hash($newPassword);

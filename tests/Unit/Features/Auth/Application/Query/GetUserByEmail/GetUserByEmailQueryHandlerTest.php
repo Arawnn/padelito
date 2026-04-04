@@ -32,7 +32,7 @@ final class GetUserByEmailQueryHandlerTest extends TestCase
     public function test_it_returns_a_user_by_email(): void
     {
         $user = UserMother::create()->withEmail('john.doe@example.com')->build();
-        $this->userRepository->create($user);
+        $this->userRepository->save($user);
 
         $query = new GetUserByEmailQuery(email: 'john.doe@example.com');
         $handler = new GetUserByEmailQueryHandler($this->userRepository);

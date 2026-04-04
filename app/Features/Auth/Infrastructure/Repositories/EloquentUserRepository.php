@@ -32,7 +32,7 @@ final readonly class EloquentUserRepository implements UserRepositoryInterface
         return $userModel ? $this->userMapper->toDomain($userModel) : null;
     }
 
-    public function create(User $user): void
+    public function save(User $user): void
     {
         $this->userMapper->toModel($user)->save();
     }

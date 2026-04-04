@@ -76,7 +76,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
 
     public function test_it_returns_an_exception_if_the_user_email_already_exists(): void
     {
-        $this->repository->create(
+        $this->repository->save(
             UserMother::create()->withEmail('john.doe@example.com')->build()
         );
 
@@ -97,7 +97,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
 
     public function test_it_returns_an_exception_if_the_user_id_already_exists(): void
     {
-        $this->repository->create(
+        $this->repository->save(
             UserMother::create()->withId('00000000-0000-0000-0000-000000000000')->build()
         );
 

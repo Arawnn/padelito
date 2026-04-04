@@ -13,7 +13,7 @@ final class InMemoryUserRepository implements UserRepositoryInterface
 {
     private array $store = [];
 
-    public function create(User $user): void
+    public function save(User $user): void
     {
         $this->store[$user->id()->value()] = $user;
     }
