@@ -14,6 +14,17 @@ final readonly class PlayerStats
         public readonly BestStreak $bestStreak,
     ) {}
 
+    public static function of(TotalWins $totalWins, TotalLosses $totalLosses, EloRating $eloRating, CurrentStreak $currentStreak, BestStreak $bestStreak): self
+    {
+        return new self(
+            totalWins: $totalWins,
+            totalLosses: $totalLosses,
+            eloRating: $eloRating,
+            currentStreak: $currentStreak,
+            bestStreak: $bestStreak,
+        );
+    }
+
     public function totalMatches(): int
     {
         return $this->totalWins->value() + $this->totalLosses->value();
