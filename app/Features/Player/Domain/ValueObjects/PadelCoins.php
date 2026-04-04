@@ -17,4 +17,9 @@ final readonly class PadelCoins
     {
         return $this->value;
     }
+
+    public static function initialize(): self
+    {
+        return new self(0);
+    }
 }

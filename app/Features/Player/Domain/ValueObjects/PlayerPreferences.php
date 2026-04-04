@@ -12,11 +12,11 @@ final readonly class PlayerPreferences
         private readonly ?Location $location
     ) {}
 
-    public static function of(?DominantHand $hand, ?PreferredPosition $position, ?Location $location): self
+    public static function of(?DominantHand $dominantHand, ?PreferredPosition $preferredPosition, ?Location $location): self
     {
         return new self(
-            dominantHand: $hand,
-            preferredPosition: $position,
+            dominantHand: $dominantHand,
+            preferredPosition: $preferredPosition,
             location: $location
         );
     }

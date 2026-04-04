@@ -23,19 +23,17 @@ final class Profile extends AggregateRoot
         private ?PlayerIdentity $identity,
         private PlayerStats $stats,
         private PadelCoins $padelCoins,
-        private Location $location,
     ) {}
 
-    public static function create(Id $id, Username $username, ?PlayerPreferences $preferences, ?PlayerIdentity $identity, PlayerStats $stats, PadelCoins $coins, Location $location): self
+    public static function create(Id $id, Username $username, ?PlayerPreferences $preferences, ?PlayerIdentity $identity, PlayerStats $stats, PadelCoins $padelCoins): self
     {
         $profile = new self(
-            $id,
-            $username,
-            $preferences,
-            $identity,
-            $stats,
-            $coins,
-            $location,
+            id: $id,
+            username: $username,
+            preferences: $preferences,
+            identity: $identity,
+            stats: $stats,
+            padelCoins: $padelCoins,
         );
 
         $profile->recordDomainEvent(new PlayerProfileCreated($profile->id()->value(), $profile->username()->value()));
@@ -43,7 +41,7 @@ final class Profile extends AggregateRoot
         return $profile;
     }
 
-    public static function reconstitute(Id $id, Username $username, ?PlayerPreferences $preferences, ?PlayerIdentity $identity, PlayerStats $stats, PadelCoins $coins, Location $location): self
+    public static function reconstitute(Id $id, Username $username, ?PlayerPreferences $preferences, ?PlayerIdentity $identity, PlayerStats $stats, PadelCoins $padelCoins): self
     {
         return new self(
             $id,
@@ -51,8 +49,7 @@ final class Profile extends AggregateRoot
             $preferences,
             $identity,
             $stats,
-            $coins,
-            $location,
+            $padelCoins,
         );
     }
 
