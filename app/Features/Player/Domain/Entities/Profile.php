@@ -6,7 +6,7 @@ namespace App\Features\Player\Domain\Entities;
 
 use App\Features\Player\Domain\Events\PlayerProfileCreated;
 use App\Features\Player\Domain\ValueObjects\Id;
-use App\Features\Player\Domain\ValueObjects\Localization;
+use App\Features\Player\Domain\ValueObjects\Location;
 use App\Features\Player\Domain\ValueObjects\PadelCoins;
 use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
 use App\Features\Player\Domain\ValueObjects\PlayerPreferences;
@@ -23,10 +23,10 @@ final class Profile extends AggregateRoot
         private ?PlayerIdentity $identity,
         private PlayerStats $stats,
         private PadelCoins $padelCoins,
-        private Localization $localization,
+        private Location $location,
     ) {}
 
-    public static function create(Id $id, Username $username, ?PlayerPreferences $preferences, ?PlayerIdentity $identity, PlayerStats $stats, PadelCoins $coins, Localization $localization): self
+    public static function create(Id $id, Username $username, ?PlayerPreferences $preferences, ?PlayerIdentity $identity, PlayerStats $stats, PadelCoins $coins, Location $location): self
     {
         $profile = new self(
             $id,
@@ -35,7 +35,7 @@ final class Profile extends AggregateRoot
             $identity,
             $stats,
             $coins,
-            $localization,
+            $location,
         );
 
         $profile->recordDomainEvent(new PlayerProfileCreated($profile->id()->value(), $profile->username()->value()));
@@ -43,7 +43,7 @@ final class Profile extends AggregateRoot
         return $profile;
     }
 
-    public static function reconstitute(Id $id, Username $username, ?PlayerPreferences $preferences, ?PlayerIdentity $identity, PlayerStats $stats, PadelCoins $coins, Localization $localization): self
+    public static function reconstitute(Id $id, Username $username, ?PlayerPreferences $preferences, ?PlayerIdentity $identity, PlayerStats $stats, PadelCoins $coins, Location $location): self
     {
         return new self(
             $id,
@@ -52,7 +52,7 @@ final class Profile extends AggregateRoot
             $identity,
             $stats,
             $coins,
-            $localization,
+            $location,
         );
     }
 

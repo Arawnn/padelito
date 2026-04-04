@@ -9,7 +9,7 @@ namespace App\Features\Player\Domain\ValueObjects;
 // Sera simplement affiché comme info de profil affiché
 // Sera utilisé pour le matching dans le futur
 // A encapsulé dans VO PlayerPref probablement
-final readonly class Localization
+final readonly class Location
 {
     private function __construct(private string $value) {}
 

@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Domain\ValueObjects;
 
-enum DominantHandEnum: string
-{
-    case LEFT = 'left';
-    case RIGHT = 'right';
-    case AMBIDEXTROUS = 'ambidextrous';
-}
+use App\Features\Player\Domain\Enums\DominantHandEnum;
 
 final readonly class DominantHand
 {
