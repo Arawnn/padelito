@@ -23,7 +23,8 @@ final readonly class ConfirmPasswordResetCommandHandler
     ) {}
 
     /**
-     * @return Result<null>
+     * @throws DomainExceptionInterface
+     * @return Result<void>
      */
     public function __invoke(ConfirmPasswordResetCommand $command): Result
     {

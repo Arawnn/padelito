@@ -36,6 +36,8 @@ final readonly class CreatePlayerProfileCommandHandler
     ) {}
 
     /**
+     * TODO: return a DTO instead of exposing the aggregate root
+     * @throws DomainExceptionInterface
      * @return Result<Profile>
      */
     public function __invoke(CreatePlayerProfileCommand $command): Result

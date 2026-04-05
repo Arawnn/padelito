@@ -29,6 +29,8 @@ final readonly class RegisterUserCommandHandler
     ) {}
 
     /**
+     * TODO: return a DTO instead of exposing the aggregate root
+     * @throws DomainExceptionInterface
      * @return Result<User>
      */
     public function __invoke(RegisterUserCommand $command): Result

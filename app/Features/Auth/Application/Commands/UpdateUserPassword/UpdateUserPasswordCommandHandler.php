@@ -22,7 +22,8 @@ final readonly class UpdateUserPasswordCommandHandler
     ) {}
 
     /**
-     * @return Result<null>
+     * @throws DomainExceptionInterface
+     * @return Result<void>
      */
     public function __invoke(UpdateUserPasswordCommand $command): Result
     {
