@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Domain\ValueObjects;
 
-use App\Features\Player\Domain\ValueObjects\EloRating;
-
 final readonly class PlayerStats
 {
+    private const INITIAL_ELO_RATING = 1500;
+    private const INITIAL_CURRENT_STREAK = 0;
+    private const INITIAL_BEST_STREAK = 0;
+    private const INITIAL_TOTAL_WINS = 0;
+    private const INITIAL_TOTAL_LOSSES = 0;
+
     private function __construct(
         private readonly TotalWins $totalWins,
         private readonly TotalLosses $totalLosses,
@@ -30,11 +34,11 @@ final readonly class PlayerStats
     public static function initialize(): self
     {
         return self::of(
-            totalWins: TotalWins::fromInt(0),
-            totalLosses: TotalLosses::fromInt(0),
-            eloRating: EloRating::fromInt(1500),
-            currentStreak: CurrentStreak::fromInt(0),
-            bestStreak: BestStreak::fromInt(0)
+            totalWins: TotalWins::fromInt(self::INITIAL_TOTAL_WINS),
+            totalLosses: TotalLosses::fromInt(self::INITIAL_TOTAL_LOSSES),
+            eloRating: EloRating::fromInt(self::INITIAL_ELO_RATING),
+            currentStreak: CurrentStreak::fromInt(self::INITIAL_CURRENT_STREAK),
+            bestStreak: BestStreak::fromInt(self::INITIAL_BEST_STREAK)
         );
     }
 
