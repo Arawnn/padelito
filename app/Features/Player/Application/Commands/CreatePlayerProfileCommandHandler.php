@@ -25,6 +25,7 @@ use App\Features\Player\Domain\ValueObjects\Username;
 use App\Shared\Application\Result;
 use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
+use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
 final readonly class CreatePlayerProfileCommandHandler
 {
@@ -39,52 +40,53 @@ final readonly class CreatePlayerProfileCommandHandler
      */
     public function __invoke(CreatePlayerProfileCommand $command): Result
     {
-        $userId = Id::fromString($command->userId);
-        
-        if ($this->playerRepository->findById($userId)) {
-            return Result::fail(PlayerProfileAlreadyExistException::fromUserId($command->userId));
+        try {
+            $userId = Id::fromString($command->userId);
+
+            if ($this->playerRepository->findById($userId)) {
+                return Result::fail(PlayerProfileAlreadyExistException::fromUserId($command->userId));
+            }
+
+            if ($this->playerRepository->findByUsername(Username::fromString($command->username))) {
+                return Result::fail(PlayerProfileAlreadyExistException::fromUsername($command->username));
+            }
+
+            $playerProfile = $this->tx->run(fn () => $this->buildProfile($command, $userId));
+
+            return Result::ok($playerProfile);
+        } catch (DomainExceptionInterface $e) {
+            return Result::fail($e);
         }
+    }
 
-        if ($this->playerRepository->findByUsername(Username::fromString($command->username))) {
-            return Result::fail(PlayerProfileAlreadyExistException::fromUsername($command->username));
-        }
+    private function buildProfile(CreatePlayerProfileCommand $command, Id $userId): Profile
+    {
+        $preferences = PlayerPreferences::of(
+            dominantHand: $command->dominantHand ? DominantHand::fromDominantHandEnum(DominantHandEnum::tryFrom($command->dominantHand)) : null,
+            preferredPosition: $command->preferredPosition ? PreferredPosition::fromPreferredPositionEnum(PreferredPositionEnum::tryFrom($command->preferredPosition)) : null,
+            location: $command->location ? Location::fromString($command->location) : null,
+        );
 
+        $identity = PlayerIdentity::of(
+            displayName: $command->displayName ? DisplayName::fromString($command->displayName) : null,
+            bio: $command->bio ? Bio::fromString($command->bio) : null,
+            avatar: $command->avatarUrl ? AvatarUrl::fromString($command->avatarUrl) : null,
+        );
 
-        return Result::try(function() use ($command, $userId) {
+        $playerProfile = Profile::create(
+            id: $userId,
+            username: Username::fromString($command->username),
+            preferences: $preferences,
+            identity: $identity,
+            stats: PlayerStats::initialize(),
+            padelCoins: PadelCoins::initialize(),
+        );
 
+        $this->playerRepository->save($playerProfile);
 
-            
-            return $this->tx->run(function() use ($command, $userId) {
-                
-                $preferences = PlayerPreferences::of(
-                    dominantHand: $command->dominantHand ? DominantHand::fromDominantHandEnum(DominantHandEnum::tryFrom($command->dominantHand)) : null,
-                    preferredPosition: $command->preferredPosition ? PreferredPosition::fromPreferredPositionEnum(PreferredPositionEnum::tryFrom($command->preferredPosition)) : null,
-                    location: $command->location ? Location::fromString($command->location) : null
-                );
+        $domainEvents = $playerProfile->pullDomainEvents();
+        $this->tx->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($domainEvents));
 
-                $identity = PlayerIdentity::of(
-                    displayName: $command->displayName ? DisplayName::fromString($command->displayName) : null,
-                    bio: $command->bio ? Bio::fromString($command->bio) : null,
-                    avatar: $command->avatarUrl ? AvatarUrl::fromString($command->avatarUrl) : null,
-                );
-
-                $playerProfile = Profile::create(
-                    id: $userId,
-                    username: Username::fromString($command->username),
-                    preferences: $preferences,
-                    identity: $identity,
-                    stats: PlayerStats::initialize(),
-                    padelCoins: PadelCoins::initialize()
-
-                );
-
-                $this->playerRepository->save($playerProfile);
-                $this->tx->afterCommit(function() use ($playerProfile) {
-                    $this->eventDispatcher->dispatchEvents($playerProfile->pullDomainEvents());
-                });
-
-                return $playerProfile;
-            });
-        });
+        return $playerProfile;
     }
 }
