@@ -8,7 +8,7 @@ use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\Id;
 use App\Shared\Domain\Exceptions\DomainException;
 
-final class UserAlreadyExistException extends DomainException
+final class UserAlreadyExistsException extends DomainException
 {
     public static function fromEmail(Email $email): self
     {

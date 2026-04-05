@@ -8,7 +8,7 @@ use App\Features\Auth\Domain\Exceptions\InvalidEmailException;
 use App\Features\Auth\Domain\Exceptions\InvalidNameException;
 use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
 use App\Features\Auth\Domain\Exceptions\InvalidResetTokenException;
-use App\Features\Auth\Domain\Exceptions\UserAlreadyExistException;
+use App\Features\Auth\Domain\Exceptions\UserAlreadyExistsException;
 use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
 use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 use App\Shared\Infrastructure\Http\Exceptions\ApiExceptionMapper;
@@ -23,7 +23,7 @@ final class AuthExceptionMapper
         InvalidEmailException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         InvalidNameException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         InvalidResetTokenException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
-        UserAlreadyExistException::class => Response::HTTP_CONFLICT,
+        UserAlreadyExistsException::class => Response::HTTP_CONFLICT,
     ];
 
     private const CLIENT_MESSAGES = [

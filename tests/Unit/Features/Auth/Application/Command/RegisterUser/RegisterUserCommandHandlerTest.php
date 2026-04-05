@@ -11,7 +11,7 @@ use App\Features\Auth\Domain\Events\UserCreated;
 use App\Features\Auth\Domain\Exceptions\InvalidEmailException;
 use App\Features\Auth\Domain\Exceptions\InvalidNameException;
 use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
-use App\Features\Auth\Domain\Exceptions\UserAlreadyExistException;
+use App\Features\Auth\Domain\Exceptions\UserAlreadyExistsException;
 use Tests\Shared\Mother\Fake\FakePasswordHasher;
 use Tests\Shared\Mother\Fake\FakeUuidGenerator;
 use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
@@ -91,7 +91,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $result = $handler($command);
 
         $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(UserAlreadyExistException::class, $result->error());
+        $this->assertInstanceOf(UserAlreadyExistsException::class, $result->error());
         $this->assertStringContainsString('USER_ALREADY_EXISTS', $result->error()->getDomainCode());
     }
 
@@ -112,7 +112,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $result = $handler($command);
 
         $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(UserAlreadyExistException::class, $result->error());
+        $this->assertInstanceOf(UserAlreadyExistsException::class, $result->error());
         $this->assertStringContainsString('USER_ALREADY_EXISTS', $result->error()->getDomainCode());
     }
 

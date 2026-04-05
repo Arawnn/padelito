@@ -9,6 +9,7 @@ use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Shared\Application\Result;
 use App\Shared\Domain\Contracts\MailerInterface;
+use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
 final readonly class SendPasswordResetEmailCommandHandler
 {
@@ -23,27 +24,23 @@ final readonly class SendPasswordResetEmailCommandHandler
      */
     public function __invoke(SendPasswordResetEmailCommand $command): Result
     {
-        return Result::try(fn () => Email::fromString($command->email))
-            ->flatMap(fn (Email $email) => $this->sendIfUserExists($email));
-    }
+        try {
+            $email = Email::fromString($command->email);
 
-    /**
-     * @return Result<null>
-     */
-    private function sendIfUserExists(Email $email): Result
-    {
-        $user = $this->userRepository->findByEmail($email);
+            $user = $this->userRepository->findByEmail($email);
+            if (! $user) {
+                return Result::void();
+            }
 
-        if (! $user) {
+            $token = $this->tokenRepository->create($email);
+
+            // I choose to send the mail in this handler to keep thing simpler for now but later on
+            // A domain event should be published and a subscriber should handle the emailing in reaction of this event
+            $this->mailer->to($user->email()->value(), $user->name()->value(), $token);
+
             return Result::void();
+        } catch (DomainExceptionInterface $e) {
+            return Result::fail($e);
         }
-
-        $token = $this->tokenRepository->create($email);
-
-        // I choose to send the mail in this handler to keep thing simpler for now but later on
-        // A domain event should be published and a subscriber should handle the emailing in reaction of this event
-        $this->mailer->to($user->email()->value(), $user->name()->value(), $token);
-
-        return Result::void();
     }
 }

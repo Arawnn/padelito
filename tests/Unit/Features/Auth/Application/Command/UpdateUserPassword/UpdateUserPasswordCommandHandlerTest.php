@@ -55,7 +55,7 @@ final class UpdateUserPasswordCommandHandlerTest extends TestCase
         $result = $handler($command);
 
         $this->assertTrue($result->isOk());
-        $this->assertNull($result->value());
+
         $this->assertTrue($this->eventDispatcher->dispatched(UserPasswordUpdated::class));
 
         $expectedHash = $this->passwordHasher->hash(Password::fromPlainText($newPlainPassword))->value();

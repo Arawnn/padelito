@@ -6,7 +6,7 @@ namespace App\Features\Auth\Application\Commands\RegisterUser;
 
 use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
 use App\Features\Auth\Domain\Entities\User;
-use App\Features\Auth\Domain\Exceptions\UserAlreadyExistException;
+use App\Features\Auth\Domain\Exceptions\UserAlreadyExistsException;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\Id;
@@ -16,15 +16,16 @@ use App\Shared\Application\Result;
 use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use App\Shared\Domain\Contracts\UuidGeneratorInterface;
+use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
 final readonly class RegisterUserCommandHandler
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,
-        private TransactionManagerInterface $tx,
+        private TransactionManagerInterface $transactionManager,
         private PasswordHasherInterface $passwordHasher,
         private UuidGeneratorInterface $uuidGenerator,
-        private EventDispatcherInterface $eventDispatcher
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     /**
@@ -32,41 +33,44 @@ final readonly class RegisterUserCommandHandler
      */
     public function __invoke(RegisterUserCommand $command): Result
     {
-        return Result::try(fn () => Email::fromString($command->email))
-            ->flatMap(fn (Email $email) => $this->register($command, $email));
+        try {
+            $email = Email::fromString($command->email);
+    
+            if ($this->userRepository->findByEmail($email) !== null) {
+                return Result::fail(UserAlreadyExistsException::fromEmail($email));
+            }
+    
+            $id = Id::fromString($this->uuidGenerator->generate());
+    
+            $user = $this->transactionManager->run(
+                fn () => $this->createUser($command, $id, $email)
+            );
+    
+            return Result::ok($user);
+        } catch (DomainExceptionInterface $e) {
+            return Result::fail($e);
+        }
     }
 
-    /**
-     * @return Result<User>
-     */
-    private function register(RegisterUserCommand $command, Email $email): Result
+    private function createUser(RegisterUserCommand $command, Id $id, Email $email): User
     {
-        if ($this->userRepository->findByEmail($email)) {
-            return Result::fail(UserAlreadyExistException::fromEmail($email));
-        }
+        $user = User::register(
+            id: $id,
+            name: Name::fromString($command->name),
+            email: $email,
+            password: $this->passwordHasher->hash(
+                Password::fromPlainText($command->password)
+            ),
+        );
 
-        return Result::try(function () use ($command, $email) {
-            $id = Id::fromString($this->uuidGenerator->generate());
+        $this->userRepository->save($user);
 
-            return $this->tx->run(function () use ($command, $id, $email) {
-                $hashedPassword = $this->passwordHasher->hash(
-                    Password::fromPlainText($command->password)
-                );
+        $domainEvents = $user->pullDomainEvents();
 
-                $user = User::register(
-                    id: $id,
-                    name: Name::fromString($command->name),
-                    email: $email,
-                    password: $hashedPassword,
-                );
+        $this->transactionManager->afterCommit(
+            fn () => $this->eventDispatcher->dispatchEvents($domainEvents)
+        );
 
-                $this->userRepository->save($user);
-                $this->tx->afterCommit(function () use ($user) {
-                    $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
-                });
-
-                return $user;
-            });
-        });
+        return $user;
     }
 }

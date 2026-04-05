@@ -13,6 +13,7 @@ use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\Password;
 use App\Shared\Application\Result;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
+use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
 final readonly class LoginUserCommandHandler
 {
@@ -27,27 +28,24 @@ final readonly class LoginUserCommandHandler
      */
     public function __invoke(LoginUserCommand $command): Result
     {
-        return Result::try(fn () => Email::fromString($command->email))
-            ->flatMap(fn (Email $email) => $this->authenticate($email, $command->password));
-    }
+        try {
+            $email = Email::fromString($command->email);
 
-    /**
-     * @return Result<User>
-     */
-    private function authenticate(Email $email, string $plainPassword): Result
-    {
-        $user = $this->userRepository->findByEmail($email);
-        if (! $user) {
-            return Result::fail(UserNotFoundException::fromEmail($email));
+            $user = $this->userRepository->findByEmail($email);
+            if (! $user) {
+                return Result::fail(UserNotFoundException::fromEmail($email));
+            }
+
+            if (! $this->passwordHasher->verify(Password::forVerification($command->password), $user->password())) {
+                return Result::fail(InvalidPasswordException::fromViolations(['Invalid password']));
+            }
+
+            $user->login();
+            $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
+
+            return Result::ok($user);
+        } catch (DomainExceptionInterface $e) {
+            return Result::fail($e);
         }
-
-        if (! $this->passwordHasher->verify(Password::forVerification($plainPassword), $user->password())) {
-            return Result::fail(InvalidPasswordException::fromViolations(['Invalid password']));
-        }
-
-        $user->login();
-        $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
-
-        return Result::ok($user);
     }
 }

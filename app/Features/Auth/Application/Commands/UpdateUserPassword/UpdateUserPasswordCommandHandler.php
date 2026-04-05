@@ -11,6 +11,7 @@ use App\Features\Auth\Domain\ValueObjects\Id;
 use App\Features\Auth\Domain\ValueObjects\Password;
 use App\Shared\Application\Result;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
+use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
 final readonly class UpdateUserPasswordCommandHandler
 {
@@ -25,17 +26,21 @@ final readonly class UpdateUserPasswordCommandHandler
      */
     public function __invoke(UpdateUserPasswordCommand $command): Result
     {
-        $user = $this->userRepository->findById(Id::fromString($command->userId));
-        if (! $user) {
-            return Result::fail(UserNotFoundException::fromId(Id::fromString($command->userId)));
-        }
+        try {
+            $user = $this->userRepository->findById(Id::fromString($command->userId));
+            if (! $user) {
+                return Result::fail(UserNotFoundException::fromId(Id::fromString($command->userId)));
+            }
 
-        return Result::try(fn () => $this->passwordHasher->hash(Password::fromPlainText($command->password)))
-            ->map(function ($hashedPassword) use ($user) {
-                $user->updatePassword($hashedPassword);
-                $this->userRepository->update($user);
-                $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
-            })
-            ->flatMap(fn () => Result::void());
+            $hashedPassword = $this->passwordHasher->hash(Password::fromPlainText($command->password));
+
+            $user->updatePassword($hashedPassword);
+            $this->userRepository->update($user);
+            $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
+
+            return Result::void();
+        } catch (DomainExceptionInterface $e) {
+            return Result::fail($e);
+        }
     }
 }
