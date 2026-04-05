@@ -25,58 +25,29 @@ use App\Features\Auth\Infrastructure\Repositories\EloquentUserRepository;
 use App\Features\Auth\Infrastructure\Security\LaravelPasswordHasher;
 use App\Features\Auth\Infrastructure\Security\SanctumTokenCreator;
 use App\Shared\Application\Bus\HandlerMap;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
-use App\Shared\Infrastructure\Transaction\LaravalTransactionManager;
 use Illuminate\Support\ServiceProvider;
 
 final class AuthServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
         $this->app->bind(PasswordResetTokenRepositoryInterface::class, EloquentPasswordResetTokenRepository::class);
-
         $this->app->bind(PasswordHasherInterface::class, LaravelPasswordHasher::class);
         $this->app->bind(TokenCreatorInterface::class, SanctumTokenCreator::class);
-        $this->app->bind(TransactionManagerInterface::class, LaravalTransactionManager::class);
-        $this->app->singleton(HandlerMap::class, function () {
-            $map = new HandlerMap;
-            $map->register(RegisterUserCommand::class, RegisterUserCommandHandler::class);
-            $map->register(LoginUserCommand::class, LoginUserCommandHandler::class);
-            $map->register(LogoutUserCommand::class, LogoutUserCommandHandler::class);
-            $map->register(UpdateUserPasswordCommand::class, UpdateUserPasswordCommandHandler::class);
-            $map->register(SendPasswordResetEmailCommand::class, SendPasswordResetEmailCommandHandler::class);
-            $map->register(ConfirmPasswordResetCommand::class, ConfirmPasswordResetCommandHandler::class);
-            $map->register(GetUserByEmailQuery::class, GetUserByEmailQueryHandler::class);
-
-            return $map;
-        });
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
-    }
 
-    /**
-     * Configure rate limiting.
-     */
-    private function configureRateLimiting(): void
-    {
-        // RateLimiter::for('two-factor', function (Request $request) {
-        //     return Limit::perMinute(5)->by($request->session()->get('login.id'));
-        // });
-
-        // RateLimiter::for('login', function (Request $request) {
-        //     $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
-
-        //     return Limit::perMinute(5)->by($throttleKey);
-        // });
+        $map = $this->app->make(HandlerMap::class);
+        $map->register(RegisterUserCommand::class, RegisterUserCommandHandler::class);
+        $map->register(LoginUserCommand::class, LoginUserCommandHandler::class);
+        $map->register(LogoutUserCommand::class, LogoutUserCommandHandler::class);
+        $map->register(UpdateUserPasswordCommand::class, UpdateUserPasswordCommandHandler::class);
+        $map->register(SendPasswordResetEmailCommand::class, SendPasswordResetEmailCommandHandler::class);
+        $map->register(ConfirmPasswordResetCommand::class, ConfirmPasswordResetCommandHandler::class);
+        $map->register(GetUserByEmailQuery::class, GetUserByEmailQueryHandler::class);
     }
 }
