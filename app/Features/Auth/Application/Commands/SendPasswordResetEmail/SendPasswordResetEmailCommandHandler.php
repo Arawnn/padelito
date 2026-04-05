@@ -20,8 +20,9 @@ final readonly class SendPasswordResetEmailCommandHandler
     ) {}
 
     /**
-     * @throws DomainExceptionInterface
      * @return Result<void>
+     *
+     * @throws DomainExceptionInterface
      */
     public function __invoke(SendPasswordResetEmailCommand $command): Result
     {

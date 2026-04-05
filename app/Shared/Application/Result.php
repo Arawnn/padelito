@@ -12,7 +12,7 @@ use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 final class Result
 {
     /**
-     * @param T|null $value
+     * @param  T|null  $value
      */
     private function __construct(
         private readonly bool $ok,
@@ -22,7 +22,8 @@ final class Result
 
     /**
      * @template TValue
-     * @param TValue $value
+     *
+     * @param  TValue  $value
      * @return self<TValue>
      */
     public static function ok(mixed $value): self

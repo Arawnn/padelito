@@ -8,9 +8,11 @@ use App\Features\Player\Domain\Entities\Profile;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\Username;
 
-interface PlayerRepositoryInterface {
+interface PlayerRepositoryInterface
+{
     public function findById(Id $id): ?Profile;
+
     public function findByUsername(Username $username): ?Profile;
+
     public function save(Profile $profile): void;
 }
-

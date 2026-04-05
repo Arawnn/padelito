@@ -19,9 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        
+
         // Shared first
-        $this->app->singleton(HandlerMap::class, fn () => new HandlerMap());
+        $this->app->singleton(HandlerMap::class, fn () => new HandlerMap);
         $this->app->register(SharedServiceProvider::class);
         // Features second
         $this->app->register(AuthServiceProvider::class);

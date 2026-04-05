@@ -6,7 +6,6 @@ namespace App\Features\Player\Domain\Entities;
 
 use App\Features\Player\Domain\Events\PlayerProfileCreated;
 use App\Features\Player\Domain\ValueObjects\Id;
-use App\Features\Player\Domain\ValueObjects\Location;
 use App\Features\Player\Domain\ValueObjects\PadelCoins;
 use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
 use App\Features\Player\Domain\ValueObjects\PlayerPreferences;

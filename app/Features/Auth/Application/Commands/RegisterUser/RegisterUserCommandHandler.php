@@ -30,24 +30,26 @@ final readonly class RegisterUserCommandHandler
 
     /**
      * TODO: return a DTO instead of exposing the aggregate root
-     * @throws DomainExceptionInterface
+     *
      * @return Result<User>
+     *
+     * @throws DomainExceptionInterface
      */
     public function __invoke(RegisterUserCommand $command): Result
     {
         try {
             $email = Email::fromString($command->email);
-    
+
             if ($this->userRepository->findByEmail($email) !== null) {
                 return Result::fail(UserAlreadyExistsException::fromEmail($email));
             }
-    
+
             $id = Id::fromString($this->uuidGenerator->generate());
-    
+
             $user = $this->transactionManager->run(
                 fn () => $this->createUser($command, $id, $email)
             );
-    
+
             return Result::ok($user);
         } catch (DomainExceptionInterface $e) {
             return Result::fail($e);

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Application\Commands;
 
-use App\Features\Player\Application\Commands\CreatePlayerProfileCommand;
 use App\Features\Player\Domain\Entities\Profile;
 use App\Features\Player\Domain\Enums\DominantHandEnum;
 use App\Features\Player\Domain\Enums\PreferredPositionEnum;
@@ -37,8 +36,10 @@ final readonly class CreatePlayerProfileCommandHandler
 
     /**
      * TODO: return a DTO instead of exposing the aggregate root
-     * @throws DomainExceptionInterface
+     *
      * @return Result<Profile>
+     *
+     * @throws DomainExceptionInterface
      */
     public function __invoke(CreatePlayerProfileCommand $command): Result
     {

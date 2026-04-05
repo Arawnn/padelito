@@ -25,8 +25,10 @@ final readonly class LoginUserCommandHandler
 
     /**
      * TODO: return a DTO instead of exposing the aggregate root
-     * @throws DomainExceptionInterface
+     *
      * @return Result<User>
+     *
+     * @throws DomainExceptionInterface
      */
     public function __invoke(LoginUserCommand $command): Result
     {

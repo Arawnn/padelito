@@ -7,9 +7,13 @@ namespace App\Features\Player\Domain\ValueObjects;
 final readonly class PlayerStats
 {
     private const INITIAL_ELO_RATING = 1500;
+
     private const INITIAL_CURRENT_STREAK = 0;
+
     private const INITIAL_BEST_STREAK = 0;
+
     private const INITIAL_TOTAL_WINS = 0;
+
     private const INITIAL_TOTAL_LOSSES = 0;
 
     private function __construct(
@@ -30,7 +34,7 @@ final readonly class PlayerStats
             bestStreak: $bestStreak,
         );
     }
-    
+
     public static function initialize(): self
     {
         return self::of(

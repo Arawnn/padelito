@@ -19,8 +19,9 @@ final readonly class LogoutUserCommandHandler
     ) {}
 
     /**
-     * @throws DomainExceptionInterface
      * @return Result<void>
+     *
+     * @throws DomainExceptionInterface
      */
     public function __invoke(LogoutUserCommand $command): Result
     {
