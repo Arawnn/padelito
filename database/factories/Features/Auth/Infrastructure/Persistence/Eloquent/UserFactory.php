@@ -1,14 +1,14 @@
 <?php
 
-namespace Database\Factories\Features\Auth\Infrastructure\Models;
+namespace Database\Factories\Features\Auth\Infrastructure\Persistence\Eloquent;
 
-use App\Features\Auth\Infrastructure\Models\User;
+use App\Features\Auth\Infrastructure\Persistence\Eloquent\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Features\Auth\Infrastructure\Models\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Features\Auth\Infrastructure\Persistence\Eloquent\User>
  */
 class UserFactory extends Factory
 {

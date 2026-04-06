@@ -6,7 +6,7 @@ namespace App\Features\Auth\Infrastructure\Security;
 
 use App\Features\Auth\Domain\Entities\User;
 use App\Features\Auth\Infrastructure\Contracts\TokenCreatorInterface;
-use App\Features\Auth\Infrastructure\Mappers\UserMapper;
+use App\Features\Auth\Infrastructure\Persistence\Eloquent\Mappers\UserMapper;
 
 final readonly class SanctumTokenCreator implements TokenCreatorInterface
 {

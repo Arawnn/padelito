@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Infrastructure\Models;
 
-use App\Features\Auth\Infrastructure\Models\User;
+use App\Features\Auth\Infrastructure\Persistence\Eloquent\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

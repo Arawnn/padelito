@@ -3,7 +3,7 @@
 namespace Tests\Integration\Features\Auth\Infrastructure;
 
 use App\Features\Auth\Domain\ValueObjects\Email;
-use App\Features\Auth\Infrastructure\Repositories\EloquentPasswordResetTokenRepository;
+use App\Features\Auth\Infrastructure\Persistence\Eloquent\Repositories\EloquentPasswordResetTokenRepository;
 use Tests\IntegrationTestCase;
 
 /**

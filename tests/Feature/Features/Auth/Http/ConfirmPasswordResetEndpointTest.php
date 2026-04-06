@@ -6,7 +6,7 @@ namespace Tests\Feature\Features\Auth\Http;
 
 use App\Features\Auth\Domain\Repositories\PasswordResetTokenRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\Email;
-use App\Features\Auth\Infrastructure\Models\User;
+use App\Features\Auth\Infrastructure\Persistence\Eloquent\User;
 use Illuminate\Support\Facades\Hash;
 use Tests\FeatureTestCase;
 

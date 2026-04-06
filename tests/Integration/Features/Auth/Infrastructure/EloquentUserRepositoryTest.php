@@ -6,7 +6,7 @@ use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\Id;
 use App\Features\Auth\Domain\ValueObjects\Password;
-use App\Features\Auth\Infrastructure\Repositories\EloquentUserRepository;
+use App\Features\Auth\Infrastructure\Persistence\Eloquent\Repositories\EloquentUserRepository;
 use Tests\IntegrationTestCase;
 use Tests\Shared\Mother\UserMother;
 

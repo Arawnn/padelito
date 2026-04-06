@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Auth\Infrastructure\Repositories;
+namespace App\Features\Auth\Infrastructure\Persistence\Eloquent\Repositories;
 
 use App\Features\Auth\Domain\Repositories\PasswordResetTokenRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\Email;

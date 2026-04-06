@@ -61,6 +61,7 @@ final readonly class PlayerMapper
     public function toModel(Player $player): EloquentPlayer
     {
         $player = new EloquentPlayer;
+
         return $player->forceFill([
             'id' => $player->id()->value(),
             'username' => $player->username()->value(),

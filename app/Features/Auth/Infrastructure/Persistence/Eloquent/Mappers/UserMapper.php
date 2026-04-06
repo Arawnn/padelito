@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Auth\Infrastructure\Mappers;
+namespace App\Features\Auth\Infrastructure\Persistence\Eloquent\Mappers;
 
 use App\Features\Auth\Domain\Entities\User;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\HashedPassword;
 use App\Features\Auth\Domain\ValueObjects\Id;
 use App\Features\Auth\Domain\ValueObjects\Name;
-use App\Features\Auth\Infrastructure\Models\User as UserModel;
+use App\Features\Auth\Infrastructure\Persistence\Eloquent\User as UserModel;
 
 final readonly class UserMapper
 {
