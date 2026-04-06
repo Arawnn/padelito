@@ -33,7 +33,7 @@ final class SharedServiceProvider extends ServiceProvider
         $this->app->bind(CommandBusInterface::class, LaravelCommandBus::class);
         $this->app->bind(QueryBusInterface::class, LaravelQueryBus::class);
         $this->app->bind(MailerInterface::class, LaravelMailer::class);
-        //TODO: Better way to do this
+        // TODO: Better way to do this
         $this->app->bind(FileStorageInterface::class, function ($app) {
             $config = $app['config']->get('filesystems.disks.s3');
             $useS3 = is_array($config)

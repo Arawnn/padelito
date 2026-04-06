@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 
 final readonly class ResolvePlayerProfileAvatarService
 {
-    //TODO: hardcoded value for now, fallback should be behind an abstraction layer
+    // TODO: hardcoded value for now, fallback should be behind an abstraction layer
     private const UI_AVATARS_API = 'https://ui-avatars.com/api/';
 
     public function __construct(

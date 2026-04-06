@@ -6,9 +6,9 @@ namespace App\Features\Player\Infrastructure\Http\v1\Controllers;
 
 use App\Features\Player\Application\Commands\CreatePlayerProfileCommand;
 use App\Features\Player\Infrastructure\Dto\CreatePlayerProfileAvatarInput;
-use App\Features\Player\Infrastructure\Services\ResolvePlayerProfileAvatarService;
 use App\Features\Player\Infrastructure\Http\v1\Exceptions\PlayerExceptionMapper;
 use App\Features\Player\Infrastructure\Http\v1\Requests\CreatePlayerProfileRequest;
+use App\Features\Player\Infrastructure\Services\ResolvePlayerProfileAvatarService;
 use App\Shared\Application\Bus\CommandBusInterface;
 use App\Shared\Domain\Contracts\FileStorageInterface;
 use Illuminate\Http\JsonResponse;
