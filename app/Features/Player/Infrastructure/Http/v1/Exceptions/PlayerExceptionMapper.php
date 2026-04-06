@@ -15,6 +15,7 @@ use App\Features\Player\Domain\Exceptions\InvalidTotalWinsException;
 use App\Features\Player\Domain\Exceptions\InvalidUsernameException;
 use App\Features\Player\Domain\Exceptions\PlayerProfileAlreadyExistException;
 use App\Shared\Domain\Exceptions\DomainExceptionInterface;
+use App\Shared\Domain\Exceptions\ImageFetchFailedException;
 use App\Shared\Infrastructure\Http\Exceptions\ApiExceptionMapper;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,6 +28,7 @@ final class PlayerExceptionMapper
         InvalidDisplayNameException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         InvalidBioException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         InvalidAvatarUrlException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+        ImageFetchFailedException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
 
         InvalidEloRatingException::class => Response::HTTP_INTERNAL_SERVER_ERROR,
         InvalidTotalWinsException::class => Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -41,6 +43,7 @@ final class PlayerExceptionMapper
         'INVALID_DISPLAY_NAME' => 'The provided display name is invalid.',
         'INVALID_BIO' => 'The provided bio is invalid.',
         'INVALID_AVATAR_URL' => 'The provided avatar URL is invalid.',
+        'IMAGE_FETCH_FAILED' => 'Could not download or validate the image from the provided URL.',
 
         'INVALID_ELO_RATING' => 'An internal error occurred while initializing the player profile.',
         'INVALID_TOTAL_WINS' => 'An internal error occurred while initializing the player profile.',

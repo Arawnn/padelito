@@ -64,9 +64,6 @@ class CreatePlayerProfileRequest extends FormRequest
             ],
             'avatar' => [
                 'nullable',
-                'file',
-                'mimes:jpg,jpeg,png',
-                'max:2048',
             ],
             'level' => [
                 'required',
@@ -83,6 +80,21 @@ class CreatePlayerProfileRequest extends FormRequest
         ];
     }
 
+    public function withValidator(Validator $validator): void
+    {
+        $validator->sometimes(
+            'avatar',
+            ['file', 'mimes:jpg,jpeg,png', 'max:2048'],
+            fn () => $this->hasFile('avatar'),
+        );
+
+        $validator->sometimes(
+            'avatar',
+            ['string', 'max:2048', 'regex:/^https:\/\/.+/i'],
+            fn () => ! $this->hasFile('avatar') && $this->filled('avatar'),
+        );
+    }
+
     /**
      * @return array<string, string>
      */
@@ -97,6 +109,7 @@ class CreatePlayerProfileRequest extends FormRequest
             'preferredPosition.in' => 'Invalid preferred position. Accepted values: '.implode(', ', array_column(PreferredPositionEnum::cases(), 'value')).'.',
             'avatar.mimes' => 'Avatar must be a JPG or PNG file.',
             'avatar.max' => 'Avatar must not exceed 2 MB.',
+            'avatar.regex' => 'Avatar must be an HTTPS URL when sent as text.',
         ];
     }
 
