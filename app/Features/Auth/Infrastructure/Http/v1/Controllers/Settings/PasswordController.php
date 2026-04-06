@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Features\Auth\Infrastructure\Http\Controllers\Settings;
+namespace App\Features\Auth\Infrastructure\Http\v1\Controllers\Settings;
 
 use App\Features\Auth\Application\Commands\UpdateUserPassword\UpdateUserPasswordCommand;
 use App\Features\Auth\Infrastructure\Http\v1\Exceptions\AuthExceptionMapper;

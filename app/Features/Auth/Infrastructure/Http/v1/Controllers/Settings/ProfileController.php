@@ -2,7 +2,7 @@
 
 // TODO to migrate to API format without Inertia
 
-namespace App\Features\Auth\Infrastructure\Http\Controllers\Settings;
+namespace App\Features\Auth\Infrastructure\Http\v1\Controllers\Settings;
 
 use App\Shared\Infrastructure\Http\Controllers\Controller;
 use Illuminate\Http\Request;
