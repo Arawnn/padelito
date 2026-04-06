@@ -17,7 +17,9 @@ class Player extends Model
 
     protected $keyType = 'string';
 
-    protected $table = 'players';
+    protected $connection = 'pgsql_public';
+
+    protected $table = 'profiles';
 
     /**
      * @var list<string>

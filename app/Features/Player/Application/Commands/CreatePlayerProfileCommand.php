@@ -9,6 +9,7 @@ final readonly class CreatePlayerProfileCommand
     public function __construct(
         public string $userId,
         public string $username,
+        public string $level,
         public ?string $displayName,
         public ?string $avatarUrl,
         public ?string $bio,

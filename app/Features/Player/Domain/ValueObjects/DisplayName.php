@@ -27,15 +27,16 @@ final readonly class DisplayName
         $violations = [];
 
         if (strlen($value) === 0 || trim($value) === '') {
-            $violations[] = 'DisplayName cannot be empty';
+            $violations[] = 'Display name cannot be empty';
         }
 
-        if (strlen($value) < 3) {
-            $violations[] = 'DisplayName must be at least 3 characters long';
+        if (strlen($value) > 30) {
+            $violations[] = 'Display name must be at most 30 characters long';
         }
 
-        if (strlen($value) > 255) {
-            $violations[] = 'DisplayName must be less than 256 characters long';
+        // Letters (including accented), spaces only
+        if (! preg_match('/^[\pL\s]+$/u', $value)) {
+            $violations[] = 'Display name may only contain letters and spaces';
         }
 
         if (! empty($violations)) {

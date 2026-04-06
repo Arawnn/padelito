@@ -34,8 +34,12 @@ final readonly class Username
             $violations[] = 'Username must be at least 3 characters long';
         }
 
-        if (strlen($value) > 255) {
-            $violations[] = 'Username must be less than 256 characters long';
+        if (strlen($value) > 30) {
+            $violations[] = 'Username must be at most 30 characters long';
+        }
+
+        if (! preg_match('/^[a-z0-9_]+$/', $value)) {
+            $violations[] = 'Username may only contain lowercase letters, digits and underscores';
         }
 
         if (! empty($violations)) {

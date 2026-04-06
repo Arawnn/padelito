@@ -20,6 +20,8 @@ final class PlayerServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
+
         $map = $this->app->make(HandlerMap::class);
         $map->register(CreatePlayerProfileCommand::class, CreatePlayerProfileCommandHandler::class);
     }

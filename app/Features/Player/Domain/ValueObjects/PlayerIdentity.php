@@ -20,4 +20,19 @@ final readonly class PlayerIdentity
             avatarUrl: $avatar
         );
     }
+
+    public function displayName(): ?DisplayName
+    {
+        return $this->displayName;
+    }
+
+    public function bio(): ?Bio
+    {
+        return $this->bio;
+    }
+
+    public function avatarUrl(): ?AvatarUrl
+    {
+        return $this->avatarUrl;
+    }
 }

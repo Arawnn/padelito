@@ -26,9 +26,10 @@ final readonly class Bio
     {
         $violations = [];
 
-        if (strlen($value) > 255) {
-            $violations[] = 'Bio must be less than 256 characters long';
+        if (strlen($value) > 120) {
+            $violations[] = 'Bio must be at most 120 characters long';
         }
+
         if (! empty($violations)) {
             throw InvalidBioException::fromViolations($violations);
         }

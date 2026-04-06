@@ -20,4 +20,19 @@ final readonly class PlayerPreferences
             location: $location
         );
     }
+
+    public function dominantHand(): ?DominantHand
+    {
+        return $this->dominantHand;
+    }
+
+    public function preferredPosition(): ?PreferredPosition
+    {
+        return $this->preferredPosition;
+    }
+
+    public function location(): ?Location
+    {
+        return $this->location;
+    }
 }

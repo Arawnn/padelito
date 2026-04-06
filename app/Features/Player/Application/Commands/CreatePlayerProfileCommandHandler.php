@@ -6,6 +6,7 @@ namespace App\Features\Player\Application\Commands;
 
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Enums\DominantHandEnum;
+use App\Features\Player\Domain\Enums\PlayerLevelEnum;
 use App\Features\Player\Domain\Enums\PreferredPositionEnum;
 use App\Features\Player\Domain\Exceptions\PlayerProfileAlreadyExistException;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
@@ -17,6 +18,7 @@ use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\Location;
 use App\Features\Player\Domain\ValueObjects\PadelCoins;
 use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
+use App\Features\Player\Domain\ValueObjects\PlayerLevel;
 use App\Features\Player\Domain\ValueObjects\PlayerPreferences;
 use App\Features\Player\Domain\ValueObjects\PlayerStats;
 use App\Features\Player\Domain\ValueObjects\PreferredPosition;
@@ -79,6 +81,7 @@ final readonly class CreatePlayerProfileCommandHandler
         $playerProfile = Player::create(
             id: $userId,
             username: Username::fromString($command->username),
+            level: PlayerLevel::fromPlayerLevelEnum(PlayerLevelEnum::tryFrom($command->level)),
             preferences: $preferences,
             identity: $identity,
             stats: PlayerStats::initialize(),
