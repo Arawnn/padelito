@@ -32,7 +32,7 @@ final readonly class CreatePlayerProfileCommandHandler
 {
     public function __construct(
         private PlayerRepositoryInterface $playerRepository,
-        private TransactionManagerInterface $tx,
+        private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 
@@ -56,7 +56,7 @@ final readonly class CreatePlayerProfileCommandHandler
                 return Result::fail(PlayerProfileAlreadyExistException::fromUsername($command->username));
             }
 
-            $playerProfile = $this->tx->run(fn () => $this->buildProfile($command, $userId));
+            $playerProfile = $this->transactionManager->run(fn () => $this->buildProfile($command, $userId));
 
             return Result::ok($playerProfile);
         } catch (DomainExceptionInterface $e) {
@@ -91,7 +91,7 @@ final readonly class CreatePlayerProfileCommandHandler
         $this->playerRepository->save($playerProfile);
 
         $domainEvents = $playerProfile->pullDomainEvents();
-        $this->tx->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($domainEvents));
+        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($domainEvents));
 
         return $playerProfile;
     }
