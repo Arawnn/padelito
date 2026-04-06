@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Application\Commands;
 
-use App\Features\Player\Domain\Entities\Profile;
+use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Enums\DominantHandEnum;
 use App\Features\Player\Domain\Enums\PreferredPositionEnum;
 use App\Features\Player\Domain\Exceptions\PlayerProfileAlreadyExistException;
@@ -37,7 +37,7 @@ final readonly class CreatePlayerProfileCommandHandler
     /**
      * TODO: return a DTO instead of exposing the aggregate root
      *
-     * @return Result<Profile>
+     * @return Result<Player>
      *
      * @throws DomainExceptionInterface
      */
@@ -62,7 +62,7 @@ final readonly class CreatePlayerProfileCommandHandler
         }
     }
 
-    private function buildProfile(CreatePlayerProfileCommand $command, Id $userId): Profile
+    private function buildProfile(CreatePlayerProfileCommand $command, Id $userId): Player
     {
         $preferences = PlayerPreferences::of(
             dominantHand: $command->dominantHand ? DominantHand::fromDominantHandEnum(DominantHandEnum::tryFrom($command->dominantHand)) : null,
@@ -76,7 +76,7 @@ final readonly class CreatePlayerProfileCommandHandler
             avatar: $command->avatarUrl ? AvatarUrl::fromString($command->avatarUrl) : null,
         );
 
-        $playerProfile = Profile::create(
+        $playerProfile = Player::create(
             id: $userId,
             username: Username::fromString($command->username),
             preferences: $preferences,

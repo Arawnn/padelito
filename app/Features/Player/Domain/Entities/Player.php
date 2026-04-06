@@ -13,7 +13,7 @@ use App\Features\Player\Domain\ValueObjects\PlayerStats;
 use App\Features\Player\Domain\ValueObjects\Username;
 use App\Shared\Domain\Entities\AggregateRoot;
 
-final class Profile extends AggregateRoot
+final class Player extends AggregateRoot
 {
     private function __construct(
         private readonly Id $id,
