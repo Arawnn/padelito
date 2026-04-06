@@ -72,7 +72,7 @@ final class EloquentUserRepositoryTest extends IntegrationTestCase
         $newPassword = Password::fromPlainText('NewPassword123!');
         $newPassword = $this->passwordHasher->hash($newPassword);
         $user->updatePassword($newPassword);
-        $this->repository->update($user);
+        $this->repository->save($user);
 
         $found = $this->repository->findById($user->id());
         $this->assertEquals($newPassword->value(), $found->password()->value());

@@ -18,11 +18,6 @@ final class InMemoryUserRepository implements UserRepositoryInterface
         $this->store[$user->id()->value()] = $user;
     }
 
-    public function update(User $user): void
-    {
-        $this->store[$user->id()->value()] = $user;
-    }
-
     public function findById(Id $id): ?User
     {
         return $this->store[$id->value()] ?? null;

@@ -9,11 +9,11 @@ use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\HashedPassword;
 use App\Features\Auth\Domain\ValueObjects\Id;
 use App\Features\Auth\Domain\ValueObjects\Name;
-use App\Features\Auth\Infrastructure\Persistence\Eloquent\Models\User as UserModel;
+use App\Features\Auth\Infrastructure\Persistence\Eloquent\Models\User as EloquentUser;
 
 final readonly class UserMapper
 {
-    public function toDomain(UserModel $userModel): User
+    public function toDomain(EloquentUser $userModel): User
     {
         return User::reconstitute(
             id: Id::fromString($userModel->id),
@@ -23,16 +23,16 @@ final readonly class UserMapper
         );
     }
 
-    public function toModel(User $user): UserModel
+    /**
+     * @return array<string, mixed>
+     */
+    public function toPersistence(User $user): array
     {
-        $model = new UserModel;
-        $model->forceFill([
+        return [
             'id' => $user->id()->value(),
             'name' => $user->name()->value(),
             'email' => $user->email()->value(),
             'password' => $user->password()->value(),
-        ]);
-
-        return $model;
+        ];
     }
 }

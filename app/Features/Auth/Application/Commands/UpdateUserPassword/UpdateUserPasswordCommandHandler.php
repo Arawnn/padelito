@@ -37,7 +37,7 @@ final readonly class UpdateUserPasswordCommandHandler
             $hashedPassword = $this->passwordHasher->hash(Password::fromPlainText($command->password));
 
             $user->updatePassword($hashedPassword);
-            $this->userRepository->update($user);
+            $this->userRepository->save($user);
             $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
 
             return Result::void();

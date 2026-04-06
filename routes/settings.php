@@ -1,8 +1,8 @@
 <?php
 
-use App\Features\Auth\Infrastructure\Http\Controllers\Settings\PasswordController;
-use App\Features\Auth\Infrastructure\Http\Controllers\Settings\ProfileController;
-use App\Features\Auth\Infrastructure\Http\Controllers\Settings\TwoFactorAuthenticationController;
+use App\Features\Auth\Infrastructure\Http\v1\Controllers\Settings\PasswordController;
+use App\Features\Auth\Infrastructure\Http\v1\Controllers\Settings\ProfileController;
+use App\Features\Auth\Infrastructure\Http\v1\Controllers\Settings\TwoFactorAuthenticationController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
