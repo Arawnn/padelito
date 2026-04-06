@@ -16,7 +16,7 @@ final class PlayerProfileAlreadyExistException extends DomainException
     ) {
         parent::__construct(
             implode(', ', $violations),
-            domainCode: 'PLAYER_PROFILE_ALREADY_EXISTS',
+            domainCode: 'PLAYER_PROFILE_ALREADY_EXIST',
             meta: ['violations' => $violations]
         );
     }
@@ -49,6 +49,6 @@ final class PlayerProfileAlreadyExistException extends DomainException
 
     protected function getDefaultCode(): string
     {
-        return 'PLAYER_PROFILE_ALREADY_EXISTS';
+        return 'PLAYER_PROFILE_ALREADY_EXIST';
     }
 }

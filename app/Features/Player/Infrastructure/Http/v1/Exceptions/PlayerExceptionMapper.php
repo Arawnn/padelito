@@ -36,7 +36,7 @@ final class PlayerExceptionMapper
     ];
 
     private const CLIENT_MESSAGES = [
-        'PLAYER_PROFILE_ALREADY_EXISTS' => 'A player profile already exists for this account.',
+        'PLAYER_PROFILE_ALREADY_EXIST' => 'A player profile already exists for this account.',
         'INVALID_USERNAME' => 'The provided username is invalid.',
         'INVALID_DISPLAY_NAME' => 'The provided display name is invalid.',
         'INVALID_BIO' => 'The provided bio is invalid.',

@@ -6,7 +6,7 @@ namespace App\Features\Player\Domain\Enums;
 
 enum PreferredPositionEnum: string
 {
-    case LEFT = 'left';
-    case RIGHT = 'right';
+    case BACK = 'back';
+    case NET = 'net';
     case ANY = 'any';
 }

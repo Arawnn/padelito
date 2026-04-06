@@ -67,8 +67,8 @@ final readonly class CreatePlayerProfileCommandHandler
     private function buildProfile(CreatePlayerProfileCommand $command, Id $userId): Player
     {
         $preferences = PlayerPreferences::of(
-            dominantHand: $command->dominantHand ? DominantHand::fromDominantHandEnum(DominantHandEnum::tryFrom($command->dominantHand)) : null,
-            preferredPosition: $command->preferredPosition ? PreferredPosition::fromPreferredPositionEnum(PreferredPositionEnum::tryFrom($command->preferredPosition)) : null,
+            dominantHand: $command->dominantHand ? DominantHand::fromDominantHandEnum(DominantHandEnum::from($command->dominantHand)) : null,
+            preferredPosition: $command->preferredPosition ? PreferredPosition::fromPreferredPositionEnum(PreferredPositionEnum::from($command->preferredPosition)) : null,
             location: $command->location ? Location::fromString($command->location) : null,
         );
 
@@ -81,7 +81,7 @@ final readonly class CreatePlayerProfileCommandHandler
         $playerProfile = Player::create(
             id: $userId,
             username: Username::fromString($command->username),
-            level: PlayerLevel::fromPlayerLevelEnum(PlayerLevelEnum::tryFrom($command->level)),
+            level: PlayerLevel::fromPlayerLevelEnum(PlayerLevelEnum::from($command->level)),
             preferences: $preferences,
             identity: $identity,
             stats: PlayerStats::initialize(),

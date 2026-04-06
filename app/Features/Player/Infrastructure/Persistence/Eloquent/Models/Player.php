@@ -21,12 +21,22 @@ class Player extends Model
 
     protected $table = 'profiles';
 
+
+    //TODO find a better way to do this
+    public function getConnectionName(): ?string
+    {
+        $override = config('player.profiles_connection');
+
+        return ($override !== null && $override !== '') ? $override : $this->connection;
+    }
+
     /**
      * @var list<string>
      */
     protected $fillable = [
         'id',
         'username',
+        'level',
         'dominant_hand',
         'preferred_position',
         'location',

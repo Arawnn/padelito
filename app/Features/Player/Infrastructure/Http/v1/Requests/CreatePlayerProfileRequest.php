@@ -7,7 +7,7 @@ namespace App\Features\Player\Infrastructure\Http\v1\Requests;
 use App\Features\Player\Domain\Enums\DominantHandEnum;
 use App\Features\Player\Domain\Enums\PlayerLevelEnum;
 use App\Features\Player\Domain\Enums\PreferredPositionEnum;
-use Illuminate\Contracts\Validation\ValidationRule;
+use App\Features\Player\Infrastructure\Persistence\Eloquent\Models\Player;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -44,7 +44,7 @@ class CreatePlayerProfileRequest extends FormRequest
                 'min:3',
                 'max:30',
                 'regex:/^[a-z0-9_]+$/',
-                Rule::unique('pgsql_public.profiles', 'username'),
+                Rule::unique(Player::class, 'username'),
             ],
             'displayName' => [
                 'required',
