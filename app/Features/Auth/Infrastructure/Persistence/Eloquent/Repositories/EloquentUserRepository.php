@@ -9,7 +9,7 @@ use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\Id;
 use App\Features\Auth\Infrastructure\Persistence\Eloquent\Mappers\UserMapper;
-use App\Features\Auth\Infrastructure\Persistence\Eloquent\User as UserModel;
+use App\Features\Auth\Infrastructure\Persistence\Eloquent\Models\User as UserModel;
 
 final readonly class EloquentUserRepository implements UserRepositoryInterface
 {

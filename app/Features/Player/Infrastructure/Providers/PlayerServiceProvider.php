@@ -7,7 +7,7 @@ namespace App\Features\Player\Infrastructure\Providers;
 use App\Features\Player\Application\Commands\CreatePlayerProfileCommand;
 use App\Features\Player\Application\Commands\CreatePlayerProfileCommandHandler;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
-use App\Features\Player\Infrastructure\Repositories\EloquentPlayerRepository;
+use App\Features\Player\Infrastructure\Persistence\Eloquent\Repositories\EloquentPlayerRepository;
 use App\Shared\Application\Bus\HandlerMap;
 use Illuminate\Support\ServiceProvider;
 

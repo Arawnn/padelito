@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Player\Infrastructure\Models;
+namespace App\Features\Player\Infrastructure\Persistence\Eloquent\Models;
 
-use App\Features\Auth\Infrastructure\Persistence\Eloquent\User;
+use App\Features\Auth\Infrastructure\Persistence\Eloquent\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

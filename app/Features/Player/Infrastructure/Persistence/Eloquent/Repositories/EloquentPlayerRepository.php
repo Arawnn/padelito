@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Player\Infrastructure\Repositories;
+namespace App\Features\Player\Infrastructure\Persistence\Eloquent\Repositories;
 
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;

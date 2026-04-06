@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Player\Infrastructure\Mappers;
+namespace App\Features\Player\Infrastructure\Persistence\Eloquent\Mappers;
 
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\ValueObjects\AvatarUrl;
@@ -22,7 +22,7 @@ use App\Features\Player\Domain\ValueObjects\PreferredPosition;
 use App\Features\Player\Domain\ValueObjects\TotalLosses;
 use App\Features\Player\Domain\ValueObjects\TotalWins;
 use App\Features\Player\Domain\ValueObjects\Username;
-use App\Features\Player\Infrastructure\Models\Player as EloquentPlayer;
+use App\Features\Player\Infrastructure\Persistence\Eloquent\Models\Player as EloquentPlayer;
 
 final readonly class PlayerMapper
 {
