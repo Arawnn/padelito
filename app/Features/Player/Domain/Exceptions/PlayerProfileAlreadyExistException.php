@@ -18,7 +18,7 @@ final class PlayerProfileAlreadyExistException extends DomainException
 
     public static function create(): self
     {
-        return new self();
+        return new self;
     }
 
     protected function getDefaultCode(): string

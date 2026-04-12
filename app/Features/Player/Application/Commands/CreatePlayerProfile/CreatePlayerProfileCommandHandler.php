@@ -72,6 +72,7 @@ final readonly class CreatePlayerProfileCommandHandler
             return Result::ok($playerProfile);
         } catch (DomainExceptionInterface $e) {
             $this->deleteAvatar($avatarUrl);
+
             return Result::fail($e);
         } catch (\Throwable $e) {
             $this->deleteAvatar($avatarUrl);
