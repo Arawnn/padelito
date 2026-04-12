@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Player\Application\Commands;
+namespace App\Features\Player\Application\Commands\CreatePlayerProfile;
+
+use App\Features\Player\Application\Commands\CreatePlayerProfile\Dto\AvatarInput;
 
 final readonly class CreatePlayerProfileCommand
 {
@@ -11,7 +13,7 @@ final readonly class CreatePlayerProfileCommand
         public string $username,
         public string $level,
         public ?string $displayName,
-        public ?string $avatarUrl,
+        public AvatarInput $avatar,
         public ?string $bio,
         public ?string $location,
         public ?string $dominantHand,

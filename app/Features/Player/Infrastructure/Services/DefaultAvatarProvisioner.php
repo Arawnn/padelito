@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Infrastructure\Services;
 
-use App\Features\Player\Infrastructure\Dto\CreatePlayerProfileAvatarInput;
+use App\Features\Player\Application\Commands\CreatePlayerProfile\Contracts\AvatarProvisionerInterface;
+use App\Features\Player\Application\Commands\CreatePlayerProfile\Dto\AvatarInput;
 use App\Shared\Application\Result;
 use App\Shared\Domain\Contracts\FileStorageInterface;
 use App\Shared\Domain\Contracts\ImageFetchInterface;
 use App\Shared\Domain\Exceptions\ImageFetchFailedException;
+use Illuminate\Http\File;
 use Illuminate\Support\Str;
 
-final readonly class ResolvePlayerProfileAvatarService
+final readonly class DefaultAvatarProvisioner implements AvatarProvisionerInterface
 {
-    // TODO: hardcoded value for now, fallback should be behind an abstraction layer
     private const UI_AVATARS_API = 'https://ui-avatars.com/api/';
 
     public function __construct(
@@ -21,32 +22,39 @@ final readonly class ResolvePlayerProfileAvatarService
         private ImageFetchInterface $imageFetch,
     ) {}
 
-    /**
-     * @return Result<string> Public URL of the stored avatar (file, remote URL, or ui-avatars placeholder).
-     */
-    public function resolve(CreatePlayerProfileAvatarInput $input): Result
-    {
-        if ($input->avatarFile !== null) {
-            $file = $input->avatarFile;
-            $ext = strtolower((string) $file->getClientOriginalExtension());
+    public function provision(
+        string $userId,
+        string $displayName,
+        ?AvatarInput $avatar,
+    ): Result {
+        if ($avatar?->hasUploadedFile()) {
+            $ext = strtolower((string) $avatar->uploadedFileExtension);
             $ext = match ($ext) {
                 'jpg', 'jpeg' => 'jpg',
                 'png' => 'png',
                 default => 'jpg',
             };
-            $path = 'avatars/'.$input->userId.'/'.(string) Str::uuid().'.'.$ext;
 
-            return Result::ok($this->fileStorage->upload($path, $file));
-        }
+            $path = 'avatars/' . $userId . '/' . (string) Str::uuid() . '.' . $ext;
 
-        if ($input->avatarAsHttpsUrlOrEmpty === '') {
-            return $this->fetchAndStoreFromUrl(
-                $this->placeholderUrlFromDisplayName($input->displayName),
-                $input->userId,
+            return Result::ok(
+                $this->fileStorage->upload($path, new File($avatar->uploadedFilePath))
             );
         }
 
-        return $this->fetchAndStoreFromUrl($input->avatarAsHttpsUrlOrEmpty, $input->userId);
+        if ($avatar?->hasRemoteUrl()) {
+            return $this->fetchAndStoreFromUrl($avatar->remoteUrl, $userId);
+        }
+
+        return $this->fetchAndStoreFromUrl(
+            $this->placeholderUrlFromDisplayName($displayName),
+            $userId,
+        );
+    }
+
+    public function deleteByPublicUrl(string $publicUrl): void
+    {
+        $this->fileStorage->delete($publicUrl);
     }
 
     private function placeholderUrlFromDisplayName(string $displayName): string
@@ -66,7 +74,7 @@ final readonly class ResolvePlayerProfileAvatarService
             'rounded' => 'true',
         ], '', '&', PHP_QUERY_RFC3986);
 
-        return self::UI_AVATARS_API.'?'.$query;
+        return self::UI_AVATARS_API . '?' . $query;
     }
 
     private function fetchAndStoreFromUrl(string $httpsUrl, string $userId): Result
@@ -78,7 +86,7 @@ final readonly class ResolvePlayerProfileAvatarService
         }
 
         $extension = str_starts_with($bytes, "\x89PNG") ? 'png' : 'jpg';
-        $path = 'avatars/'.$userId.'/'.(string) Str::uuid().'.'.$extension;
+        $path = 'avatars/' . $userId . '/' . (string) Str::uuid() . '.' . $extension;
 
         return Result::ok($this->fileStorage->upload($path, $bytes));
     }

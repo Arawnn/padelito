@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Player\Application\Commands;
+namespace App\Features\Player\Application\Commands\CreatePlayerProfile;
 
+use App\Features\Player\Application\Commands\CreatePlayerProfile\Contracts\AvatarProvisionerInterface;
+use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommand;
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Enums\DominantHandEnum;
 use App\Features\Player\Domain\Enums\PlayerLevelEnum;
@@ -34,15 +36,9 @@ final readonly class CreatePlayerProfileCommandHandler
         private PlayerRepositoryInterface $playerRepository,
         private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
+        private AvatarProvisionerInterface $avatarProvisioner,
     ) {}
 
-    /**
-     * TODO: return a DTO instead of exposing the aggregate root
-     *
-     * @return Result<Player>
-     *
-     * @throws DomainExceptionInterface
-     */
     public function __invoke(CreatePlayerProfileCommand $command): Result
     {
         try {
@@ -56,15 +52,35 @@ final readonly class CreatePlayerProfileCommandHandler
                 return Result::fail(PlayerProfileAlreadyExistException::fromUsername($command->username));
             }
 
-            $playerProfile = $this->transactionManager->run(fn () => $this->buildProfile($command, $userId));
+            $avatarResult = $this->avatarProvisioner->provision(
+                userId: $command->userId,
+                displayName: $command->displayName ?? '',
+                avatar: $command->avatar,
+            );
+
+            if ($avatarResult->isFail()) {
+                return Result::fail($avatarResult->error());
+            }
+
+            $avatarUrl = $avatarResult->value();
+
+            $playerProfile = $this->transactionManager->run(
+                fn () => $this->buildProfile($command, $userId, $avatarUrl)
+            );
 
             return Result::ok($playerProfile);
         } catch (DomainExceptionInterface $e) {
             return Result::fail($e);
+        } catch (\Throwable $e) {
+            if (isset($avatarUrl) && $avatarUrl !== null) {
+                $this->avatarProvisioner->deleteByPublicUrl($avatarUrl);
+            }
+
+            throw $e;
         }
     }
 
-    private function buildProfile(CreatePlayerProfileCommand $command, Id $userId): Player
+    private function buildProfile(CreatePlayerProfileCommand $command, Id $userId, ?string $avatarUrl): Player
     {
         $preferences = PlayerPreferences::of(
             dominantHand: $command->dominantHand ? DominantHand::fromDominantHandEnum(DominantHandEnum::from($command->dominantHand)) : null,
@@ -75,7 +91,7 @@ final readonly class CreatePlayerProfileCommandHandler
         $identity = PlayerIdentity::of(
             displayName: $command->displayName ? DisplayName::fromString($command->displayName) : null,
             bio: $command->bio ? Bio::fromString($command->bio) : null,
-            avatar: $command->avatarUrl ? AvatarUrl::fromString($command->avatarUrl) : null,
+            avatar: $avatarUrl ? AvatarUrl::fromString($avatarUrl) : null,
         );
 
         $playerProfile = Player::create(

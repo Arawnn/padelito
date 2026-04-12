@@ -4,38 +4,22 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Infrastructure\Http\v1\Controllers;
 
-use App\Features\Player\Application\Commands\CreatePlayerProfileCommand;
-use App\Features\Player\Infrastructure\Dto\CreatePlayerProfileAvatarInput;
+use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommand;
+use App\Features\Player\Application\Commands\CreatePlayerProfile\Dto\AvatarInput;
 use App\Features\Player\Infrastructure\Http\v1\Exceptions\PlayerExceptionMapper;
 use App\Features\Player\Infrastructure\Http\v1\Requests\CreatePlayerProfileRequest;
-use App\Features\Player\Infrastructure\Services\ResolvePlayerProfileAvatarService;
 use App\Shared\Application\Bus\CommandBusInterface;
-use App\Shared\Domain\Contracts\FileStorageInterface;
 use Illuminate\Http\JsonResponse;
 
-class CreatePlayerProfileController
+final readonly class CreatePlayerProfileController
 {
     public function __construct(
         private CommandBusInterface $commandBus,
-        private ResolvePlayerProfileAvatarService $resolveAvatar,
-        private FileStorageInterface $fileStorage,
     ) {}
 
     public function __invoke(CreatePlayerProfileRequest $request): JsonResponse
     {
-        $avatarResult = $this->resolveAvatar->resolve(
-            new CreatePlayerProfileAvatarInput(
-                userId: $request->user()->id,
-                displayName: $request->displayName,
-                avatarFile: $request->hasFile('avatar') ? $request->file('avatar') : null,
-                avatarAsHttpsUrlOrEmpty: $request->string('avatar')->value(),
-            )
-        );
-        if ($avatarResult->isFail()) {
-            return PlayerExceptionMapper::toResponse($avatarResult->error());
-        }
-
-        $uploadedPublicUrl = $avatarResult->value();
+        $file = $request->file('avatar');
 
         $result = $this->commandBus->dispatch(
             new CreatePlayerProfileCommand(
@@ -43,21 +27,25 @@ class CreatePlayerProfileController
                 username: $request->username,
                 level: $request->level,
                 displayName: $request->displayName,
-                avatarUrl: $uploadedPublicUrl,
+                avatar: ($file !== null || $request->string('avatar')->value() !== '' || $request->string('avatarUrl')->value() !== null)
+                    ? new AvatarInput(
+                        uploadedFilePath: $file?->getRealPath() ?: null,
+                        uploadedFileOriginalName: $file?->getClientOriginalName(),
+                        uploadedFileExtension: $file?->getClientOriginalExtension(),
+                        remoteUrl: $request->string('avatar')->value() !== '' ? $request->string('avatar')->value() : null,
+                    )
+                    : null,
                 bio: $request->bio,
                 location: $request->location,
                 dominantHand: $request->dominantHand,
-                preferredPosition: $request->preferredPosition
+                preferredPosition: $request->preferredPosition,
             )
         );
 
         if ($result->isFail()) {
-            if ($uploadedPublicUrl !== null) {
-                $this->fileStorage->delete($uploadedPublicUrl);
-            }
-
             return PlayerExceptionMapper::toResponse($result->error());
         }
+
         $player = $result->value();
 
         return response()->json([
