@@ -8,7 +8,6 @@ final readonly class AvatarInput
 {
     public function __construct(
         public ?string $uploadedFilePath,
-        public ?string $uploadedFileOriginalName,
         public ?string $uploadedFileExtension,
         public ?string $remoteUrl,
     ) {}

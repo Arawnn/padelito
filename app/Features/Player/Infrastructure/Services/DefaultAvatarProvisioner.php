@@ -35,7 +35,7 @@ final readonly class DefaultAvatarProvisioner implements AvatarProvisionerInterf
                 default => 'jpg',
             };
 
-            $path = 'avatars/' . $userId . '/' . (string) Str::uuid() . '.' . $ext;
+            $path = 'avatars/'.$userId.'/'.(string) Str::uuid().'.'.$ext;
 
             return Result::ok(
                 $this->fileStorage->upload($path, new File($avatar->uploadedFilePath))
@@ -74,7 +74,7 @@ final readonly class DefaultAvatarProvisioner implements AvatarProvisionerInterf
             'rounded' => 'true',
         ], '', '&', PHP_QUERY_RFC3986);
 
-        return self::UI_AVATARS_API . '?' . $query;
+        return self::UI_AVATARS_API.'?'.$query;
     }
 
     private function fetchAndStoreFromUrl(string $httpsUrl, string $userId): Result
@@ -86,7 +86,7 @@ final readonly class DefaultAvatarProvisioner implements AvatarProvisionerInterf
         }
 
         $extension = str_starts_with($bytes, "\x89PNG") ? 'png' : 'jpg';
-        $path = 'avatars/' . $userId . '/' . (string) Str::uuid() . '.' . $extension;
+        $path = 'avatars/'.$userId.'/'.(string) Str::uuid().'.'.$extension;
 
         return Result::ok($this->fileStorage->upload($path, $bytes));
     }

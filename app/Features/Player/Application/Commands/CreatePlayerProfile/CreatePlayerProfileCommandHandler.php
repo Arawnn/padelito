@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Features\Player\Application\Commands\CreatePlayerProfile;
 
 use App\Features\Player\Application\Commands\CreatePlayerProfile\Contracts\AvatarProvisionerInterface;
-use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommand;
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Enums\DominantHandEnum;
 use App\Features\Player\Domain\Enums\PlayerLevelEnum;
@@ -41,6 +40,8 @@ final readonly class CreatePlayerProfileCommandHandler
 
     public function __invoke(CreatePlayerProfileCommand $command): Result
     {
+        $avatarUrl = null;
+
         try {
             $userId = Id::fromString($command->userId);
 
@@ -70,13 +71,18 @@ final readonly class CreatePlayerProfileCommandHandler
 
             return Result::ok($playerProfile);
         } catch (DomainExceptionInterface $e) {
+            $this->deleteAvatar($avatarUrl);
             return Result::fail($e);
         } catch (\Throwable $e) {
-            if (isset($avatarUrl) && $avatarUrl !== null) {
-                $this->avatarProvisioner->deleteByPublicUrl($avatarUrl);
-            }
-
+            $this->deleteAvatar($avatarUrl);
             throw $e;
+        }
+    }
+
+    private function deleteAvatar(?string $avatarUrl): void
+    {
+        if ($avatarUrl !== null) {
+            $this->avatarProvisioner->deleteByPublicUrl($avatarUrl);
         }
     }
 

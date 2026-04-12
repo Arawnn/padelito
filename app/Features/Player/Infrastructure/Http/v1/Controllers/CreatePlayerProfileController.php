@@ -27,10 +27,9 @@ final readonly class CreatePlayerProfileController
                 username: $request->username,
                 level: $request->level,
                 displayName: $request->displayName,
-                avatar: ($file !== null || $request->string('avatar')->value() !== '' || $request->string('avatarUrl')->value() !== null)
+                avatar: ($file !== null || $request->string('avatar')->value() !== '')
                     ? new AvatarInput(
                         uploadedFilePath: $file?->getRealPath() ?: null,
-                        uploadedFileOriginalName: $file?->getClientOriginalName(),
                         uploadedFileExtension: $file?->getClientOriginalExtension(),
                         remoteUrl: $request->string('avatar')->value() !== '' ? $request->string('avatar')->value() : null,
                     )

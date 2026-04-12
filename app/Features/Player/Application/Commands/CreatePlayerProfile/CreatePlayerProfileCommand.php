@@ -13,7 +13,7 @@ final readonly class CreatePlayerProfileCommand
         public string $username,
         public string $level,
         public ?string $displayName,
-        public AvatarInput $avatar,
+        public ?AvatarInput $avatar,
         public ?string $bio,
         public ?string $location,
         public ?string $dominantHand,
