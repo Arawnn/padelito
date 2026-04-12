@@ -8,43 +8,17 @@ use App\Shared\Domain\Exceptions\DomainException;
 
 final class PlayerProfileAlreadyExistException extends DomainException
 {
-    /**
-     * @param  array<int, string>  $violations
-     */
-    private function __construct(
-        private readonly array $violations
-    ) {
+    private function __construct()
+    {
         parent::__construct(
-            implode(', ', $violations),
+            'A player profile already exists.',
             domainCode: 'PLAYER_PROFILE_ALREADY_EXIST',
-            meta: ['violations' => $violations]
         );
     }
 
-    /**
-     * @param  array<int, string>  $violations
-     */
-    public static function fromViolations(array $violations): self
+    public static function create(): self
     {
-        return new self($violations);
-    }
-
-    public static function fromUsername(string $username): self
-    {
-        return new self([$username]);
-    }
-
-    public static function fromUserId(string $userId): self
-    {
-        return new self([$userId]);
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    public function violations(): array
-    {
-        return $this->violations;
+        return new self();
     }
 
     protected function getDefaultCode(): string

@@ -46,11 +46,11 @@ final readonly class CreatePlayerProfileCommandHandler
             $userId = Id::fromString($command->userId);
 
             if ($this->playerRepository->findById($userId)) {
-                return Result::fail(PlayerProfileAlreadyExistException::fromUserId($command->userId));
+                return Result::fail(PlayerProfileAlreadyExistException::create());
             }
 
             if ($this->playerRepository->findByUsername(Username::fromString($command->username))) {
-                return Result::fail(PlayerProfileAlreadyExistException::fromUsername($command->username));
+                return Result::fail(PlayerProfileAlreadyExistException::create());
             }
 
             $avatarResult = $this->avatarProvisioner->provision(
