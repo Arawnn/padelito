@@ -5,6 +5,7 @@ use App\Features\Player\Infrastructure\Http\v1\Controllers\CreatePlayerProfileCo
 use App\Features\Player\Infrastructure\Http\v1\Controllers\GetMyPlayerProfileController;
 use App\Features\Player\Infrastructure\Http\v1\Controllers\GetPublicPlayerProfileController;
 use App\Features\Player\Infrastructure\Http\v1\Controllers\UpdatePlayerIdentityController;
+use App\Features\Player\Infrastructure\Http\v1\Controllers\UpdatePlayerPreferencesController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['api', 'auth:sanctum'])->prefix('api/v1')->group(function () {
@@ -13,4 +14,5 @@ Route::middleware(['api', 'auth:sanctum'])->prefix('api/v1')->group(function () 
     Route::post('player', CreatePlayerProfileController::class)->name('create-player-profile');
     Route::patch('player/me/visibility', ChangeProfileVisibilityController::class)->name('change-profile-visibility');
     Route::patch('player/me/identity', UpdatePlayerIdentityController::class)->name('update-player-identity');
+    Route::patch('player/me/preferences', UpdatePlayerPreferencesController::class)->name('update-player-preferences');
 });

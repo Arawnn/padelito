@@ -11,6 +11,8 @@ use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerPro
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommandHandler;
 use App\Features\Player\Application\Commands\UpdatePlayerIdentity\UpdatePlayerIdentityCommand;
 use App\Features\Player\Application\Commands\UpdatePlayerIdentity\UpdatePlayerIdentityCommandHandler;
+use App\Features\Player\Application\Commands\UpdatePlayerPreferences\UpdatePlayerPreferencesCommand;
+use App\Features\Player\Application\Commands\UpdatePlayerPreferences\UpdatePlayerPreferencesCommandHandler;
 use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQuery;
 use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQueryHandler;
 use App\Features\Player\Application\Queries\GetPublicPlayerProfile\GetPublicPlayerProfileQuery;
@@ -37,6 +39,7 @@ final class PlayerServiceProvider extends ServiceProvider
         $map->register(CreatePlayerProfileCommand::class, CreatePlayerProfileCommandHandler::class);
         $map->register(ChangeProfileVisibilityCommand::class, ChangeProfileVisibilityCommandHandler::class);
         $map->register(UpdatePlayerIdentityCommand::class, UpdatePlayerIdentityCommandHandler::class);
+        $map->register(UpdatePlayerPreferencesCommand::class, UpdatePlayerPreferencesCommandHandler::class);
         $map->register(GetPlayerProfileQuery::class, GetPlayerProfileQueryHandler::class);
         $map->register(GetPublicPlayerProfileQuery::class, GetPublicPlayerProfileQueryHandler::class);
     }

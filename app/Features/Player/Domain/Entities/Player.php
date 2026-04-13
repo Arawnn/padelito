@@ -126,4 +126,9 @@ final class Player extends AggregateRoot
     {
         $this->identity = $identity;
     }
+
+    public function updatePreferences(?PlayerPreferences $preferences): void
+    {
+        $this->preferences = $preferences;
+    }
 }
