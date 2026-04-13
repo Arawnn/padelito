@@ -7,6 +7,10 @@ namespace App\Features\Player\Infrastructure\Providers;
 use App\Features\Player\Application\Commands\CreatePlayerProfile\Contracts\AvatarProvisionerInterface;
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommand;
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommandHandler;
+use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQuery;
+use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQueryHandler;
+use App\Features\Player\Application\Queries\GetPublicPlayerProfile\GetPublicPlayerProfileQuery;
+use App\Features\Player\Application\Queries\GetPublicPlayerProfile\GetPublicPlayerProfileQueryHandler;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Infrastructure\Persistence\Eloquent\Repositories\EloquentPlayerRepository;
 use App\Features\Player\Infrastructure\Services\DefaultAvatarProvisioner;
@@ -27,5 +31,7 @@ final class PlayerServiceProvider extends ServiceProvider
 
         $map = $this->app->make(HandlerMap::class);
         $map->register(CreatePlayerProfileCommand::class, CreatePlayerProfileCommandHandler::class);
+        $map->register(GetPlayerProfileQuery::class, GetPlayerProfileQueryHandler::class);
+        $map->register(GetPublicPlayerProfileQuery::class, GetPublicPlayerProfileQueryHandler::class);
     }
 }

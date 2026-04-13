@@ -8,6 +8,24 @@ use App\Features\Auth\Infrastructure\Persistence\Eloquent\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property string $id
+ * @property string $username
+ * @property string $level
+ * @property string|null $display_name
+ * @property string|null $bio
+ * @property string|null $avatar_url
+ * @property string|null $dominant_hand
+ * @property string|null $preferred_position
+ * @property string|null $location
+ * @property int $elo_rating
+ * @property int $total_wins
+ * @property int $total_losses
+ * @property int $current_streak
+ * @property int $best_streak
+ * @property int $padel_coins
+ * @property bool $is_public
+ */
 class Player extends Model
 {
     /**
@@ -38,6 +56,7 @@ class Player extends Model
         'current_streak',
         'best_streak',
         'padel_coins',
+        'is_public',
     ];
 
     /**
@@ -52,6 +71,7 @@ class Player extends Model
             'current_streak' => 'integer',
             'best_streak' => 'integer',
             'padel_coins' => 'integer',
+            'is_public' => 'boolean',
         ];
     }
 

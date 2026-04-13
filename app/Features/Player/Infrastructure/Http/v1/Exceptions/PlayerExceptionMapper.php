@@ -14,6 +14,7 @@ use App\Features\Player\Domain\Exceptions\InvalidTotalLossesException;
 use App\Features\Player\Domain\Exceptions\InvalidTotalWinsException;
 use App\Features\Player\Domain\Exceptions\InvalidUsernameException;
 use App\Features\Player\Domain\Exceptions\PlayerProfileAlreadyExistException;
+use App\Features\Player\Domain\Exceptions\PlayerProfileNotFoundException;
 use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 use App\Shared\Domain\Exceptions\ImageFetchFailedException;
 use App\Shared\Infrastructure\Http\Exceptions\ApiExceptionMapper;
@@ -23,6 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 final class PlayerExceptionMapper
 {
     private const HTTP_STATUS_MAP = [
+        PlayerProfileNotFoundException::class => Response::HTTP_NOT_FOUND,
         PlayerProfileAlreadyExistException::class => Response::HTTP_CONFLICT,
         InvalidUsernameException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         InvalidDisplayNameException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
@@ -38,6 +40,7 @@ final class PlayerExceptionMapper
     ];
 
     private const CLIENT_MESSAGES = [
+        'PLAYER_PROFILE_NOT_FOUND' => 'Player not found.',
         'PLAYER_PROFILE_ALREADY_EXIST' => 'A player profile already exists for this account.',
         'INVALID_USERNAME' => 'The provided username is invalid.',
         'INVALID_DISPLAY_NAME' => 'The provided display name is invalid.',

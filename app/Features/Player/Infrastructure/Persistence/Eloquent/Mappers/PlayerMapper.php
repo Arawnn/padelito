@@ -23,6 +23,7 @@ use App\Features\Player\Domain\ValueObjects\PlayerLevel;
 use App\Features\Player\Domain\ValueObjects\PlayerPreferences;
 use App\Features\Player\Domain\ValueObjects\PlayerStats;
 use App\Features\Player\Domain\ValueObjects\PreferredPosition;
+use App\Features\Player\Domain\ValueObjects\ProfileVisibility;
 use App\Features\Player\Domain\ValueObjects\TotalLosses;
 use App\Features\Player\Domain\ValueObjects\TotalWins;
 use App\Features\Player\Domain\ValueObjects\Username;
@@ -63,7 +64,8 @@ final readonly class PlayerMapper
             identity: $identity,
             stats: $stats,
             level: PlayerLevel::fromPlayerLevelEnum(PlayerLevelEnum::from($model->level)),
-            padelCoins: PadelCoins::fromInt($model->padel_coins),
+            padelCoins: PadelCoins::fromInt((int)$model->padel_coins),
+            visibility: ProfileVisibility::fromBool((bool) $model->is_public),
         );
     }
 
@@ -90,6 +92,7 @@ final readonly class PlayerMapper
             'current_streak' => $player->stats()->currentStreak()->value(),
             'best_streak' => $player->stats()->bestStreak()->value(),
             'padel_coins' => $player->padelCoins()->value(),
+            'is_public' => $player->visibility()->isPublic(),
         ];
     }
 }

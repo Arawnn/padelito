@@ -11,6 +11,7 @@ use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
 use App\Features\Player\Domain\ValueObjects\PlayerLevel;
 use App\Features\Player\Domain\ValueObjects\PlayerPreferences;
 use App\Features\Player\Domain\ValueObjects\PlayerStats;
+use App\Features\Player\Domain\ValueObjects\ProfileVisibility;
 use App\Features\Player\Domain\ValueObjects\Username;
 use App\Shared\Domain\Entities\AggregateRoot;
 
@@ -24,10 +25,20 @@ final class Player extends AggregateRoot
         private PlayerStats $stats,
         private PlayerLevel $level,
         private PadelCoins $padelCoins,
-    ) {}
+        private ProfileVisibility $visibility,
+    ) {
+        // Named constructors only.
+    }
 
-    public static function create(Id $id, Username $username, ?PlayerPreferences $preferences, ?PlayerIdentity $identity, PlayerStats $stats, PlayerLevel $level, PadelCoins $padelCoins): self
-    {
+    public static function create(
+        Id $id,
+        Username $username,
+        ?PlayerPreferences $preferences,
+        ?PlayerIdentity $identity,
+        PlayerStats $stats,
+        PlayerLevel $level,
+        PadelCoins $padelCoins,
+    ): self {
         $profile = new self(
             id: $id,
             username: $username,
@@ -36,6 +47,7 @@ final class Player extends AggregateRoot
             stats: $stats,
             level: $level,
             padelCoins: $padelCoins,
+            visibility: ProfileVisibility::private(),
         );
 
         $profile->recordDomainEvent(new PlayerProfileCreated($profile->id()->value(), $profile->username()->value()));
@@ -43,16 +55,25 @@ final class Player extends AggregateRoot
         return $profile;
     }
 
-    public static function reconstitute(Id $id, Username $username, ?PlayerPreferences $preferences, ?PlayerIdentity $identity, PlayerStats $stats, PlayerLevel $level, PadelCoins $padelCoins): self
-    {
+    public static function reconstitute(
+        Id $id,
+        Username $username,
+        ?PlayerPreferences $preferences,
+        ?PlayerIdentity $identity,
+        PlayerStats $stats,
+        PlayerLevel $level,
+        PadelCoins $padelCoins,
+        ProfileVisibility $visibility,
+    ): self {
         return new self(
-            $id,
-            $username,
-            $preferences,
-            $identity,
-            $stats,
-            $level,
-            $padelCoins,
+            id: $id,
+            username: $username,
+            preferences: $preferences,
+            identity: $identity,
+            stats: $stats,
+            level: $level,
+            padelCoins: $padelCoins,
+            visibility: $visibility,
         );
     }
 
@@ -89,5 +110,10 @@ final class Player extends AggregateRoot
     public function padelCoins(): PadelCoins
     {
         return $this->padelCoins;
+    }
+
+    public function visibility(): ProfileVisibility
+    {
+        return $this->visibility;
     }
 }
