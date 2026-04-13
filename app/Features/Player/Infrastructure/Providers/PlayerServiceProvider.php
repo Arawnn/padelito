@@ -6,6 +6,8 @@ namespace App\Features\Player\Infrastructure\Providers;
 
 use App\Features\Player\Application\Commands\ChangeProfileVisibility\ChangeProfileVisibilityCommand;
 use App\Features\Player\Application\Commands\ChangeProfileVisibility\ChangeProfileVisibilityCommandHandler;
+use App\Features\Player\Application\Commands\ChangeUsername\ChangeUsernameCommand;
+use App\Features\Player\Application\Commands\ChangeUsername\ChangeUsernameCommandHandler;
 use App\Features\Player\Application\Commands\CreatePlayerProfile\Contracts\AvatarProvisionerInterface;
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommand;
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommandHandler;
@@ -38,6 +40,7 @@ final class PlayerServiceProvider extends ServiceProvider
         $map = $this->app->make(HandlerMap::class);
         $map->register(CreatePlayerProfileCommand::class, CreatePlayerProfileCommandHandler::class);
         $map->register(ChangeProfileVisibilityCommand::class, ChangeProfileVisibilityCommandHandler::class);
+        $map->register(ChangeUsernameCommand::class, ChangeUsernameCommandHandler::class);
         $map->register(UpdatePlayerIdentityCommand::class, UpdatePlayerIdentityCommandHandler::class);
         $map->register(UpdatePlayerPreferencesCommand::class, UpdatePlayerPreferencesCommandHandler::class);
         $map->register(GetPlayerProfileQuery::class, GetPlayerProfileQueryHandler::class);

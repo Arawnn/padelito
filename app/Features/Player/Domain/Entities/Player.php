@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Domain\Entities;
 
+use App\Features\Player\Domain\Events\PlayerIdentityUpdated;
+use App\Features\Player\Domain\Events\PlayerPreferencesUpdated;
 use App\Features\Player\Domain\Events\PlayerProfileCreated;
+use App\Features\Player\Domain\Events\PlayerUsernameChanged;
+use App\Features\Player\Domain\Events\PlayerVisibilityChanged;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\PadelCoins;
 use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
@@ -120,15 +124,35 @@ final class Player extends AggregateRoot
     public function changeVisibility(ProfileVisibility $visibility): void
     {
         $this->visibility = $visibility;
+        $this->recordDomainEvent(new PlayerVisibilityChanged(
+            playerId: $this->id->value(),
+            isPublic: $visibility->isPublic(),
+        ));
     }
 
     public function updateIdentity(?PlayerIdentity $identity): void
     {
         $this->identity = $identity;
+        $this->recordDomainEvent(new PlayerIdentityUpdated(
+            playerId: $this->id->value(),
+        ));
     }
 
     public function updatePreferences(?PlayerPreferences $preferences): void
     {
         $this->preferences = $preferences;
+        $this->recordDomainEvent(new PlayerPreferencesUpdated(
+            playerId: $this->id->value(),
+        ));
+    }
+
+    public function changeUsername(Username $username): void
+    {
+        $this->recordDomainEvent(new PlayerUsernameChanged(
+            playerId: $this->id->value(),
+            oldUsername: $this->username->value(),
+            newUsername: $username->value(),
+        ));
+        $this->username = $username;
     }
 }

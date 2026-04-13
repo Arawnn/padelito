@@ -15,6 +15,7 @@ use App\Features\Player\Domain\Exceptions\InvalidTotalWinsException;
 use App\Features\Player\Domain\Exceptions\InvalidUsernameException;
 use App\Features\Player\Domain\Exceptions\PlayerProfileAlreadyExistException;
 use App\Features\Player\Domain\Exceptions\PlayerProfileNotFoundException;
+use App\Features\Player\Domain\Exceptions\UsernameAlreadyTakenException;
 use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 use App\Shared\Domain\Exceptions\ImageFetchFailedException;
 use App\Shared\Infrastructure\Http\Exceptions\ApiExceptionMapper;
@@ -23,9 +24,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class PlayerExceptionMapper
 {
+    private const INTERNAL_INIT_ERROR = 'An internal error occurred while initializing the player profile.';
+
     private const HTTP_STATUS_MAP = [
         PlayerProfileNotFoundException::class => Response::HTTP_NOT_FOUND,
         PlayerProfileAlreadyExistException::class => Response::HTTP_CONFLICT,
+        UsernameAlreadyTakenException::class => Response::HTTP_CONFLICT,
         InvalidUsernameException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         InvalidDisplayNameException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         InvalidBioException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
@@ -42,17 +46,18 @@ final class PlayerExceptionMapper
     private const CLIENT_MESSAGES = [
         'PLAYER_PROFILE_NOT_FOUND' => 'Player not found.',
         'PLAYER_PROFILE_ALREADY_EXIST' => 'A player profile already exists for this account.',
+        'USERNAME_ALREADY_TAKEN' => 'This username is already taken.',
         'INVALID_USERNAME' => 'The provided username is invalid.',
         'INVALID_DISPLAY_NAME' => 'The provided display name is invalid.',
         'INVALID_BIO' => 'The provided bio is invalid.',
         'INVALID_AVATAR_URL' => 'The provided avatar URL is invalid.',
         'IMAGE_FETCH_FAILED' => 'Could not download or validate the image from the provided URL.',
 
-        'INVALID_ELO_RATING' => 'An internal error occurred while initializing the player profile.',
-        'INVALID_TOTAL_WINS' => 'An internal error occurred while initializing the player profile.',
-        'INVALID_TOTAL_LOSSES' => 'An internal error occurred while initializing the player profile.',
-        'INVALID_BEST_STREAK' => 'An internal error occurred while initializing the player profile.',
-        'INVALID_CURRENT_STREAK' => 'An internal error occurred while initializing the player profile.',
+        'INVALID_ELO_RATING' => self::INTERNAL_INIT_ERROR,
+        'INVALID_TOTAL_WINS' => self::INTERNAL_INIT_ERROR,
+        'INVALID_TOTAL_LOSSES' => self::INTERNAL_INIT_ERROR,
+        'INVALID_BEST_STREAK' => self::INTERNAL_INIT_ERROR,
+        'INVALID_CURRENT_STREAK' => self::INTERNAL_INIT_ERROR,
     ];
 
     public static function toResponse(DomainExceptionInterface $error): JsonResponse

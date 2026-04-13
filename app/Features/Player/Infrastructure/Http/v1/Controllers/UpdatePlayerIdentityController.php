@@ -10,6 +10,7 @@ use App\Features\Player\Infrastructure\Http\v1\Exceptions\PlayerExceptionMapper;
 use App\Features\Player\Infrastructure\Http\v1\Requests\UpdatePlayerIdentityRequest;
 use App\Features\Player\Infrastructure\Http\v1\Resources\PlayerProfileResource;
 use App\Shared\Application\Bus\CommandBusInterface;
+use App\Shared\Application\Optional;
 use Illuminate\Http\JsonResponse;
 
 final readonly class UpdatePlayerIdentityController
@@ -21,19 +22,33 @@ final readonly class UpdatePlayerIdentityController
     public function __invoke(UpdatePlayerIdentityRequest $request): JsonResponse
     {
         $file = $request->file('avatar');
+        $remoteUrl = $request->string('avatar')->value() !== '' ? $request->string('avatar')->value() : null;
 
-        $avatar = ($file !== null || $request->string('avatar')->value() !== '')
+        $filePath = null;
+        if ($file !== null) {
+            $realPath = $file->getRealPath();
+            $filePath = $realPath !== false ? $realPath : null;
+        }
+
+        $avatar = ($file !== null || $remoteUrl !== null)
             ? new AvatarInput(
-                uploadedFilePath: $file?->getRealPath() ?: null,
+                uploadedFilePath: $filePath,
                 uploadedFileExtension: $file?->getClientOriginalExtension(),
-                remoteUrl: $request->string('avatar')->value() !== '' ? $request->string('avatar')->value() : null,
+                remoteUrl: $remoteUrl,
             )
             : null;
 
+        $displayName = $request->has('displayName')
+            ? Optional::of($request->input('displayName'))
+            : Optional::absent();
+        $bio = $request->has('bio')
+            ? Optional::of($request->input('bio'))
+            : Optional::absent();
+
         $result = $this->commandBus->dispatch(new UpdatePlayerIdentityCommand(
             userId: $request->user()->id,
-            displayName: $request->input('displayName'),
-            bio: $request->input('bio'),
+            displayName: $displayName,
+            bio: $bio,
             avatar: $avatar,
         ));
 

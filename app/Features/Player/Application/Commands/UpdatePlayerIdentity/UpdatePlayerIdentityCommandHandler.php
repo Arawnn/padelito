@@ -13,6 +13,7 @@ use App\Features\Player\Domain\ValueObjects\DisplayName;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
 use App\Shared\Application\Result;
+use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
 final readonly class UpdatePlayerIdentityCommandHandler
@@ -20,6 +21,7 @@ final readonly class UpdatePlayerIdentityCommandHandler
     public function __construct(
         private PlayerRepositoryInterface $playerRepository,
         private AvatarProvisionerInterface $avatarProvisioner,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     public function __invoke(UpdatePlayerIdentityCommand $command): Result
@@ -33,12 +35,28 @@ final readonly class UpdatePlayerIdentityCommandHandler
                 return Result::fail(PlayerProfileNotFoundException::create());
             }
 
-            $avatarUrl = $player->identity()?->avatarUrl()?->value();
+            $current = $player->identity();
+
+            if ($command->displayName->isPresent()) {
+                $raw = $command->displayName->value();
+                $displayName = $raw !== null ? DisplayName::fromString($raw) : null;
+            } else {
+                $displayName = $current?->displayName();
+            }
+
+            if ($command->bio->isPresent()) {
+                $raw = $command->bio->value();
+                $bio = $raw !== null ? Bio::fromString($raw) : null;
+            } else {
+                $bio = $current?->bio();
+            }
+
+            $avatarUrl = $current?->avatarUrl()?->value();
 
             if ($command->avatar !== null) {
                 $avatarResult = $this->avatarProvisioner->provision(
                     userId: $command->userId,
-                    displayName: $command->displayName ?? '',
+                    displayName: $command->displayName->value() ?? '',
                     avatar: $command->avatar,
                 );
 
@@ -55,12 +73,13 @@ final readonly class UpdatePlayerIdentityCommandHandler
             }
 
             $player->updateIdentity(PlayerIdentity::of(
-                displayName: $command->displayName !== null ? DisplayName::fromString($command->displayName) : null,
-                bio: $command->bio !== null ? Bio::fromString($command->bio) : null,
+                displayName: $displayName,
+                bio: $bio,
                 avatar: $avatarUrl !== null ? AvatarUrl::fromString($avatarUrl) : null,
             ));
 
             $this->playerRepository->save($player);
+            $this->eventDispatcher->dispatchEvents($player->pullDomainEvents());
 
             return Result::ok($player);
         } catch (DomainExceptionInterface $e) {
