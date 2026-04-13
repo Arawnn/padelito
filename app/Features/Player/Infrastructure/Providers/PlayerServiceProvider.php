@@ -8,13 +8,13 @@ use App\Features\Player\Application\Commands\ChangeProfileVisibility\ChangeProfi
 use App\Features\Player\Application\Commands\ChangeProfileVisibility\ChangeProfileVisibilityCommandHandler;
 use App\Features\Player\Application\Commands\ChangeUsername\ChangeUsernameCommand;
 use App\Features\Player\Application\Commands\ChangeUsername\ChangeUsernameCommandHandler;
-use App\Features\Player\Application\Contracts\AvatarProvisionerInterface;
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommand;
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommandHandler;
 use App\Features\Player\Application\Commands\UpdatePlayerIdentity\UpdatePlayerIdentityCommand;
 use App\Features\Player\Application\Commands\UpdatePlayerIdentity\UpdatePlayerIdentityCommandHandler;
 use App\Features\Player\Application\Commands\UpdatePlayerPreferences\UpdatePlayerPreferencesCommand;
 use App\Features\Player\Application\Commands\UpdatePlayerPreferences\UpdatePlayerPreferencesCommandHandler;
+use App\Features\Player\Application\Contracts\AvatarProvisionerInterface;
 use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQuery;
 use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQueryHandler;
 use App\Features\Player\Application\Queries\GetPublicPlayerProfile\GetPublicPlayerProfileQuery;

@@ -6,7 +6,6 @@ namespace Tests\Unit\Features\Player\Domain\Entities;
 
 use App\Features\Player\Domain\Events\PlayerIdentityUpdated;
 use App\Features\Player\Domain\Events\PlayerPreferencesUpdated;
-use App\Features\Player\Domain\Events\PlayerProfileCreated;
 use App\Features\Player\Domain\Events\PlayerUsernameChanged;
 use App\Features\Player\Domain\Events\PlayerVisibilityChanged;
 use App\Features\Player\Domain\ValueObjects\ProfileVisibility;
