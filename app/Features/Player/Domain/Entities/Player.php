@@ -121,4 +121,9 @@ final class Player extends AggregateRoot
     {
         $this->visibility = $visibility;
     }
+
+    public function updateIdentity(?PlayerIdentity $identity): void
+    {
+        $this->identity = $identity;
+    }
 }
