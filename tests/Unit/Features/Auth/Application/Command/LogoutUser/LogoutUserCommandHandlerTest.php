@@ -34,7 +34,7 @@ final class LogoutUserCommandHandlerTest extends TestCase
     public function test_it_logs_out_a_user(): void
     {
         $user = UserMother::create()->build();
-        $this->repository->create($user);
+        $this->repository->save($user);
 
         $command = new LogoutUserCommand(userId: $user->id()->value());
         $handler = $this->makeHandler();

@@ -34,4 +34,15 @@ final class SpyEventDispatcher implements EventDispatcherInterface
 
         return false;
     }
+
+    public function first(string $eventClass): ?DomainEvent
+    {
+        foreach ($this->dispatched as $event) {
+            if ($event instanceof $eventClass) {
+                return $event;
+            }
+        }
+
+        return null;
+    }
 }

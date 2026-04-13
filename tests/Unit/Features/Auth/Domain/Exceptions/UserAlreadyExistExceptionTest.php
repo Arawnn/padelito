@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Features\Auth\Domain\Exceptions;
 
-use App\Features\Auth\Domain\Exceptions\UserAlreadyExistException;
+use App\Features\Auth\Domain\Exceptions\UserAlreadyExistsException;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\Id;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,7 @@ final class UserAlreadyExistExceptionTest extends TestCase
     {
         $email = Email::fromString('john.doe@example.com');
 
-        $exception = UserAlreadyExistException::fromEmail($email);
+        $exception = UserAlreadyExistsException::fromEmail($email);
 
         $this->assertStringContainsString('john.doe@example.com', $exception->getMessage());
     }
@@ -29,7 +29,7 @@ final class UserAlreadyExistExceptionTest extends TestCase
     {
         $id = Id::fromString('user-123');
 
-        $exception = UserAlreadyExistException::fromId($id);
+        $exception = UserAlreadyExistsException::fromId($id);
 
         $this->assertStringContainsString('user-123', $exception->getMessage());
     }

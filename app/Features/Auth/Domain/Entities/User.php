@@ -21,9 +21,7 @@ final class User extends AggregateRoot
         private Name $name,
         private Email $email,
         private HashedPassword $password,
-    ) {
-        parent::__construct();
-    }
+    ) {}
 
     public static function reconstitute(Id $id, Name $name, Email $email, HashedPassword $password): self
     {
@@ -43,25 +41,29 @@ final class User extends AggregateRoot
             email: $email,
             password: $password,
         );
-        $user->recordDomainEvent(new UserCreated($user));
+        $user->recordDomainEvent(new UserCreated(
+            $user->id()->value(),
+            $user->name()->value(),
+            $user->email()->value())
+        );
 
         return $user;
     }
 
     public function login(): void
     {
-        $this->recordDomainEvent(new UserLoggedIn($this));
+        $this->recordDomainEvent(new UserLoggedIn($this->id()->value()));
     }
 
     public function logout(): void
     {
-        $this->recordDomainEvent(new UserLoggedOut($this));
+        $this->recordDomainEvent(new UserLoggedOut($this->id()->value()));
     }
 
     public function updatePassword(HashedPassword $password): void
     {
         $this->password = $password;
-        $this->recordDomainEvent(new UserPasswordUpdated($this));
+        $this->recordDomainEvent(new UserPasswordUpdated($this->id()->value()));
     }
 
     public function id(): Id

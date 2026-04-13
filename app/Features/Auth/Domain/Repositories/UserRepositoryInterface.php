@@ -12,7 +12,5 @@ interface UserRepositoryInterface
 
     public function findById(Id $id): ?User;
 
-    public function create(User $user): void;
-
-    public function update(User $user): void;
+    public function save(User $user): void;
 }

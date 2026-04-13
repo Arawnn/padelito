@@ -1,0 +1,70 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Features\Player\Infrastructure\Http\v1\Exceptions;
+
+use App\Features\Player\Domain\Exceptions\InvalidAvatarUrlException;
+use App\Features\Player\Domain\Exceptions\InvalidBestStreakException;
+use App\Features\Player\Domain\Exceptions\InvalidBioException;
+use App\Features\Player\Domain\Exceptions\InvalidCurrentStreakException;
+use App\Features\Player\Domain\Exceptions\InvalidDisplayNameException;
+use App\Features\Player\Domain\Exceptions\InvalidEloRatingException;
+use App\Features\Player\Domain\Exceptions\InvalidTotalLossesException;
+use App\Features\Player\Domain\Exceptions\InvalidTotalWinsException;
+use App\Features\Player\Domain\Exceptions\InvalidUsernameException;
+use App\Features\Player\Domain\Exceptions\PlayerProfileAlreadyExistException;
+use App\Features\Player\Domain\Exceptions\PlayerProfileNotFoundException;
+use App\Features\Player\Domain\Exceptions\UsernameAlreadyTakenException;
+use App\Shared\Domain\Exceptions\DomainExceptionInterface;
+use App\Shared\Domain\Exceptions\ImageFetchFailedException;
+use App\Shared\Infrastructure\Http\Exceptions\ApiExceptionMapper;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+
+final class PlayerExceptionMapper
+{
+    private const INTERNAL_INIT_ERROR = 'An internal error occurred while initializing the player profile.';
+
+    private const HTTP_STATUS_MAP = [
+        PlayerProfileNotFoundException::class => Response::HTTP_NOT_FOUND,
+        PlayerProfileAlreadyExistException::class => Response::HTTP_CONFLICT,
+        UsernameAlreadyTakenException::class => Response::HTTP_CONFLICT,
+        InvalidUsernameException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+        InvalidDisplayNameException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+        InvalidBioException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+        InvalidAvatarUrlException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+        ImageFetchFailedException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+
+        InvalidEloRatingException::class => Response::HTTP_INTERNAL_SERVER_ERROR,
+        InvalidTotalWinsException::class => Response::HTTP_INTERNAL_SERVER_ERROR,
+        InvalidTotalLossesException::class => Response::HTTP_INTERNAL_SERVER_ERROR,
+        InvalidBestStreakException::class => Response::HTTP_INTERNAL_SERVER_ERROR,
+        InvalidCurrentStreakException::class => Response::HTTP_INTERNAL_SERVER_ERROR,
+    ];
+
+    private const CLIENT_MESSAGES = [
+        'PLAYER_PROFILE_NOT_FOUND' => 'Player not found.',
+        'PLAYER_PROFILE_ALREADY_EXIST' => 'A player profile already exists for this account.',
+        'USERNAME_ALREADY_TAKEN' => 'This username is already taken.',
+        'INVALID_USERNAME' => 'The provided username is invalid.',
+        'INVALID_DISPLAY_NAME' => 'The provided display name is invalid.',
+        'INVALID_BIO' => 'The provided bio is invalid.',
+        'INVALID_AVATAR_URL' => 'The provided avatar URL is invalid.',
+        'IMAGE_FETCH_FAILED' => 'Could not download or validate the image from the provided URL.',
+
+        'INVALID_ELO_RATING' => self::INTERNAL_INIT_ERROR,
+        'INVALID_TOTAL_WINS' => self::INTERNAL_INIT_ERROR,
+        'INVALID_TOTAL_LOSSES' => self::INTERNAL_INIT_ERROR,
+        'INVALID_BEST_STREAK' => self::INTERNAL_INIT_ERROR,
+        'INVALID_CURRENT_STREAK' => self::INTERNAL_INIT_ERROR,
+    ];
+
+    public static function toResponse(DomainExceptionInterface $error): JsonResponse
+    {
+        $status = self::HTTP_STATUS_MAP[$error::class] ?? Response::HTTP_INTERNAL_SERVER_ERROR;
+        $clientMessage = self::CLIENT_MESSAGES[$error->getDomainCode()] ?? 'An unexpected error occurred.';
+
+        return ApiExceptionMapper::toResponse($error, $status, $clientMessage);
+    }
+}

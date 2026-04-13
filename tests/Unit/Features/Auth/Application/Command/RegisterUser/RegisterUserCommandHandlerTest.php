@@ -11,7 +11,7 @@ use App\Features\Auth\Domain\Events\UserCreated;
 use App\Features\Auth\Domain\Exceptions\InvalidEmailException;
 use App\Features\Auth\Domain\Exceptions\InvalidNameException;
 use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
-use App\Features\Auth\Domain\Exceptions\UserAlreadyExistException;
+use App\Features\Auth\Domain\Exceptions\UserAlreadyExistsException;
 use Tests\Shared\Mother\Fake\FakePasswordHasher;
 use Tests\Shared\Mother\Fake\FakeUuidGenerator;
 use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
@@ -76,7 +76,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
 
     public function test_it_returns_an_exception_if_the_user_email_already_exists(): void
     {
-        $this->repository->create(
+        $this->repository->save(
             UserMother::create()->withEmail('john.doe@example.com')->build()
         );
 
@@ -91,13 +91,13 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $result = $handler($command);
 
         $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(UserAlreadyExistException::class, $result->error());
+        $this->assertInstanceOf(UserAlreadyExistsException::class, $result->error());
         $this->assertStringContainsString('USER_ALREADY_EXISTS', $result->error()->getDomainCode());
     }
 
     public function test_it_returns_an_exception_if_the_user_id_already_exists(): void
     {
-        $this->repository->create(
+        $this->repository->save(
             UserMother::create()->withId('00000000-0000-0000-0000-000000000000')->build()
         );
 
@@ -112,7 +112,7 @@ final class RegisterUserCommandHandlerTest extends TestCase
         $result = $handler($command);
 
         $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(UserAlreadyExistException::class, $result->error());
+        $this->assertInstanceOf(UserAlreadyExistsException::class, $result->error());
         $this->assertStringContainsString('USER_ALREADY_EXISTS', $result->error()->getDomainCode());
     }
 

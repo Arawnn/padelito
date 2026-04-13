@@ -47,7 +47,7 @@ final class LoginUserCommandHandlerTest extends TestCase
         $user = UserMother::create()
             ->withHashedPassword($hashedPassword->value())
             ->build();
-        $this->repository->create($user);
+        $this->repository->save($user);
 
         $command = new LoginUserCommand(
             email: 'john.doe@example.com',
@@ -86,7 +86,7 @@ final class LoginUserCommandHandlerTest extends TestCase
         $user = UserMother::create()
             ->withHashedPassword('hashed_fake-pour-test')
             ->build();
-        $this->repository->create($user);
+        $this->repository->save($user);
 
         $command = new LoginUserCommand(
             email: 'john.doe@example.com',

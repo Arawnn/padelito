@@ -9,16 +9,11 @@ use App\Shared\Domain\Events\DomainEventCollection;
 
 abstract class AggregateRoot
 {
-    private DomainEventCollection $domainEvents;
-
-    public function __construct()
-    {
-        $this->domainEvents = new DomainEventCollection;
-    }
+    private ?DomainEventCollection $domainEvents = null;
 
     public function pullDomainEvents(): DomainEventCollection
     {
-        $events = $this->domainEvents;
+        $events = $this->domainEvents ?? new DomainEventCollection;
         $this->domainEvents = new DomainEventCollection;
 
         return $events;
@@ -26,6 +21,7 @@ abstract class AggregateRoot
 
     protected function recordDomainEvent(DomainEvent $domainEvent): void
     {
+        $this->domainEvents ??= new DomainEventCollection;
         $this->domainEvents->add($domainEvent);
     }
 }

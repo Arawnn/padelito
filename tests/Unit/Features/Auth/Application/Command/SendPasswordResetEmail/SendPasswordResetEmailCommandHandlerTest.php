@@ -38,7 +38,7 @@ final class SendPasswordResetEmailCommandHandlerTest extends TestCase
     public function test_it_sends_a_password_reset_email(): void
     {
         $user = UserMother::create()->withEmail('john.doe@example.com')->build();
-        $this->userRepository->create($user);
+        $this->userRepository->save($user);
 
         $command = new SendPasswordResetEmailCommand(email: 'john.doe@example.com');
         $handler = new SendPasswordResetEmailCommandHandler(

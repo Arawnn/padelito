@@ -44,7 +44,7 @@ final class UpdateUserPasswordCommandHandlerTest extends TestCase
         $user = UserMother::create()
             ->withHashedPassword('hashed_old-password')
             ->build();
-        $this->repository->create($user);
+        $this->repository->save($user);
 
         $command = new UpdateUserPasswordCommand(
             userId: $user->id()->value(),
@@ -55,7 +55,7 @@ final class UpdateUserPasswordCommandHandlerTest extends TestCase
         $result = $handler($command);
 
         $this->assertTrue($result->isOk());
-        $this->assertNull($result->value());
+
         $this->assertTrue($this->eventDispatcher->dispatched(UserPasswordUpdated::class));
 
         $expectedHash = $this->passwordHasher->hash(Password::fromPlainText($newPlainPassword))->value();
@@ -83,7 +83,7 @@ final class UpdateUserPasswordCommandHandlerTest extends TestCase
     public function test_it_returns_an_exception_if_the_password_is_invalid(): void
     {
         $user = UserMother::create()->build();
-        $this->repository->create($user);
+        $this->repository->save($user);
 
         $command = new UpdateUserPasswordCommand(
             userId: $user->id()->value(),

@@ -4,15 +4,32 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Domain\Events;
 
-use App\Features\Auth\Domain\Entities\User;
 use App\Shared\Domain\Events\DomainEvent;
 
 final class UserLoggedIn extends DomainEvent
 {
-    public function __construct(public User $user)
+    public function __construct(
+        public readonly string $userId,
+        ?string $eventId = null,
+        ?\DateTimeImmutable $occurredOn = null,
+
+    ) {
+        parent::__construct(
+            aggregateId: $userId,
+            eventId: $eventId,
+            occurredOn: $occurredOn
+        );
+    }
+
+    public static function eventName(): string
     {
-        parent::__construct();
-        $this->eventName = 'UserLoggedIn';
-        $this->aggregateId = $user->id()->value();
+        return 'auth.user.logged_in';
+    }
+
+    public function toPrimitives(): array
+    {
+        return [
+            'userId' => $this->userId,
+        ];
     }
 }

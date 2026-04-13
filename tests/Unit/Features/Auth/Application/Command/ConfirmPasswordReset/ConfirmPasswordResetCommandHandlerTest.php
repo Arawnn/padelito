@@ -11,7 +11,7 @@ use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
 use App\Features\Auth\Domain\Exceptions\InvalidResetTokenException;
 use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
 use App\Features\Auth\Domain\ValueObjects\Email;
-use App\Shared\Domain\ValueObjects\Result;
+use App\Shared\Application\Result;
 use Tests\Shared\Mother\Fake\FakeCommandBus;
 use Tests\Shared\Mother\Fake\InMemoryPasswordResetTokenRepository;
 use Tests\Shared\Mother\Fake\InMemoryUserRepository;
@@ -44,7 +44,7 @@ final class ConfirmPasswordResetCommandHandlerTest extends TestCase
     {
         $email = 'john.doe@example.com';
         $user = UserMother::create()->withEmail($email)->build();
-        $this->userRepository->create($user);
+        $this->userRepository->save($user);
         $token = $this->tokenRepository->create(Email::fromString($email));
 
         $command = new ConfirmPasswordResetCommand(
@@ -91,7 +91,7 @@ final class ConfirmPasswordResetCommandHandlerTest extends TestCase
     {
         $email = 'john.doe@example.com';
         $user = UserMother::create()->withEmail($email)->build();
-        $this->userRepository->create($user);
+        $this->userRepository->save($user);
         // Aucun token créé dans le repo → isValid() retourne false
 
         $command = new ConfirmPasswordResetCommand(
@@ -116,7 +116,7 @@ final class ConfirmPasswordResetCommandHandlerTest extends TestCase
     {
         $email = 'john.doe@example.com';
         $user = UserMother::create()->withEmail($email)->build();
-        $this->userRepository->create($user);
+        $this->userRepository->save($user);
         $token = $this->tokenRepository->create(Email::fromString($email));
 
         $this->commandBus->willReturn(

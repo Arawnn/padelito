@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Features\Auth\Infrastructure\Providers\AuthServiceProvider;
+use App\Features\Player\Infrastructure\Providers\PlayerServiceProvider;
+use App\Shared\Application\Bus\HandlerMap;
 use App\Shared\Infrastructure\Providers\SharedServiceProvider;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
@@ -17,10 +19,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+
         // Shared first
+        $this->app->singleton(HandlerMap::class, fn () => new HandlerMap);
         $this->app->register(SharedServiceProvider::class);
         // Features second
         $this->app->register(AuthServiceProvider::class);
+        $this->app->register(PlayerServiceProvider::class);
     }
 
     /**

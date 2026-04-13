@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Application\Commands\SendPasswordResetEmail;
 
-use App\Features\Auth\Domain\Exceptions\InvalidEmailException;
 use App\Features\Auth\Domain\Repositories\PasswordResetTokenRepositoryInterface;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\Email;
+use App\Shared\Application\Result;
 use App\Shared\Domain\Contracts\MailerInterface;
-use App\Shared\Domain\ValueObjects\Result;
+use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
 final readonly class SendPasswordResetEmailCommandHandler
 {
@@ -20,28 +20,29 @@ final readonly class SendPasswordResetEmailCommandHandler
     ) {}
 
     /**
-     * @return Result<null>
+     * @return Result<void>
+     *
+     * @throws DomainExceptionInterface
      */
     public function __invoke(SendPasswordResetEmailCommand $command): Result
     {
         try {
             $email = Email::fromString($command->email);
-        } catch (InvalidEmailException $e) {
-            return Result::fail(InvalidEmailException::fromViolations($e->violations()));
+
+            $user = $this->userRepository->findByEmail($email);
+            if (! $user) {
+                return Result::void();
+            }
+
+            $token = $this->tokenRepository->create($email);
+
+            // I choose to send the mail in this handler to keep thing simpler for now but later on
+            // A domain event should be published and a subscriber should handle the emailing in reaction of this event
+            $this->mailer->to($user->email()->value(), $user->name()->value(), $token);
+
+            return Result::void();
+        } catch (DomainExceptionInterface $e) {
+            return Result::fail($e);
         }
-
-        $user = $this->userRepository->findByEmail($email);
-
-        if (! $user) {
-            return Result::ok(null);
-        }
-
-        $token = $this->tokenRepository->create($email);
-
-        // I choose to send the mail in this handler to keep thing simpler for now but later on
-        // A domain event should be published and a subscriber should handle the emailing in reaction of this event
-        $this->mailer->to($user->email()->value(), $user->name()->value(), $token);
-
-        return Result::ok(null);
     }
 }

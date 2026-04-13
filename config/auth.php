@@ -1,6 +1,6 @@
 <?php
 
-use App\Features\Auth\Infrastructure\Models\User;
+use App\Features\Auth\Infrastructure\Persistence\Eloquent\Models\User;
 
 return [
     /*

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Features\Auth\Http;
 
-use App\Features\Auth\Infrastructure\Models\User;
+use App\Features\Auth\Infrastructure\Persistence\Eloquent\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Tests\FeatureTestCase;
 
