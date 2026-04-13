@@ -116,4 +116,9 @@ final class Player extends AggregateRoot
     {
         return $this->visibility;
     }
+
+    public function changeVisibility(ProfileVisibility $visibility): void
+    {
+        $this->visibility = $visibility;
+    }
 }

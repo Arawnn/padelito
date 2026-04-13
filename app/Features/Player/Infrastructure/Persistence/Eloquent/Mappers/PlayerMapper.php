@@ -64,7 +64,7 @@ final readonly class PlayerMapper
             identity: $identity,
             stats: $stats,
             level: PlayerLevel::fromPlayerLevelEnum(PlayerLevelEnum::from($model->level)),
-            padelCoins: PadelCoins::fromInt((int)$model->padel_coins),
+            padelCoins: PadelCoins::fromInt((int) $model->padel_coins),
             visibility: ProfileVisibility::fromBool((bool) $model->is_public),
         );
     }
