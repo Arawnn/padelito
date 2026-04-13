@@ -27,6 +27,7 @@ return new class extends Migration
             $table->unsignedInteger('current_streak')->default(0);
             $table->unsignedInteger('best_streak')->default(0);
             $table->unsignedInteger('padel_coins')->default(0);
+            $table->boolean('is_public')->default(false);
             $table->timestamps();
         });
     }
