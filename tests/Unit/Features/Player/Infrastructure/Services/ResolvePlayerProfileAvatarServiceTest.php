@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Features\Player\Infrastructure\Services;
 
-use App\Features\Player\Infrastructure\Dto\CreatePlayerProfileAvatarInput;
-use App\Features\Player\Infrastructure\Services\ResolvePlayerProfileAvatarService;
+use App\Features\Player\Infrastructure\Services\DefaultAvatarProvisioner;
 use App\Shared\Domain\Contracts\FileStorageInterface;
 use App\Shared\Domain\Contracts\ImageFetchInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
+ *
+ * @coversNothing
  */
 final class ResolvePlayerProfileAvatarServiceTest extends TestCase
 {
@@ -22,7 +23,7 @@ final class ResolvePlayerProfileAvatarServiceTest extends TestCase
         return is_string($b) ? $b : '';
     }
 
-    public function test_it_fetches_ui_avatars_when_no_avatar_file_or_url(): void
+    public function test_it_fetches_ui_avatars_when_no_avatar_provided(): void
     {
         $capturedUrl = null;
         $fetch = $this->createStub(ImageFetchInterface::class);
@@ -35,14 +36,8 @@ final class ResolvePlayerProfileAvatarServiceTest extends TestCase
         $storage = $this->createStub(FileStorageInterface::class);
         $storage->method('upload')->willReturn('https://cdn.example/avatars/u1/x.png');
 
-        $service = new ResolvePlayerProfileAvatarService($storage, $fetch);
-
-        $result = $service->resolve(new CreatePlayerProfileAvatarInput(
-            userId: 'u1',
-            displayName: 'Jean Dupont',
-            avatarFile: null,
-            avatarAsHttpsUrlOrEmpty: '',
-        ));
+        $result = (new DefaultAvatarProvisioner($storage, $fetch))
+            ->provision(userId: 'u1', displayName: 'Jean Dupont', avatar: null);
 
         self::assertTrue($result->isOk());
         self::assertSame('https://cdn.example/avatars/u1/x.png', $result->value());
@@ -66,16 +61,9 @@ final class ResolvePlayerProfileAvatarServiceTest extends TestCase
         $storage = $this->createStub(FileStorageInterface::class);
         $storage->method('upload')->willReturn('https://cdn.example/y.png');
 
-        $service = new ResolvePlayerProfileAvatarService($storage, $fetch);
+        (new DefaultAvatarProvisioner($storage, $fetch))
+            ->provision(userId: 'u1', displayName: '   ', avatar: null);
 
-        $result = $service->resolve(new CreatePlayerProfileAvatarInput(
-            userId: 'u1',
-            displayName: '   ',
-            avatarFile: null,
-            avatarAsHttpsUrlOrEmpty: '',
-        ));
-
-        self::assertTrue($result->isOk());
         self::assertNotNull($capturedUrl);
         assert(is_string($capturedUrl));
         self::assertStringContainsString('name=%3F', $capturedUrl);

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Features\Player\Application\Command\CreatePlayerProfile;
 
-use App\Features\Player\Application\Commands\CreatePlayerProfileCommand;
-use App\Features\Player\Application\Commands\CreatePlayerProfileCommandHandler;
+use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommand;
+use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommandHandler;
 use App\Features\Player\Domain\Events\PlayerProfileCreated;
 use App\Features\Player\Domain\Exceptions\PlayerProfileAlreadyExistException;
+use Tests\Shared\Mother\Fake\FakeAvatarProvisioner;
 use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
@@ -112,7 +113,7 @@ final class CreatePlayerProfileCommandHandlerTest extends TestCase
             username: 'jean_dupont',
             level: 'beginner',
             displayName: 'Jean Dupont',
-            avatarUrl: null,
+            avatar: null,
             bio: null,
             location: null,
             dominantHand: 'right',
@@ -126,6 +127,7 @@ final class CreatePlayerProfileCommandHandlerTest extends TestCase
             playerRepository: $this->repository,
             transactionManager: $this->tx,
             eventDispatcher: $this->eventDispatcher,
+            avatarProvisioner: FakeAvatarProvisioner::thatSucceeds(),
         );
     }
 }

@@ -18,6 +18,7 @@ use App\Features\Player\Domain\ValueObjects\PlayerLevel;
 use App\Features\Player\Domain\ValueObjects\PlayerPreferences;
 use App\Features\Player\Domain\ValueObjects\PlayerStats;
 use App\Features\Player\Domain\ValueObjects\PreferredPosition;
+use App\Features\Player\Domain\ValueObjects\ProfileVisibility;
 use App\Features\Player\Domain\ValueObjects\Username;
 
 final class PlayerMother
@@ -36,7 +37,9 @@ final class PlayerMother
 
     private ?string $preferredPosition = 'back';
 
-    private function __construct() {}
+    private bool $isPublic = false;
+
+    private function __construct() {} // Named constructor only — use PlayerMother::create()
 
     public static function create(): self
     {
@@ -67,6 +70,14 @@ final class PlayerMother
         return $clone;
     }
 
+    public function asPublic(): self
+    {
+        $clone = clone $this;
+        $clone->isPublic = true;
+
+        return $clone;
+    }
+
     public function build(): Player
     {
         $preferences = PlayerPreferences::of(
@@ -93,6 +104,7 @@ final class PlayerMother
             stats: PlayerStats::initialize(),
             level: PlayerLevel::fromPlayerLevelEnum(PlayerLevelEnum::from($this->level)),
             padelCoins: PadelCoins::initialize(),
+            visibility: ProfileVisibility::fromBool($this->isPublic),
         );
     }
 }

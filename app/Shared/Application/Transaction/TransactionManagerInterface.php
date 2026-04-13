@@ -15,7 +15,7 @@ interface TransactionManagerInterface
     public function run(callable $fn): mixed;
 
     /**
-     * @param  callable(void): void  $fn
+     * @param  callable(): void  $fn
      */
     public function afterCommit(callable $fn): void;
 }
