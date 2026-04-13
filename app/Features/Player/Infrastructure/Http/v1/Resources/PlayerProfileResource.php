@@ -18,6 +18,7 @@ final class PlayerProfileResource extends JsonResource
             'id' => $this->id()->value(),
             'username' => $this->username()->value(),
             'level' => $this->level()->value()->value,
+            'is_public' => $this->visibility()->isPublic(),
             'padel_coins' => $this->padelCoins()->value(),
             'identity' => [
                 'display_name' => $this->identity()?->displayName()?->value(),

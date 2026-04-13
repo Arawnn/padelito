@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Application\Commands\CreatePlayerProfile;
 
-use App\Features\Player\Application\Commands\CreatePlayerProfile\Contracts\AvatarProvisionerInterface;
+use App\Features\Player\Application\Contracts\AvatarProvisionerInterface;
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Enums\DominantHandEnum;
 use App\Features\Player\Domain\Enums\PlayerLevelEnum;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Application\Commands\UpdatePlayerIdentity;
 
-use App\Features\Player\Application\Commands\CreatePlayerProfile\Contracts\AvatarProvisionerInterface;
+use App\Features\Player\Application\Contracts\AvatarProvisionerInterface;
 use App\Features\Player\Domain\Exceptions\PlayerProfileNotFoundException;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\ValueObjects\AvatarUrl;
@@ -13,6 +13,7 @@ use App\Features\Player\Domain\ValueObjects\DisplayName;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
 use App\Shared\Application\Result;
+use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
@@ -22,6 +23,7 @@ final readonly class UpdatePlayerIdentityCommandHandler
         private PlayerRepositoryInterface $playerRepository,
         private AvatarProvisionerInterface $avatarProvisioner,
         private EventDispatcherInterface $eventDispatcher,
+        private TransactionManagerInterface $transactionManager,
     ) {}
 
     public function __invoke(UpdatePlayerIdentityCommand $command): Result
@@ -79,7 +81,8 @@ final readonly class UpdatePlayerIdentityCommandHandler
             ));
 
             $this->playerRepository->save($player);
-            $this->eventDispatcher->dispatchEvents($player->pullDomainEvents());
+            $events = $player->pullDomainEvents();
+            $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($events));
 
             return Result::ok($player);
         } catch (DomainExceptionInterface $e) {

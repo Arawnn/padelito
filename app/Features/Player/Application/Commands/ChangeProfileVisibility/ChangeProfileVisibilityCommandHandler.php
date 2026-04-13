@@ -9,6 +9,7 @@ use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\ProfileVisibility;
 use App\Shared\Application\Result;
+use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
@@ -17,6 +18,7 @@ final readonly class ChangeProfileVisibilityCommandHandler
     public function __construct(
         private PlayerRepositoryInterface $playerRepository,
         private EventDispatcherInterface $eventDispatcher,
+        private TransactionManagerInterface $transactionManager,
     ) {}
 
     public function __invoke(ChangeProfileVisibilityCommand $command): Result
@@ -33,7 +35,8 @@ final readonly class ChangeProfileVisibilityCommandHandler
             $player->changeVisibility(ProfileVisibility::fromBool($command->isPublic));
 
             $this->playerRepository->save($player);
-            $this->eventDispatcher->dispatchEvents($player->pullDomainEvents());
+            $events = $player->pullDomainEvents();
+            $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($events));
 
             return Result::ok($player);
         } catch (DomainExceptionInterface $e) {

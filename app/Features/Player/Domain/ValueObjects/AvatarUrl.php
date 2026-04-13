@@ -27,7 +27,7 @@ final readonly class AvatarUrl
         $violations = [];
 
         if (! filter_var($value, FILTER_VALIDATE_URL)) {
-            $violations[] = 'Invalid avatar URL';
+            $violations[] = 'Avatar URL is not a valid URL';
         }
 
         if (! empty($violations)) {

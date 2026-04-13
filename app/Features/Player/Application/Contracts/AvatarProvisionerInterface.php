@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Player\Application\Commands\CreatePlayerProfile\Contracts;
+namespace App\Features\Player\Application\Contracts;
 
-use App\Features\Player\Application\Commands\CreatePlayerProfile\Dto\AvatarInput;
+use App\Features\Player\Application\Dto\AvatarInput;
 use App\Shared\Application\Result;
 
 interface AvatarProvisionerInterface

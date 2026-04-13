@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Application\Commands\UpdatePlayerIdentity;
 
-use App\Features\Player\Application\Commands\CreatePlayerProfile\Dto\AvatarInput;
+use App\Features\Player\Application\Dto\AvatarInput;
 use App\Shared\Application\Optional;
 
 final readonly class UpdatePlayerIdentityCommand

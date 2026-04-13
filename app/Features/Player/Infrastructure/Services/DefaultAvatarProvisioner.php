@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Infrastructure\Services;
 
-use App\Features\Player\Application\Commands\CreatePlayerProfile\Contracts\AvatarProvisionerInterface;
-use App\Features\Player\Application\Commands\CreatePlayerProfile\Dto\AvatarInput;
+use App\Features\Player\Application\Contracts\AvatarProvisionerInterface;
+use App\Features\Player\Application\Dto\AvatarInput;
 use App\Shared\Application\Result;
 use App\Shared\Domain\Contracts\FileStorageInterface;
 use App\Shared\Domain\Contracts\ImageFetchInterface;

@@ -11,7 +11,7 @@ use App\Features\Player\Domain\ValueObjects\Username;
 use App\Features\Player\Infrastructure\Persistence\Eloquent\Mappers\PlayerMapper;
 use App\Features\Player\Infrastructure\Persistence\Eloquent\Models\Player as EloquentPlayer;
 
-class EloquentPlayerRepository implements PlayerRepositoryInterface
+final class EloquentPlayerRepository implements PlayerRepositoryInterface
 {
     public function __construct(
         private readonly PlayerMapper $mapper,

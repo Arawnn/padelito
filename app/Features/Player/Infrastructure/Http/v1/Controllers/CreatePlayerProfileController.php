@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Player\Infrastructure\Http\v1\Controllers;
 
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommand;
-use App\Features\Player\Application\Commands\CreatePlayerProfile\Dto\AvatarInput;
+use App\Features\Player\Application\Dto\AvatarInput;
 use App\Features\Player\Infrastructure\Http\v1\Exceptions\PlayerExceptionMapper;
 use App\Features\Player\Infrastructure\Http\v1\Requests\CreatePlayerProfileRequest;
 use App\Shared\Application\Bus\CommandBusInterface;
