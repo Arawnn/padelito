@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shared\Application\Bus;
 
+use App\Shared\Infrastructure\Exceptions\InfrastructureException;
+
 final class HandlerMap
 {
     /** @var array<class-string, class-string> */
@@ -18,7 +20,7 @@ final class HandlerMap
     {
         $cls = $message::class;
         if (! isset($this->map[$cls])) {
-            throw new \RuntimeException("No handler registered for {$cls}");
+            throw InfrastructureException::handlerNotFound($cls);
         }
 
         return $this->map[$cls];
