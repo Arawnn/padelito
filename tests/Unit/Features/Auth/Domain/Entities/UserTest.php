@@ -23,7 +23,7 @@ final class UserTest extends TestCase
     {
         $user = UserMother::create()->registered()->build();
 
-        $this->assertSame('id-fixe-test', $user->id()->value());
+        $this->assertSame('00000000-0000-0000-0000-000000000000', $user->id()->value());
         $this->assertSame('John Doe', $user->name()->value());
         $this->assertSame('john.doe@example.com', $user->email()->value());
         $this->assertSame('hash-fake-pour-test', $user->password()->value());
