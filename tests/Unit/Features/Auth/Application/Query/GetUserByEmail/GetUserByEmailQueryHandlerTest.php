@@ -34,39 +34,28 @@ final class GetUserByEmailQueryHandlerTest extends TestCase
         $user = UserMother::create()->withEmail('john.doe@example.com')->build();
         $this->userRepository->save($user);
 
-        $query = new GetUserByEmailQuery(email: 'john.doe@example.com');
         $handler = new GetUserByEmailQueryHandler($this->userRepository);
+        $result = $handler(new GetUserByEmailQuery(email: 'john.doe@example.com'));
 
-        $result = $handler($query);
-
-        $this->assertTrue($result->isOk());
-        $this->assertInstanceOf(User::class, $result->value());
-        $this->assertEquals($user->id()->value(), $result->value()->id()->value());
-        $this->assertEquals('john.doe@example.com', $result->value()->email()->value());
-        $this->assertEquals($user->name()->value(), $result->value()->name()->value());
+        $this->assertInstanceOf(User::class, $result);
+        $this->assertEquals($user->id()->value(), $result->id()->value());
+        $this->assertEquals('john.doe@example.com', $result->email()->value());
+        $this->assertEquals($user->name()->value(), $result->name()->value());
     }
 
     public function test_it_returns_a_failure_if_the_user_is_not_found(): void
     {
-        $query = new GetUserByEmailQuery(email: 'unknown@example.com');
+        $this->expectException(UserNotFoundException::class);
+
         $handler = new GetUserByEmailQueryHandler($this->userRepository);
-
-        $result = $handler($query);
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(UserNotFoundException::class, $result->error());
-        $this->assertStringContainsString('USER_NOT_FOUND', $result->error()->getDomainCode());
+        $handler(new GetUserByEmailQuery(email: 'unknown@example.com'));
     }
 
     public function test_it_returns_a_failure_if_the_email_is_invalid(): void
     {
-        $query = new GetUserByEmailQuery(email: 'invalid-email');
+        $this->expectException(InvalidEmailException::class);
+
         $handler = new GetUserByEmailQueryHandler($this->userRepository);
-
-        $result = $handler($query);
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(InvalidEmailException::class, $result->error());
-        $this->assertStringContainsString('INVALID_EMAIL', $result->error()->getDomainCode());
+        $handler(new GetUserByEmailQuery(email: 'invalid-email'));
     }
 }

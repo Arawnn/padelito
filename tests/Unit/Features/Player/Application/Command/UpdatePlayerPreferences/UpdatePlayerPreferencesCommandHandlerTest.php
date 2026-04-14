@@ -46,8 +46,7 @@ final class UpdatePlayerPreferencesCommandHandlerTest extends TestCase
             location: Optional::absent(),
         ));
 
-        $this->assertTrue($result->isOk());
-        $this->assertEquals('left', $result->value()->preferences()->dominantHand()->value()->value);
+        $this->assertEquals('left', $result->preferences()->dominantHand()->value()->value);
     }
 
     public function test_it_keeps_existing_dominant_hand_when_absent(): void
@@ -63,8 +62,7 @@ final class UpdatePlayerPreferencesCommandHandlerTest extends TestCase
             location: Optional::absent(),
         ));
 
-        $this->assertTrue($result->isOk());
-        $this->assertEquals('right', $result->value()->preferences()->dominantHand()->value()->value);
+        $this->assertEquals('right', $result->preferences()->dominantHand()->value()->value);
     }
 
     public function test_it_clears_dominant_hand_when_explicitly_null(): void
@@ -79,8 +77,7 @@ final class UpdatePlayerPreferencesCommandHandlerTest extends TestCase
             location: Optional::absent(),
         ));
 
-        $this->assertTrue($result->isOk());
-        $this->assertNull($result->value()->preferences()->dominantHand());
+        $this->assertNull($result->preferences()->dominantHand());
     }
 
     public function test_it_updates_location(): void
@@ -95,8 +92,7 @@ final class UpdatePlayerPreferencesCommandHandlerTest extends TestCase
             location: Optional::of('Paris'),
         ));
 
-        $this->assertTrue($result->isOk());
-        $this->assertEquals('Paris', $result->value()->preferences()->location()->value());
+        $this->assertEquals('Paris', $result->preferences()->location()->value());
     }
 
     public function test_it_dispatches_player_preferences_updated_event(): void
@@ -116,15 +112,14 @@ final class UpdatePlayerPreferencesCommandHandlerTest extends TestCase
 
     public function test_it_fails_when_player_not_found(): void
     {
-        $result = $this->makeHandler()(new UpdatePlayerPreferencesCommand(
+        $this->expectException(PlayerProfileNotFoundException::class);
+
+        $this->makeHandler()(new UpdatePlayerPreferencesCommand(
             userId: '00000000-0000-0000-0000-000000000099',
             dominantHand: Optional::absent(),
             preferredPosition: Optional::absent(),
             location: Optional::absent(),
         ));
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(PlayerProfileNotFoundException::class, $result->error());
     }
 
     private function makeHandler(): UpdatePlayerPreferencesCommandHandler

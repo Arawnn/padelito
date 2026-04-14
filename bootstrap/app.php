@@ -2,6 +2,7 @@
 
 use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 use App\Shared\Infrastructure\Http\Exceptions\ApiExceptionMapper;
+use App\Shared\Infrastructure\Http\Exceptions\DomainExceptionRendererInterface;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -23,6 +24,13 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->renderable(function (DomainExceptionInterface $e) {
+            /** @var DomainExceptionRendererInterface $renderer */
+            foreach (app()->tagged('domain_exception_renderers') as $renderer) {
+                if ($renderer->handles($e)) {
+                    return $renderer->render($e);
+                }
+            }
+
             return ApiExceptionMapper::toResponse($e, Response::HTTP_INTERNAL_SERVER_ERROR);
         });
     })->create();

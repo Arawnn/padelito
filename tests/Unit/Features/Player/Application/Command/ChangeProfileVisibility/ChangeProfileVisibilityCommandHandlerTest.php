@@ -43,8 +43,7 @@ final class ChangeProfileVisibilityCommandHandlerTest extends TestCase
             isPublic: true,
         ));
 
-        $this->assertTrue($result->isOk());
-        $this->assertTrue($result->value()->visibility()->isPublic());
+        $this->assertTrue($result->visibility()->isPublic());
     }
 
     public function test_it_makes_a_profile_private(): void
@@ -57,8 +56,7 @@ final class ChangeProfileVisibilityCommandHandlerTest extends TestCase
             isPublic: false,
         ));
 
-        $this->assertTrue($result->isOk());
-        $this->assertTrue($result->value()->visibility()->isPrivate());
+        $this->assertTrue($result->visibility()->isPrivate());
     }
 
     public function test_it_dispatches_player_visibility_changed_event(): void
@@ -76,13 +74,12 @@ final class ChangeProfileVisibilityCommandHandlerTest extends TestCase
 
     public function test_it_fails_when_player_not_found(): void
     {
-        $result = $this->makeHandler()(new ChangeProfileVisibilityCommand(
+        $this->expectException(PlayerProfileNotFoundException::class);
+
+        $this->makeHandler()(new ChangeProfileVisibilityCommand(
             userId: '00000000-0000-0000-0000-000000000099',
             isPublic: true,
         ));
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(PlayerProfileNotFoundException::class, $result->error());
     }
 
     private function makeHandler(): ChangeProfileVisibilityCommandHandler

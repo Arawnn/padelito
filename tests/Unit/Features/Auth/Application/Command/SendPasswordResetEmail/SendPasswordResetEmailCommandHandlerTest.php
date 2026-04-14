@@ -40,51 +40,38 @@ final class SendPasswordResetEmailCommandHandlerTest extends TestCase
         $user = UserMother::create()->withEmail('john.doe@example.com')->build();
         $this->userRepository->save($user);
 
-        $command = new SendPasswordResetEmailCommand(email: 'john.doe@example.com');
         $handler = new SendPasswordResetEmailCommandHandler(
             $this->userRepository,
             $this->tokenRepository,
             $this->mailer,
         );
+        $handler(new SendPasswordResetEmailCommand(email: 'john.doe@example.com'));
 
-        $result = $handler($command);
-
-        $this->assertTrue($result->isOk());
-        $this->assertNull($result->value());
         $this->assertTrue($this->mailer->wasSentTo('john.doe@example.com'));
         $this->assertEquals(1, $this->mailer->count());
     }
 
     public function test_it_does_not_send_an_email_if_the_user_does_not_exist(): void
     {
-        $command = new SendPasswordResetEmailCommand(email: 'unknown@example.com');
         $handler = new SendPasswordResetEmailCommandHandler(
             $this->userRepository,
             $this->tokenRepository,
             $this->mailer,
         );
+        $handler(new SendPasswordResetEmailCommand(email: 'unknown@example.com'));
 
-        $result = $handler($command);
-
-        $this->assertTrue($result->isOk());
-        $this->assertNull($result->value());
         $this->assertEquals(0, $this->mailer->count());
     }
 
     public function test_it_returns_an_exception_if_the_email_is_invalid(): void
     {
-        $command = new SendPasswordResetEmailCommand(email: 'invalid-email');
+        $this->expectException(InvalidEmailException::class);
+
         $handler = new SendPasswordResetEmailCommandHandler(
             $this->userRepository,
             $this->tokenRepository,
             $this->mailer,
         );
-
-        $result = $handler($command);
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(InvalidEmailException::class, $result->error());
-        $this->assertStringContainsString('INVALID_EMAIL', $result->error()->getDomainCode());
-        $this->assertEquals(0, $this->mailer->count());
+        $handler(new SendPasswordResetEmailCommand(email: 'invalid-email'));
     }
 }

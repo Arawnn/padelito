@@ -24,10 +24,8 @@ use App\Features\Player\Domain\ValueObjects\PlayerPreferences;
 use App\Features\Player\Domain\ValueObjects\PlayerStats;
 use App\Features\Player\Domain\ValueObjects\PreferredPosition;
 use App\Features\Player\Domain\ValueObjects\Username;
-use App\Shared\Application\Result;
 use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
-use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
 final readonly class CreatePlayerProfileCommandHandler
 {
@@ -38,7 +36,7 @@ final readonly class CreatePlayerProfileCommandHandler
         private AvatarProvisionerInterface $avatarProvisioner,
     ) {}
 
-    public function __invoke(CreatePlayerProfileCommand $command): Result
+    public function __invoke(CreatePlayerProfileCommand $command): Player
     {
         $avatarUrl = null;
 
@@ -46,34 +44,22 @@ final readonly class CreatePlayerProfileCommandHandler
             $userId = Id::fromString($command->userId);
 
             if ($this->playerRepository->findById($userId)) {
-                return Result::fail(PlayerProfileAlreadyExistException::create());
+                throw PlayerProfileAlreadyExistException::create();
             }
 
             if ($this->playerRepository->findByUsername(Username::fromString($command->username))) {
-                return Result::fail(PlayerProfileAlreadyExistException::create());
+                throw PlayerProfileAlreadyExistException::create();
             }
 
-            $avatarResult = $this->avatarProvisioner->provision(
+            $avatarUrl = $this->avatarProvisioner->provision(
                 userId: $command->userId,
                 displayName: $command->displayName ?? '',
                 avatar: $command->avatar,
             );
 
-            if ($avatarResult->isFail()) {
-                return Result::fail($avatarResult->error());
-            }
-
-            $avatarUrl = $avatarResult->value();
-
-            $playerProfile = $this->transactionManager->run(
+            return $this->transactionManager->run(
                 fn () => $this->buildProfile($command, $userId, $avatarUrl)
             );
-
-            return Result::ok($playerProfile);
-        } catch (DomainExceptionInterface $e) {
-            $this->deleteAvatar($avatarUrl);
-
-            return Result::fail($e);
         } catch (\Throwable $e) {
             $this->deleteAvatar($avatarUrl);
             throw $e;

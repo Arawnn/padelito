@@ -6,6 +6,7 @@ namespace Tests\Unit\Features\Player\Application\Query\GetPublicPlayerProfile;
 
 use App\Features\Player\Application\Queries\GetPublicPlayerProfile\GetPublicPlayerProfileQuery;
 use App\Features\Player\Application\Queries\GetPublicPlayerProfile\GetPublicPlayerProfileQueryHandler;
+use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Exceptions\PlayerProfileNotFoundException;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\PlayerMother;
@@ -39,48 +40,56 @@ final class GetPublicPlayerProfileQueryHandlerTest extends TestCase
             targetUsername: 'jean_dupont',
         ));
 
-        $this->assertTrue($result->isOk());
-        $this->assertEquals('jean_dupont', $result->value()->username()->value());
+        $this->assertInstanceOf(Player::class, $result);
+        $this->assertEquals('jean_dupont', $result->username()->value());
     }
 
     public function test_it_fails_when_profile_is_private(): void
     {
+        $this->expectException(PlayerProfileNotFoundException::class);
+
         $player = PlayerMother::create()
             ->withUsername('jean_dupont')
             ->build(); // private by default
         $this->repository->save($player);
 
-        $result = $this->makeHandler()(new GetPublicPlayerProfileQuery(
+        $this->makeHandler()(new GetPublicPlayerProfileQuery(
             targetUsername: 'jean_dupont',
         ));
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(PlayerProfileNotFoundException::class, $result->error());
     }
 
     public function test_it_fails_when_player_does_not_exist(): void
     {
-        $result = $this->makeHandler()(new GetPublicPlayerProfileQuery(
+        $this->expectException(PlayerProfileNotFoundException::class);
+
+        $this->makeHandler()(new GetPublicPlayerProfileQuery(
             targetUsername: 'unknown_user',
         ));
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(PlayerProfileNotFoundException::class, $result->error());
     }
 
     public function test_private_and_not_found_return_the_same_error_to_avoid_leaking_existence(): void
     {
-        // Private profile
         $privatePlayer = PlayerMother::create()->withUsername('private_user')->build();
         $this->repository->save($privatePlayer);
 
-        $privateResult = $this->makeHandler()(new GetPublicPlayerProfileQuery(targetUsername: 'private_user'));
-        $notFoundResult = $this->makeHandler()(new GetPublicPlayerProfileQuery(targetUsername: 'ghost_user'));
+        $privateException = null;
+        $notFoundException = null;
 
-        $this->assertEquals(
-            get_class($privateResult->error()),
-            get_class($notFoundResult->error()),
-        );
+        try {
+            $this->makeHandler()(new GetPublicPlayerProfileQuery(targetUsername: 'private_user'));
+        } catch (PlayerProfileNotFoundException $e) {
+            $privateException = $e;
+        }
+
+        try {
+            $this->makeHandler()(new GetPublicPlayerProfileQuery(targetUsername: 'ghost_user'));
+        } catch (PlayerProfileNotFoundException $e) {
+            $notFoundException = $e;
+        }
+
+        $this->assertNotNull($privateException);
+        $this->assertNotNull($notFoundException);
+        $this->assertEquals(get_class($privateException), get_class($notFoundException));
     }
 
     private function makeHandler(): GetPublicPlayerProfileQueryHandler

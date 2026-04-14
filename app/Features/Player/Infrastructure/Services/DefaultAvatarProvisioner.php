@@ -6,10 +6,8 @@ namespace App\Features\Player\Infrastructure\Services;
 
 use App\Features\Player\Application\Contracts\AvatarProvisionerInterface;
 use App\Features\Player\Application\Dto\AvatarInput;
-use App\Shared\Application\Result;
 use App\Shared\Domain\Contracts\FileStorageInterface;
 use App\Shared\Domain\Contracts\ImageFetchInterface;
-use App\Shared\Domain\Exceptions\ImageFetchFailedException;
 use Illuminate\Http\File;
 use Illuminate\Support\Str;
 
@@ -26,7 +24,7 @@ final readonly class DefaultAvatarProvisioner implements AvatarProvisionerInterf
         string $userId,
         string $displayName,
         ?AvatarInput $avatar,
-    ): Result {
+    ): ?string {
         if ($avatar?->hasUploadedFile()) {
             $ext = strtolower((string) $avatar->uploadedFileExtension);
             $ext = match ($ext) {
@@ -37,9 +35,7 @@ final readonly class DefaultAvatarProvisioner implements AvatarProvisionerInterf
 
             $path = 'avatars/'.$userId.'/'.(string) Str::uuid().'.'.$ext;
 
-            return Result::ok(
-                $this->fileStorage->upload($path, new File($avatar->uploadedFilePath))
-            );
+            return $this->fileStorage->upload($path, new File($avatar->uploadedFilePath));
         }
 
         if ($avatar?->hasRemoteUrl()) {
@@ -77,17 +73,13 @@ final readonly class DefaultAvatarProvisioner implements AvatarProvisionerInterf
         return self::UI_AVATARS_API.'?'.$query;
     }
 
-    private function fetchAndStoreFromUrl(string $httpsUrl, string $userId): Result
+    private function fetchAndStoreFromUrl(string $httpsUrl, string $userId): string
     {
-        try {
-            $bytes = $this->imageFetch->fetch($httpsUrl);
-        } catch (ImageFetchFailedException $e) {
-            return Result::fail($e);
-        }
+        $bytes = $this->imageFetch->fetch($httpsUrl);
 
         $extension = str_starts_with($bytes, "\x89PNG") ? 'png' : 'jpg';
         $path = 'avatars/'.$userId.'/'.(string) Str::uuid().'.'.$extension;
 
-        return Result::ok($this->fileStorage->upload($path, $bytes));
+        return $this->fileStorage->upload($path, $bytes);
     }
 }

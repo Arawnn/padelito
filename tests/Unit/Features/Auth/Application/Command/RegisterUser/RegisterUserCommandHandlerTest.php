@@ -58,111 +58,87 @@ final class RegisterUserCommandHandlerTest extends TestCase
             password: 'Password123!',
         );
 
-        $result = $handler($command);
+        $user = $handler($command);
 
-        $user = $this->repository->findById($result->value()->id());
+        $persisted = $this->repository->findById($user->id());
 
-        $this->assertNotNull($user);
-        $this->assertTrue($result->isOk());
+        $this->assertNotNull($persisted);
+        $this->assertInstanceOf(User::class, $user);
 
-        $this->assertEquals('john.doe@example.com', $user->email()->value());
-        $this->assertEquals('John Doe', $user->name()->value());
-        $this->assertEquals('00000000-0000-0000-0000-000000000000', $user->id()->value());
-        $this->assertEquals('hashed_Password123!', $user->password()->value());
+        $this->assertEquals('john.doe@example.com', $persisted->email()->value());
+        $this->assertEquals('John Doe', $persisted->name()->value());
+        $this->assertEquals('00000000-0000-0000-0000-000000000000', $persisted->id()->value());
+        $this->assertEquals('hashed_Password123!', $persisted->password()->value());
 
-        $this->assertInstanceOf(User::class, $result->value());
         $this->assertTrue($this->eventDispatcher->dispatched(UserCreated::class));
     }
 
     public function test_it_returns_an_exception_if_the_user_email_already_exists(): void
     {
+        $this->expectException(UserAlreadyExistsException::class);
+
         $this->repository->save(
             UserMother::create()->withEmail('john.doe@example.com')->build()
         );
 
         $handler = $this->makeHandler();
-
-        $command = new RegisterUserCommand(
+        $handler(new RegisterUserCommand(
             name: 'John Doe',
             email: 'john.doe@example.com',
             password: 'Password123!',
-        );
-
-        $result = $handler($command);
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(UserAlreadyExistsException::class, $result->error());
-        $this->assertStringContainsString('USER_ALREADY_EXISTS', $result->error()->getDomainCode());
+        ));
     }
 
     public function test_it_returns_an_exception_if_the_user_id_already_exists(): void
     {
+        $this->expectException(UserAlreadyExistsException::class);
+
         $this->repository->save(
             UserMother::create()->withId('00000000-0000-0000-0000-000000000000')->build()
         );
 
         $handler = $this->makeHandler();
-
-        $command = new RegisterUserCommand(
+        $handler(new RegisterUserCommand(
             name: 'John Doe',
             email: 'john.doe@example.com',
             password: 'Password123!',
-        );
-
-        $result = $handler($command);
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(UserAlreadyExistsException::class, $result->error());
-        $this->assertStringContainsString('USER_ALREADY_EXISTS', $result->error()->getDomainCode());
+        ));
     }
 
     public function test_it_returns_an_exception_if_the_password_is_invalid(): void
     {
-        $handler = $this->makeHandler();
+        $this->expectException(InvalidPasswordException::class);
 
-        $command = new RegisterUserCommand(
+        $handler = $this->makeHandler();
+        $handler(new RegisterUserCommand(
             name: 'John Doe',
             email: 'john.doe@example.com',
             password: 'invalid',
-        );
-
-        $result = $handler($command);
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(InvalidPasswordException::class, $result->error());
-        $this->assertStringContainsString('INVALID_PASSWORD', $result->error()->getDomainCode());
+        ));
     }
 
     public function test_it_returns_an_exception_if_the_email_is_invalid(): void
     {
-        $command = new RegisterUserCommand(
+        $this->expectException(InvalidEmailException::class);
+
+        $handler = $this->makeHandler();
+        $handler(new RegisterUserCommand(
             name: 'John',
             email: 'invalid-email',
             password: 'Password123!',
-        );
-        $handler = $this->makeHandler();
-
-        $result = $handler($command);
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(InvalidEmailException::class, $result->error());
-        $this->assertStringContainsString('INVALID_EMAIL', $result->error()->getDomainCode());
+        ));
     }
 
     public function test_it_returns_an_exception_if_the_name_is_invalid(): void
     {
-        $command = new RegisterUserCommand(
+        $this->expectException(InvalidNameException::class);
+
+        $handler = $this->makeHandler();
+        $handler(new RegisterUserCommand(
             name: 'Jo',
             email: 'john.doe@example.com',
             password: 'Password123!',
-        );
-        $handler = $this->makeHandler();
-
-        $result = $handler($command);
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(InvalidNameException::class, $result->error());
-        $this->assertStringContainsString('INVALID_NAME', $result->error()->getDomainCode());
+        ));
     }
 
     private function makeHandler(): RegisterUserCommandHandler

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Features\Player\Infrastructure\Http\v1\Controllers;
 
 use App\Features\Player\Application\Commands\UpdatePlayerPreferences\UpdatePlayerPreferencesCommand;
-use App\Features\Player\Infrastructure\Http\v1\Exceptions\PlayerExceptionMapper;
 use App\Features\Player\Infrastructure\Http\v1\Requests\UpdatePlayerPreferencesRequest;
 use App\Features\Player\Infrastructure\Http\v1\Resources\PlayerProfileResource;
 use App\Shared\Application\Bus\CommandBusInterface;
@@ -30,18 +29,14 @@ final readonly class UpdatePlayerPreferencesController
             ? Optional::of($request->input('location'))
             : Optional::absent();
 
-        $result = $this->commandBus->dispatch(new UpdatePlayerPreferencesCommand(
+        $player = $this->commandBus->dispatch(new UpdatePlayerPreferencesCommand(
             userId: $request->user()->id,
             dominantHand: $dominantHand,
             preferredPosition: $preferredPosition,
             location: $location,
         ));
 
-        if ($result->isFail()) {
-            return PlayerExceptionMapper::toResponse($result->error());
-        }
-
-        return (new PlayerProfileResource($result->value()))
+        return (new PlayerProfileResource($player))
             ->response()
             ->setStatusCode(200);
     }
