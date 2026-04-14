@@ -17,9 +17,9 @@ final class ApiExceptionMapper
     public static function toResponse(DomainExceptionInterface $error, int $status, string $clientMessage = self::DEFAULT_CLIENT_MESSAGE): JsonResponse
     {
         $context = [
-            'code'    => $error->getDomainCode(),
+            'code' => $error->getDomainCode(),
             'message' => $error->getMessage(),
-            'meta'    => $error->getMeta(),
+            'meta' => $error->getMeta(),
         ];
 
         if ($status >= 500) {

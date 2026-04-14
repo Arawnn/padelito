@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Storage;
 
 use App\Shared\Domain\Contracts\FileStorageInterface;
+use App\Shared\Infrastructure\Exceptions\InfrastructureException;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
-use App\Shared\Infrastructure\Exceptions\InfrastructureException;
 use InvalidArgumentException;
 
 final readonly class S3FileStorage implements FileStorageInterface
