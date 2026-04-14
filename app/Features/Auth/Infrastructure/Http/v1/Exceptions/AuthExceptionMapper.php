@@ -12,10 +12,11 @@ use App\Features\Auth\Domain\Exceptions\UserAlreadyExistsException;
 use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
 use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 use App\Shared\Infrastructure\Http\Exceptions\ApiExceptionMapper;
+use App\Shared\Infrastructure\Http\Exceptions\DomainExceptionRendererInterface;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-final class AuthExceptionMapper
+final class AuthExceptionMapper implements DomainExceptionRendererInterface
 {
     private const HTTP_STATUS_MAP = [
         UserNotFoundException::class => Response::HTTP_NOT_FOUND,
@@ -35,11 +36,16 @@ final class AuthExceptionMapper
         'INVALID_RESET_TOKEN' => 'The reset token is invalid or has expired.',
     ];
 
-    public static function toResponse(DomainExceptionInterface $error): JsonResponse
+    public function handles(DomainExceptionInterface $e): bool
     {
-        $status = self::HTTP_STATUS_MAP[$error::class] ?? Response::HTTP_INTERNAL_SERVER_ERROR;
-        $clientMessage = self::CLIENT_MESSAGES[$error->getDomainCode()] ?? 'An error occurred.';
+        return isset(self::HTTP_STATUS_MAP[$e::class]);
+    }
 
-        return ApiExceptionMapper::toResponse($error, $status, $clientMessage);
+    public function render(DomainExceptionInterface $e): JsonResponse
+    {
+        $status = self::HTTP_STATUS_MAP[$e::class] ?? Response::HTTP_INTERNAL_SERVER_ERROR;
+        $clientMessage = self::CLIENT_MESSAGES[$e->getDomainCode()] ?? 'An error occurred.';
+
+        return ApiExceptionMapper::toResponse($e, $status, $clientMessage);
     }
 }

@@ -6,7 +6,6 @@ namespace App\Features\Player\Infrastructure\Http\v1\Controllers;
 
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommand;
 use App\Features\Player\Application\Dto\AvatarInput;
-use App\Features\Player\Infrastructure\Http\v1\Exceptions\PlayerExceptionMapper;
 use App\Features\Player\Infrastructure\Http\v1\Requests\CreatePlayerProfileRequest;
 use App\Shared\Application\Bus\CommandBusInterface;
 use Illuminate\Http\JsonResponse;
@@ -20,32 +19,31 @@ final readonly class CreatePlayerProfileController
     public function __invoke(CreatePlayerProfileRequest $request): JsonResponse
     {
         $file = $request->file('avatar');
+        $remoteUrl = $request->string('avatar')->value() !== '' ? $request->string('avatar')->value() : null;
+        $realPath = $file?->getRealPath();
+        $uploadedFilePath = ($realPath !== false && $realPath !== null) ? $realPath : null;
 
-        $result = $this->commandBus->dispatch(
+        $avatar = ($file !== null || $remoteUrl !== null)
+            ? new AvatarInput(
+                uploadedFilePath: $uploadedFilePath,
+                uploadedFileExtension: $file?->getClientOriginalExtension(),
+                remoteUrl: $remoteUrl,
+            )
+            : null;
+
+        $player = $this->commandBus->dispatch(
             new CreatePlayerProfileCommand(
                 userId: $request->user()->id,
                 username: $request->username,
                 level: $request->level,
                 displayName: $request->displayName,
-                avatar: ($file !== null || $request->string('avatar')->value() !== '')
-                    ? new AvatarInput(
-                        uploadedFilePath: $file?->getRealPath() ?: null,
-                        uploadedFileExtension: $file?->getClientOriginalExtension(),
-                        remoteUrl: $request->string('avatar')->value() !== '' ? $request->string('avatar')->value() : null,
-                    )
-                    : null,
+                avatar: $avatar,
                 bio: $request->bio,
                 location: $request->location,
                 dominantHand: $request->dominantHand,
                 preferredPosition: $request->preferredPosition,
             )
         );
-
-        if ($result->isFail()) {
-            return PlayerExceptionMapper::toResponse($result->error());
-        }
-
-        $player = $result->value();
 
         return response()->json([
             'data' => [

@@ -57,63 +57,50 @@ final class LoginUserCommandHandlerTest extends TestCase
 
         $result = $handler($command);
 
-        $this->assertTrue($result->isOk());
-        $this->assertInstanceOf(User::class, $result->value());
+        $this->assertInstanceOf(User::class, $result);
         $this->assertTrue($this->eventDispatcher->dispatched(UserLoggedIn::class));
-        $this->assertEquals($user->email()->value(), $result->value()->email()->value());
-        $this->assertEquals($user->name()->value(), $result->value()->name()->value());
-        $this->assertEquals($user->id()->value(), $result->value()->id()->value());
-        $this->assertEquals($hashedPassword->value(), $result->value()->password()->value());
+        $this->assertEquals($user->email()->value(), $result->email()->value());
+        $this->assertEquals($user->name()->value(), $result->name()->value());
+        $this->assertEquals($user->id()->value(), $result->id()->value());
+        $this->assertEquals($hashedPassword->value(), $result->password()->value());
     }
 
     public function test_it_returns_an_exception_if_the_user_is_not_found(): void
     {
-        $command = new LoginUserCommand(
+        $this->expectException(UserNotFoundException::class);
+
+        $handler = $this->makeHandler();
+        $handler(new LoginUserCommand(
             email: 'john.doe@example.com',
             password: 'Password123!',
-        );
-        $handler = $this->makeHandler();
-
-        $result = $handler($command);
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(UserNotFoundException::class, $result->error());
-        $this->assertStringContainsString('USER_NOT_FOUND', $result->error()->getDomainCode());
+        ));
     }
 
     public function test_it_returns_an_exception_if_the_password_is_invalid(): void
     {
+        $this->expectException(InvalidPasswordException::class);
+
         $user = UserMother::create()
             ->withHashedPassword('hashed_fake-pour-test')
             ->build();
         $this->repository->save($user);
 
-        $command = new LoginUserCommand(
+        $handler = $this->makeHandler();
+        $handler(new LoginUserCommand(
             email: 'john.doe@example.com',
             password: 'Password123!',
-        );
-        $handler = $this->makeHandler();
-
-        $result = $handler($command);
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(InvalidPasswordException::class, $result->error());
-        $this->assertStringContainsString('INVALID_PASSWORD', $result->error()->getDomainCode());
+        ));
     }
 
     public function test_it_returns_an_exception_if_the_email_is_invalid(): void
     {
-        $command = new LoginUserCommand(
+        $this->expectException(InvalidEmailException::class);
+
+        $handler = $this->makeHandler();
+        $handler(new LoginUserCommand(
             email: 'invalid-email',
             password: 'Password123!',
-        );
-        $handler = $this->makeHandler();
-
-        $result = $handler($command);
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(InvalidEmailException::class, $result->error());
-        $this->assertStringContainsString('INVALID_EMAIL', $result->error()->getDomainCode());
+        ));
     }
 
     private function makeHandler(): LoginUserCommandHandler

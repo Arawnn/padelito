@@ -47,8 +47,7 @@ final class ChangeUsernameCommandHandlerTest extends TestCase
             newUsername: 'new_name',
         ));
 
-        $this->assertTrue($result->isOk());
-        $this->assertEquals('new_name', $result->value()->username()->value());
+        $this->assertEquals('new_name', $result->username()->value());
     }
 
     public function test_it_is_a_no_op_when_username_is_the_same(): void
@@ -59,12 +58,11 @@ final class ChangeUsernameCommandHandlerTest extends TestCase
             ->build();
         $this->repository->save($player);
 
-        $result = $this->makeHandler()(new ChangeUsernameCommand(
+        $this->makeHandler()(new ChangeUsernameCommand(
             userId: '00000000-0000-0000-0000-000000000001',
             newUsername: 'jean_dupont',
         ));
 
-        $this->assertTrue($result->isOk());
         $this->assertFalse($this->eventDispatcher->dispatched(PlayerUsernameChanged::class));
     }
 
@@ -105,6 +103,8 @@ final class ChangeUsernameCommandHandlerTest extends TestCase
 
     public function test_it_fails_when_username_is_already_taken(): void
     {
+        $this->expectException(UsernameAlreadyTakenException::class);
+
         $existing = PlayerMother::create()
             ->withId('00000000-0000-0000-0000-000000000099')
             ->withUsername('taken_name')
@@ -117,24 +117,20 @@ final class ChangeUsernameCommandHandlerTest extends TestCase
             ->build();
         $this->repository->save($player);
 
-        $result = $this->makeHandler()(new ChangeUsernameCommand(
+        $this->makeHandler()(new ChangeUsernameCommand(
             userId: '00000000-0000-0000-0000-000000000001',
             newUsername: 'taken_name',
         ));
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(UsernameAlreadyTakenException::class, $result->error());
     }
 
     public function test_it_fails_when_player_not_found(): void
     {
-        $result = $this->makeHandler()(new ChangeUsernameCommand(
+        $this->expectException(PlayerProfileNotFoundException::class);
+
+        $this->makeHandler()(new ChangeUsernameCommand(
             userId: '00000000-0000-0000-0000-000000000099',
             newUsername: 'new_name',
         ));
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(PlayerProfileNotFoundException::class, $result->error());
     }
 
     private function makeHandler(): ChangeUsernameCommandHandler

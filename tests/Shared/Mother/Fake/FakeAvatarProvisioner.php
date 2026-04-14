@@ -7,7 +7,6 @@ namespace Tests\Shared\Mother\Fake;
 use App\Features\Player\Application\Contracts\AvatarProvisionerInterface;
 use App\Features\Player\Application\Dto\AvatarInput;
 use App\Features\Player\Domain\Exceptions\InvalidAvatarUrlException;
-use App\Shared\Application\Result;
 
 final class FakeAvatarProvisioner implements AvatarProvisionerInterface
 {
@@ -33,13 +32,13 @@ final class FakeAvatarProvisioner implements AvatarProvisionerInterface
         return $instance;
     }
 
-    public function provision(string $userId, string $displayName, ?AvatarInput $avatar): Result
+    public function provision(string $userId, string $displayName, ?AvatarInput $avatar): ?string
     {
         if ($this->shouldFail) {
-            return Result::fail(InvalidAvatarUrlException::fromViolations(['Avatar provisioning failed']));
+            throw InvalidAvatarUrlException::fromViolations(['Avatar provisioning failed']);
         }
 
-        return Result::ok($this->fakeUrl);
+        return $this->fakeUrl;
     }
 
     public function deleteByPublicUrl(string $publicUrl): void

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Storage;
 
 use App\Shared\Domain\Contracts\FileStorageInterface;
+use App\Shared\Infrastructure\Exceptions\InfrastructureException;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
 use InvalidArgumentException;
-use RuntimeException;
 
 final readonly class S3FileStorage implements FileStorageInterface
 {
@@ -84,14 +84,10 @@ final readonly class S3FileStorage implements FileStorageInterface
         return $path;
     }
 
-    private function uploadFailedException(string $operation): RuntimeException
+    private function uploadFailedException(string $operation): InfrastructureException
     {
         $driver = (string) ($this->disk->getConfig()['driver'] ?? 'unknown');
 
-        return new RuntimeException(sprintf(
-            'Failed to upload file to storage (%s on %s disk). For S3, check AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION, AWS_BUCKET, and network access; with an empty bucket the app uses the public disk instead.',
-            $operation,
-            $driver,
-        ));
+        return InfrastructureException::storageFailed($operation, $driver);
     }
 }

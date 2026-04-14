@@ -20,6 +20,7 @@ use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQue
 use App\Features\Player\Application\Queries\GetPublicPlayerProfile\GetPublicPlayerProfileQuery;
 use App\Features\Player\Application\Queries\GetPublicPlayerProfile\GetPublicPlayerProfileQueryHandler;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
+use App\Features\Player\Infrastructure\Http\v1\Exceptions\PlayerExceptionMapper;
 use App\Features\Player\Infrastructure\Persistence\Eloquent\Repositories\EloquentPlayerRepository;
 use App\Features\Player\Infrastructure\Services\DefaultAvatarProvisioner;
 use App\Shared\Application\Bus\HandlerMap;
@@ -31,6 +32,9 @@ final class PlayerServiceProvider extends ServiceProvider
     {
         $this->app->bind(PlayerRepositoryInterface::class, EloquentPlayerRepository::class);
         $this->app->bind(AvatarProvisionerInterface::class, DefaultAvatarProvisioner::class);
+
+        $this->app->bind(PlayerExceptionMapper::class);
+        $this->app->tag([PlayerExceptionMapper::class], 'domain_exception_renderers');
     }
 
     public function boot(): void

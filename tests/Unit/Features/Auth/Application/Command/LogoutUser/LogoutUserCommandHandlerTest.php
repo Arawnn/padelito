@@ -36,26 +36,18 @@ final class LogoutUserCommandHandlerTest extends TestCase
         $user = UserMother::create()->build();
         $this->repository->save($user);
 
-        $command = new LogoutUserCommand(userId: $user->id()->value());
         $handler = $this->makeHandler();
+        $handler(new LogoutUserCommand(userId: $user->id()->value()));
 
-        $result = $handler($command);
-
-        $this->assertTrue($result->isOk());
-        $this->assertNull($result->value());
         $this->assertTrue($this->eventDispatcher->dispatched(UserLoggedOut::class));
     }
 
     public function test_it_returns_an_exception_if_the_user_is_not_found(): void
     {
-        $command = new LogoutUserCommand(userId: 'invalid-user-id');
+        $this->expectException(UserNotFoundException::class);
+
         $handler = $this->makeHandler();
-
-        $result = $handler($command);
-
-        $this->assertTrue($result->isFail());
-        $this->assertInstanceOf(UserNotFoundException::class, $result->error());
-        $this->assertStringContainsString('USER_NOT_FOUND', $result->error()->getDomainCode());
+        $handler(new LogoutUserCommand(userId: 'invalid-user-id'));
     }
 
     private function makeHandler(): LogoutUserCommandHandler

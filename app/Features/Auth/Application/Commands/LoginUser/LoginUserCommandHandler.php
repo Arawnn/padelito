@@ -11,9 +11,7 @@ use App\Features\Auth\Domain\Exceptions\UserNotFoundException;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\Password;
-use App\Shared\Application\Result;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
-use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
 final readonly class LoginUserCommandHandler
 {
@@ -25,31 +23,23 @@ final readonly class LoginUserCommandHandler
 
     /**
      * TODO: return a DTO instead of exposing the aggregate root
-     *
-     * @return Result<User>
-     *
-     * @throws DomainExceptionInterface
      */
-    public function __invoke(LoginUserCommand $command): Result
+    public function __invoke(LoginUserCommand $command): User
     {
-        try {
-            $email = Email::fromString($command->email);
+        $email = Email::fromString($command->email);
 
-            $user = $this->userRepository->findByEmail($email);
-            if (! $user) {
-                return Result::fail(UserNotFoundException::fromEmail($email));
-            }
-
-            if (! $this->passwordHasher->verify(Password::forVerification($command->password), $user->password())) {
-                return Result::fail(InvalidPasswordException::fromViolations(['Invalid password']));
-            }
-
-            $user->login();
-            $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
-
-            return Result::ok($user);
-        } catch (DomainExceptionInterface $e) {
-            return Result::fail($e);
+        $user = $this->userRepository->findByEmail($email);
+        if (! $user) {
+            throw UserNotFoundException::fromEmail($email);
         }
+
+        if (! $this->passwordHasher->verify(Password::forVerification($command->password), $user->password())) {
+            throw InvalidPasswordException::fromViolations(['Invalid password']);
+        }
+
+        $user->login();
+        $this->eventDispatcher->dispatchEvents($user->pullDomainEvents());
+
+        return $user;
     }
 }

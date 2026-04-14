@@ -6,7 +6,6 @@ namespace App\Shared\Infrastructure\Bus;
 
 use App\Shared\Application\Bus\CommandBusInterface;
 use App\Shared\Application\Bus\HandlerMap;
-use App\Shared\Application\Result;
 
 final readonly class LaravelCommandBus implements CommandBusInterface
 {
@@ -14,7 +13,7 @@ final readonly class LaravelCommandBus implements CommandBusInterface
         private HandlerMap $handlers
     ) {}
 
-    public function dispatch(object $command): Result
+    public function dispatch(object $command): mixed
     {
         $handlerClass = $this->handlers->handlerFor($command);
         $handler = app($handlerClass);

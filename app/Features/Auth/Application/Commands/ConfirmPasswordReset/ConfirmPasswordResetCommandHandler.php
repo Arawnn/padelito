@@ -11,8 +11,6 @@ use App\Features\Auth\Domain\Repositories\PasswordResetTokenRepositoryInterface;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Shared\Application\Bus\CommandBusInterface;
-use App\Shared\Application\Result;
-use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
 final readonly class ConfirmPasswordResetCommandHandler
 {
@@ -22,39 +20,24 @@ final readonly class ConfirmPasswordResetCommandHandler
         private CommandBusInterface $commandBus,
     ) {}
 
-    /**
-     * @return Result<void>
-     *
-     * @throws DomainExceptionInterface
-     */
-    public function __invoke(ConfirmPasswordResetCommand $command): Result
+    public function __invoke(ConfirmPasswordResetCommand $command): void
     {
-        try {
-            $email = Email::fromString($command->email);
+        $email = Email::fromString($command->email);
 
-            $user = $this->userRepository->findByEmail($email);
-            if (! $user) {
-                return Result::fail(UserNotFoundException::fromEmail($email));
-            }
-
-            if (! $this->tokenRepository->isValid($email, $command->token)) {
-                return Result::fail(InvalidResetTokenException::expiredOrInvalid());
-            }
-
-            $result = $this->commandBus->dispatch(new UpdateUserPasswordCommand(
-                userId: $user->id()->value(),
-                password: $command->password,
-            ));
-
-            if ($result->isFail()) {
-                return $result;
-            }
-
-            $this->tokenRepository->delete($email);
-
-            return Result::void();
-        } catch (DomainExceptionInterface $e) {
-            return Result::fail($e);
+        $user = $this->userRepository->findByEmail($email);
+        if (! $user) {
+            throw UserNotFoundException::fromEmail($email);
         }
+
+        if (! $this->tokenRepository->isValid($email, $command->token)) {
+            throw InvalidResetTokenException::expiredOrInvalid();
+        }
+
+        $this->commandBus->dispatch(new UpdateUserPasswordCommand(
+            userId: $user->id()->value(),
+            password: $command->password,
+        ));
+
+        $this->tokenRepository->delete($email);
     }
 }

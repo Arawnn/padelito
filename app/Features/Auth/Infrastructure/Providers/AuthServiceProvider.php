@@ -20,6 +20,7 @@ use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
 use App\Features\Auth\Domain\Repositories\PasswordResetTokenRepositoryInterface;
 use App\Features\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Features\Auth\Infrastructure\Contracts\TokenCreatorInterface;
+use App\Features\Auth\Infrastructure\Http\v1\Exceptions\AuthExceptionMapper;
 use App\Features\Auth\Infrastructure\Persistence\Eloquent\Repositories\EloquentPasswordResetTokenRepository;
 use App\Features\Auth\Infrastructure\Persistence\Eloquent\Repositories\EloquentUserRepository;
 use App\Features\Auth\Infrastructure\Security\LaravelPasswordHasher;
@@ -35,6 +36,9 @@ final class AuthServiceProvider extends ServiceProvider
         $this->app->bind(PasswordResetTokenRepositoryInterface::class, EloquentPasswordResetTokenRepository::class);
         $this->app->bind(PasswordHasherInterface::class, LaravelPasswordHasher::class);
         $this->app->bind(TokenCreatorInterface::class, SanctumTokenCreator::class);
+
+        $this->app->bind(AuthExceptionMapper::class);
+        $this->app->tag([AuthExceptionMapper::class], 'domain_exception_renderers');
     }
 
     public function boot(): void

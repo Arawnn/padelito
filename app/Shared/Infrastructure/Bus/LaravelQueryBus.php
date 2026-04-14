@@ -6,7 +6,6 @@ namespace App\Shared\Infrastructure\Bus;
 
 use App\Shared\Application\Bus\HandlerMap;
 use App\Shared\Application\Bus\QueryBusInterface;
-use App\Shared\Application\Result;
 
 final readonly class LaravelQueryBus implements QueryBusInterface
 {
@@ -14,7 +13,7 @@ final readonly class LaravelQueryBus implements QueryBusInterface
         private HandlerMap $handlers
     ) {}
 
-    public function ask(object $query): Result
+    public function ask(object $query): mixed
     {
         $handlerClass = $this->handlers->handlerFor($query);
         $handler = app($handlerClass);

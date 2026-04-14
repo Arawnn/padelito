@@ -12,7 +12,7 @@ use App\Features\Auth\Domain\ValueObjects\Name;
 
 final class UserMother
 {
-    private string $id = 'id-fixe-test';
+    private string $id = '00000000-0000-0000-0000-000000000000';
 
     private string $name = 'John Doe';
 

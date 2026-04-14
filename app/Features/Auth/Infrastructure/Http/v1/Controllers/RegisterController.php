@@ -6,7 +6,6 @@ namespace App\Features\Auth\Infrastructure\Http\v1\Controllers;
 
 use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommand;
 use App\Features\Auth\Infrastructure\Contracts\TokenCreatorInterface;
-use App\Features\Auth\Infrastructure\Http\v1\Exceptions\AuthExceptionMapper;
 use App\Features\Auth\Infrastructure\Http\v1\Requests\RegisterRequest;
 use App\Shared\Application\Bus\CommandBusInterface;
 use App\Shared\Infrastructure\Http\Controllers\Controller;
@@ -21,17 +20,12 @@ class RegisterController extends Controller
 
     public function __invoke(RegisterRequest $request): JsonResponse
     {
-        $result = $this->commandBus->dispatch(new RegisterUserCommand(
+        $user = $this->commandBus->dispatch(new RegisterUserCommand(
             name: $request->name,
             email: $request->email,
             password: $request->password,
         ));
 
-        if (! $result->isOk()) {
-            return AuthExceptionMapper::toResponse($result->error());
-        }
-
-        $user = $result->value();
         $token = $this->tokenCreator->createFor($user);
 
         // TODO create a resource object

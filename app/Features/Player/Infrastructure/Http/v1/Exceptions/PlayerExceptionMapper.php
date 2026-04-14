@@ -19,10 +19,11 @@ use App\Features\Player\Domain\Exceptions\UsernameAlreadyTakenException;
 use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 use App\Shared\Domain\Exceptions\ImageFetchFailedException;
 use App\Shared\Infrastructure\Http\Exceptions\ApiExceptionMapper;
+use App\Shared\Infrastructure\Http\Exceptions\DomainExceptionRendererInterface;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-final class PlayerExceptionMapper
+final class PlayerExceptionMapper implements DomainExceptionRendererInterface
 {
     private const INTERNAL_INIT_ERROR = 'An internal error occurred while initializing the player profile.';
 
@@ -60,11 +61,16 @@ final class PlayerExceptionMapper
         'INVALID_CURRENT_STREAK' => self::INTERNAL_INIT_ERROR,
     ];
 
-    public static function toResponse(DomainExceptionInterface $error): JsonResponse
+    public function handles(DomainExceptionInterface $e): bool
     {
-        $status = self::HTTP_STATUS_MAP[$error::class] ?? Response::HTTP_INTERNAL_SERVER_ERROR;
-        $clientMessage = self::CLIENT_MESSAGES[$error->getDomainCode()] ?? 'An unexpected error occurred.';
+        return isset(self::HTTP_STATUS_MAP[$e::class]);
+    }
 
-        return ApiExceptionMapper::toResponse($error, $status, $clientMessage);
+    public function render(DomainExceptionInterface $e): JsonResponse
+    {
+        $status = self::HTTP_STATUS_MAP[$e::class] ?? Response::HTTP_INTERNAL_SERVER_ERROR;
+        $clientMessage = self::CLIENT_MESSAGES[$e->getDomainCode()] ?? 'An unexpected error occurred.';
+
+        return ApiExceptionMapper::toResponse($e, $status, $clientMessage);
     }
 }

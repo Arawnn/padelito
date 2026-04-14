@@ -6,7 +6,6 @@ namespace App\Features\Player\Infrastructure\Http\v1\Controllers;
 
 use App\Features\Player\Application\Commands\UpdatePlayerIdentity\UpdatePlayerIdentityCommand;
 use App\Features\Player\Application\Dto\AvatarInput;
-use App\Features\Player\Infrastructure\Http\v1\Exceptions\PlayerExceptionMapper;
 use App\Features\Player\Infrastructure\Http\v1\Requests\UpdatePlayerIdentityRequest;
 use App\Features\Player\Infrastructure\Http\v1\Resources\PlayerProfileResource;
 use App\Shared\Application\Bus\CommandBusInterface;
@@ -45,18 +44,14 @@ final readonly class UpdatePlayerIdentityController
             ? Optional::of($request->input('bio'))
             : Optional::absent();
 
-        $result = $this->commandBus->dispatch(new UpdatePlayerIdentityCommand(
+        $player = $this->commandBus->dispatch(new UpdatePlayerIdentityCommand(
             userId: $request->user()->id,
             displayName: $displayName,
             bio: $bio,
             avatar: $avatar,
         ));
 
-        if ($result->isFail()) {
-            return PlayerExceptionMapper::toResponse($result->error());
-        }
-
-        return (new PlayerProfileResource($result->value()))
+        return (new PlayerProfileResource($player))
             ->response()
             ->setStatusCode(200);
     }

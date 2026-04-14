@@ -39,8 +39,7 @@ final class ResolvePlayerProfileAvatarServiceTest extends TestCase
         $result = (new DefaultAvatarProvisioner($storage, $fetch))
             ->provision(userId: 'u1', displayName: 'Jean Dupont', avatar: null);
 
-        self::assertTrue($result->isOk());
-        self::assertSame('https://cdn.example/avatars/u1/x.png', $result->value());
+        self::assertSame('https://cdn.example/avatars/u1/x.png', $result);
         self::assertNotNull($capturedUrl);
         assert(is_string($capturedUrl));
         self::assertStringStartsWith('https://ui-avatars.com/api/', $capturedUrl);

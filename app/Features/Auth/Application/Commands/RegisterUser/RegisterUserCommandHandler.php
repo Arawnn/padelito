@@ -12,11 +12,9 @@ use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\Id;
 use App\Features\Auth\Domain\ValueObjects\Name;
 use App\Features\Auth\Domain\ValueObjects\Password;
-use App\Shared\Application\Result;
 use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use App\Shared\Domain\Contracts\UuidGeneratorInterface;
-use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
 final readonly class RegisterUserCommandHandler
 {
@@ -30,30 +28,20 @@ final readonly class RegisterUserCommandHandler
 
     /**
      * TODO: return a DTO instead of exposing the aggregate root
-     *
-     * @return Result<User>
-     *
-     * @throws DomainExceptionInterface
      */
-    public function __invoke(RegisterUserCommand $command): Result
+    public function __invoke(RegisterUserCommand $command): User
     {
-        try {
-            $email = Email::fromString($command->email);
+        $email = Email::fromString($command->email);
 
-            if ($this->userRepository->findByEmail($email) !== null) {
-                return Result::fail(UserAlreadyExistsException::fromEmail($email));
-            }
-
-            $id = Id::fromString($this->uuidGenerator->generate());
-
-            $user = $this->transactionManager->run(
-                fn () => $this->createUser($command, $id, $email)
-            );
-
-            return Result::ok($user);
-        } catch (DomainExceptionInterface $e) {
-            return Result::fail($e);
+        if ($this->userRepository->findByEmail($email) !== null) {
+            throw UserAlreadyExistsException::fromEmail($email);
         }
+
+        $id = Id::fromString($this->uuidGenerator->generate());
+
+        return $this->transactionManager->run(
+            fn () => $this->createUser($command, $id, $email)
+        );
     }
 
     private function createUser(RegisterUserCommand $command, Id $id, Email $email): User

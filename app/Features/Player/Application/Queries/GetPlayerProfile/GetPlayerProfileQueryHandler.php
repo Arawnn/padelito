@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Application\Queries\GetPlayerProfile;
 
+use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Exceptions\PlayerProfileNotFoundException;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\ValueObjects\Id;
-use App\Shared\Application\Result;
-use App\Shared\Domain\Exceptions\DomainExceptionInterface;
 
 final readonly class GetPlayerProfileQueryHandler
 {
@@ -16,20 +15,15 @@ final readonly class GetPlayerProfileQueryHandler
         private PlayerRepositoryInterface $playerRepository,
     ) {}
 
-    public function __invoke(GetPlayerProfileQuery $query): Result
+    public function __invoke(GetPlayerProfileQuery $query): Player
     {
-        try {
-            $userId = Id::fromString($query->userId);
+        $userId = Id::fromString($query->userId);
 
-            $player = $this->playerRepository->findById($userId);
-
-            if (! $player) {
-                return Result::fail(PlayerProfileNotFoundException::create());
-            }
-
-            return Result::ok($player);
-        } catch (DomainExceptionInterface $e) {
-            return Result::fail($e);
+        $player = $this->playerRepository->findById($userId);
+        if (! $player) {
+            throw PlayerProfileNotFoundException::create();
         }
+
+        return $player;
     }
 }

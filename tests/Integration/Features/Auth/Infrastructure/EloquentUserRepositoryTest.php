@@ -54,7 +54,7 @@ final class EloquentUserRepositoryTest extends IntegrationTestCase
 
     public function test_it_returns_null_when_user_not_found_by_id(): void
     {
-        $found = $this->repository->findById(Id::fromString('non-existent-id'));
+        $found = $this->repository->findById(Id::fromString('00000000-0000-0000-0000-000000000000'));
         $this->assertNull($found);
     }
 

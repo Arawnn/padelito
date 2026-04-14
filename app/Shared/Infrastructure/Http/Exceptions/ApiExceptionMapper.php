@@ -16,11 +16,17 @@ final class ApiExceptionMapper
 
     public static function toResponse(DomainExceptionInterface $error, int $status, string $clientMessage = self::DEFAULT_CLIENT_MESSAGE): JsonResponse
     {
-        Log::debug('Domain error', [
+        $context = [
             'code' => $error->getDomainCode(),
             'message' => $error->getMessage(),
             'meta' => $error->getMeta(),
-        ]);
+        ];
+
+        if ($status >= 500) {
+            Log::error('Domain invariant violation', $context + ['exception' => $error]);
+        } else {
+            Log::warning('Domain error', $context);
+        }
 
         return response()->json([
             'error' => [
