@@ -6,8 +6,8 @@ use App\Features\Player\Infrastructure\Http\v1\Controllers\CreatePlayerProfileCo
 use App\Features\Player\Infrastructure\Http\v1\Controllers\GetMyPlayerProfileController;
 use App\Features\Player\Infrastructure\Http\v1\Controllers\GetPublicPlayerProfileController;
 use App\Features\Player\Infrastructure\Http\v1\Controllers\UpdatePlayerIdentityController;
-use App\Features\Player\Infrastructure\Http\v1\Controllers\UploadPlayerAvatarController;
 use App\Features\Player\Infrastructure\Http\v1\Controllers\UpdatePlayerPreferencesController;
+use App\Features\Player\Infrastructure\Http\v1\Controllers\UploadPlayerAvatarController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['api', 'auth:sanctum'])->prefix('api/v1')->group(function () {

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Features\Auth\Http;
 
-use Illuminate\Support\Facades\DB;
 use Tests\FeatureTestCase;
 
 /**
