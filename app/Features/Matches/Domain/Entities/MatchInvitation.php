@@ -110,12 +110,43 @@ final class MatchInvitation extends AggregateRoot
         ));
     }
 
-    public function id(): MatchInvitationId { return $this->id; }
-    public function matchId(): MatchId { return $this->matchId; }
-    public function inviteeId(): PlayerId { return $this->inviteeId; }
-    public function team(): Team { return $this->team; }
-    public function position(): int { return $this->position; }
-    public function status(): InvitationStatus { return $this->status; }
-    public function invitedAt(): DateTimeImmutable { return $this->invitedAt; }
-    public function respondedAt(): ?DateTimeImmutable { return $this->respondedAt; }
+    public function id(): MatchInvitationId
+    {
+        return $this->id;
+    }
+
+    public function matchId(): MatchId
+    {
+        return $this->matchId;
+    }
+
+    public function inviteeId(): PlayerId
+    {
+        return $this->inviteeId;
+    }
+
+    public function team(): Team
+    {
+        return $this->team;
+    }
+
+    public function position(): int
+    {
+        return $this->position;
+    }
+
+    public function status(): InvitationStatus
+    {
+        return $this->status;
+    }
+
+    public function invitedAt(): DateTimeImmutable
+    {
+        return $this->invitedAt;
+    }
+
+    public function respondedAt(): ?DateTimeImmutable
+    {
+        return $this->respondedAt;
+    }
 }

@@ -17,8 +17,8 @@ final class EloCalculationService
     private const MAX_ELO = 3000;
 
     /**
-     * @param  list<int>  $teamAElos         ELO ratings of team A players
-     * @param  list<int>  $teamBElos         ELO ratings of team B players
+     * @param  list<int>  $teamAElos  ELO ratings of team A players
+     * @param  list<int>  $teamBElos  ELO ratings of team B players
      * @param  list<int>  $teamAMatchCounts  Total matches played by each team A player
      * @param  list<int>  $teamBMatchCounts  Total matches played by each team B player
      */

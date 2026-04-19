@@ -12,7 +12,7 @@ final readonly class SetsDetail
     private function __construct(private array $sets) {}
 
     /**
-     * @param list<array{a: int, b: int}> $sets
+     * @param  list<array{a: int, b: int}>  $sets
      */
     public static function fromArray(array $sets): self
     {
@@ -63,11 +63,13 @@ final readonly class SetsDetail
         foreach ($sets as $i => $set) {
             if (! isset($set['a'], $set['b'])) {
                 $violations[] = "Set {$i} must have keys 'a' and 'b'";
+
                 continue;
             }
 
             if (! is_int($set['a']) || ! is_int($set['b'])) {
                 $violations[] = "Set {$i} scores must be integers";
+
                 continue;
             }
 

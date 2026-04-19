@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Features\Matches\Infrastructure\Persistence\Eloquent\Mappers;
 
+use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Entities\PadelMatch;
 use App\Features\Matches\Domain\Enums\InvitationStatusEnum;
 use App\Features\Matches\Domain\Enums\MatchFormatEnum;
 use App\Features\Matches\Domain\Enums\MatchStatusEnum;
 use App\Features\Matches\Domain\Enums\MatchTypeEnum;
 use App\Features\Matches\Domain\Enums\TeamEnum;
-use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\ValueObjects\CourtName;
 use App\Features\Matches\Domain\ValueObjects\EloChange;
 use App\Features\Matches\Domain\ValueObjects\EloRating;
@@ -26,8 +26,8 @@ use App\Features\Matches\Domain\ValueObjects\Score;
 use App\Features\Matches\Domain\ValueObjects\SetsDetail;
 use App\Features\Matches\Domain\ValueObjects\SetsToWin;
 use App\Features\Matches\Domain\ValueObjects\Team;
-use App\Features\Matches\Infrastructure\Persistence\Eloquent\Models\MatchModel as EloquentMatch;
 use App\Features\Matches\Infrastructure\Persistence\Eloquent\Models\MatchInvitation as EloquentMatchInvitation;
+use App\Features\Matches\Infrastructure\Persistence\Eloquent\Models\MatchModel as EloquentMatch;
 use DateTimeImmutable;
 
 final readonly class MatchMapper

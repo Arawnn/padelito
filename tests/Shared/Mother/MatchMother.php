@@ -6,15 +6,14 @@ namespace Tests\Shared\Mother;
 
 use App\Features\Matches\Domain\Entities\PadelMatch;
 use App\Features\Matches\Domain\Enums\MatchFormatEnum;
+use App\Features\Matches\Domain\Enums\MatchStatusEnum;
 use App\Features\Matches\Domain\Enums\MatchTypeEnum;
 use App\Features\Matches\Domain\ValueObjects\MatchFormat;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
-use App\Features\Matches\Domain\Enums\MatchStatusEnum;
 use App\Features\Matches\Domain\ValueObjects\MatchStatus;
 use App\Features\Matches\Domain\ValueObjects\MatchType;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Features\Matches\Domain\ValueObjects\SetsDetail;
-use App\Features\Matches\Domain\ValueObjects\Score;
 use App\Features\Matches\Domain\ValueObjects\SetsToWin;
 
 final class MatchMother

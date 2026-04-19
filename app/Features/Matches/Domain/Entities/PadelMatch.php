@@ -350,26 +350,104 @@ final class PadelMatch extends AggregateRoot
         $this->recordDomainEvent(new MatchCancelled($this->id->value()));
     }
 
-    public function id(): MatchId { return $this->id; }
-    public function type(): MatchType { return $this->type; }
-    public function format(): MatchFormat { return $this->format; }
-    public function status(): MatchStatus { return $this->status; }
-    public function createdBy(): PlayerId { return $this->createdBy; }
-    public function teamAPlayer1Id(): PlayerId { return $this->teamAPlayer1Id; }
-    public function teamAPlayer2Id(): ?PlayerId { return $this->teamAPlayer2Id; }
-    public function teamBPlayer1Id(): ?PlayerId { return $this->teamBPlayer1Id; }
-    public function teamBPlayer2Id(): ?PlayerId { return $this->teamBPlayer2Id; }
-    public function setsDetail(): ?SetsDetail { return $this->setsDetail; }
-    public function teamAScore(): ?Score { return $this->teamAScore; }
-    public function teamBScore(): ?Score { return $this->teamBScore; }
-    public function courtName(): ?CourtName { return $this->courtName; }
-    public function notes(): ?Notes { return $this->notes; }
-    public function teamAEloBefore(): ?EloRating { return $this->teamAEloBefore; }
-    public function teamBEloBefore(): ?EloRating { return $this->teamBEloBefore; }
-    public function eloChange(): ?EloChange { return $this->eloChange; }
-    public function setsToWin(): SetsToWin { return $this->setsToWin; }
-    public function matchDate(): ?DateTimeImmutable { return $this->matchDate; }
+    public function id(): MatchId
+    {
+        return $this->id;
+    }
+
+    public function type(): MatchType
+    {
+        return $this->type;
+    }
+
+    public function format(): MatchFormat
+    {
+        return $this->format;
+    }
+
+    public function status(): MatchStatus
+    {
+        return $this->status;
+    }
+
+    public function createdBy(): PlayerId
+    {
+        return $this->createdBy;
+    }
+
+    public function teamAPlayer1Id(): PlayerId
+    {
+        return $this->teamAPlayer1Id;
+    }
+
+    public function teamAPlayer2Id(): ?PlayerId
+    {
+        return $this->teamAPlayer2Id;
+    }
+
+    public function teamBPlayer1Id(): ?PlayerId
+    {
+        return $this->teamBPlayer1Id;
+    }
+
+    public function teamBPlayer2Id(): ?PlayerId
+    {
+        return $this->teamBPlayer2Id;
+    }
+
+    public function setsDetail(): ?SetsDetail
+    {
+        return $this->setsDetail;
+    }
+
+    public function teamAScore(): ?Score
+    {
+        return $this->teamAScore;
+    }
+
+    public function teamBScore(): ?Score
+    {
+        return $this->teamBScore;
+    }
+
+    public function courtName(): ?CourtName
+    {
+        return $this->courtName;
+    }
+
+    public function notes(): ?Notes
+    {
+        return $this->notes;
+    }
+
+    public function teamAEloBefore(): ?EloRating
+    {
+        return $this->teamAEloBefore;
+    }
+
+    public function teamBEloBefore(): ?EloRating
+    {
+        return $this->teamBEloBefore;
+    }
+
+    public function eloChange(): ?EloChange
+    {
+        return $this->eloChange;
+    }
+
+    public function setsToWin(): SetsToWin
+    {
+        return $this->setsToWin;
+    }
+
+    public function matchDate(): ?DateTimeImmutable
+    {
+        return $this->matchDate;
+    }
 
     /** @return list<PlayerId> */
-    public function confirmedPlayerIds(): array { return $this->confirmedPlayerIds; }
+    public function confirmedPlayerIds(): array
+    {
+        return $this->confirmedPlayerIds;
+    }
 }

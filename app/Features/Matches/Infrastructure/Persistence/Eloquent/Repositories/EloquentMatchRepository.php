@@ -9,8 +9,8 @@ use App\Features\Matches\Domain\Repositories\MatchRepositoryInterface;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Features\Matches\Infrastructure\Persistence\Eloquent\Mappers\MatchMapper;
-use App\Features\Matches\Infrastructure\Persistence\Eloquent\Models\MatchModel as EloquentMatch;
 use App\Features\Matches\Infrastructure\Persistence\Eloquent\Models\MatchConfirmation;
+use App\Features\Matches\Infrastructure\Persistence\Eloquent\Models\MatchModel as EloquentMatch;
 use Ramsey\Uuid\Uuid;
 
 final class EloquentMatchRepository implements MatchRepositoryInterface

@@ -4,8 +4,8 @@ use App\Features\Matches\Infrastructure\Http\v1\Controllers\CancelMatchControlle
 use App\Features\Matches\Infrastructure\Http\v1\Controllers\ConfirmMatchController;
 use App\Features\Matches\Infrastructure\Http\v1\Controllers\CreateMatchController;
 use App\Features\Matches\Infrastructure\Http\v1\Controllers\GetMatchController;
-use App\Features\Matches\Infrastructure\Http\v1\Controllers\GetMyMatchInvitationsController;
 use App\Features\Matches\Infrastructure\Http\v1\Controllers\GetMyMatchesController;
+use App\Features\Matches\Infrastructure\Http\v1\Controllers\GetMyMatchInvitationsController;
 use App\Features\Matches\Infrastructure\Http\v1\Controllers\InvitePlayerToMatchController;
 use App\Features\Matches\Infrastructure\Http\v1\Controllers\RespondToMatchInvitationController;
 use App\Features\Matches\Infrastructure\Http\v1\Controllers\UpdateMatchController;
