@@ -31,7 +31,9 @@ final readonly class InitializePlayerProfileCommandHandler
         private UsernameGeneratorService $usernameGenerator,
         private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
-    ) {}
+    ) {
+        //Named constructor pattern
+    }
 
     public function __invoke(InitializePlayerProfileCommand $command): void
     {
