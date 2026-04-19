@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Application\Commands\InitializePlayerProfile;
 
+use App\Features\Player\Application\Contracts\AvatarProvisionerInterface;
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Enums\PlayerLevelEnum;
 use App\Features\Player\Domain\Exceptions\PlayerProfileAlreadyExistException;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\Services\UsernameGeneratorService;
+use App\Features\Player\Domain\ValueObjects\AvatarUrl;
 use App\Features\Player\Domain\ValueObjects\DisplayName;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\PadelCoins;
@@ -29,11 +31,10 @@ final readonly class InitializePlayerProfileCommandHandler
     public function __construct(
         private PlayerRepositoryInterface $playerRepository,
         private UsernameGeneratorService $usernameGenerator,
+        private AvatarProvisionerInterface $avatarProvisioner,
         private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
-    ) {
-        //Named constructor pattern
-    }
+    ) {}
 
     public function __invoke(InitializePlayerProfileCommand $command): void
     {
@@ -44,6 +45,12 @@ final readonly class InitializePlayerProfileCommandHandler
         }
 
         $username = $this->usernameGenerator->generateFrom($command->displayName);
+
+        $avatarUrl = $this->avatarProvisioner->provision(
+            userId: $command->userId,
+            displayName: $command->displayName,
+            avatar: null,
+        );
 
         $player = Player::create(
             id: $userId,
@@ -56,7 +63,7 @@ final readonly class InitializePlayerProfileCommandHandler
             identity: PlayerIdentity::of(
                 displayName: DisplayName::fromString($command->displayName),
                 bio: null,
-                avatar: null,
+                avatar: $avatarUrl !== null ? AvatarUrl::fromString($avatarUrl) : null,
             ),
             stats: PlayerStats::initialize(),
             level: PlayerLevel::fromPlayerLevelEnum(PlayerLevelEnum::BEGINNER),

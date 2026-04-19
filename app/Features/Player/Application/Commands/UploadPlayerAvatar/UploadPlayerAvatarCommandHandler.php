@@ -37,7 +37,7 @@ final readonly class UploadPlayerAvatarCommandHandler
 
         $newAvatarUrl = $this->avatarProvisioner->provision(
             userId: $command->userId,
-            displayName: $command->displayName,
+            displayName: $current?->displayName()?->value(),
             avatar: $command->avatar,
         );
 

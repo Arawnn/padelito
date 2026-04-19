@@ -12,6 +12,7 @@ use App\Features\Onboarding\Application\RegisterPlayer\RegisterPlayerResult;
 use App\Features\Player\Application\Commands\InitializePlayerProfile\InitializePlayerProfileCommandHandler;
 use App\Features\Player\Domain\Services\UsernameGeneratorService;
 use App\Features\Player\Domain\ValueObjects\Id;
+use Tests\Shared\Mother\Fake\FakeAvatarProvisioner;
 use Tests\Shared\Mother\Fake\FakePasswordHasher;
 use Tests\Shared\Mother\Fake\FakeUuidGenerator;
 use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
@@ -138,6 +139,7 @@ final class RegisterPlayerCommandHandlerTest extends TestCase
         $initializePlayerProfileHandler = new InitializePlayerProfileCommandHandler(
             playerRepository: $this->playerRepository,
             usernameGenerator: new UsernameGeneratorService($this->playerRepository),
+            avatarProvisioner: FakeAvatarProvisioner::thatSucceeds(),
             transactionManager: $this->tx,
             eventDispatcher: $this->eventDispatcher,
         );

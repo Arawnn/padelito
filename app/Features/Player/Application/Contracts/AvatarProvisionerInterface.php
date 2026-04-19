@@ -12,7 +12,7 @@ interface AvatarProvisionerInterface
     /** @throws DomainExceptionInterface */
     public function provision(
         string $userId,
-        string $displayName,
+        ?string $displayName,
         ?AvatarInput $avatar,
     ): ?string;
 

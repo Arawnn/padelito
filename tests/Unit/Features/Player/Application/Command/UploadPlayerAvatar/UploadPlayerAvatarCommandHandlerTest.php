@@ -28,6 +28,10 @@ use Tests\TestCase;
  */
 final class UploadPlayerAvatarCommandHandlerTest extends TestCase
 {
+    private const USER_ID = '00000000-0000-0000-0000-000000000001';
+
+    private const DISPLAY_NAME = 'Jean Dupont';
+
     private InMemoryPlayerRepository $repository;
 
     private SpyEventDispatcher $eventDispatcher;
@@ -42,14 +46,13 @@ final class UploadPlayerAvatarCommandHandlerTest extends TestCase
 
     public function test_it_provisions_avatar_and_sets_it_on_player(): void
     {
-        $player = PlayerMother::create()->withId('00000000-0000-0000-0000-000000000001')->build();
+        $player = PlayerMother::create()->withId(self::USER_ID)->build();
         $this->repository->save($player);
 
         $provisioner = FakeAvatarProvisioner::thatSucceeds('http://localhost/storage/avatars/new.jpg');
 
         $result = $this->makeHandler($provisioner)(new UploadPlayerAvatarCommand(
-            userId: '00000000-0000-0000-0000-000000000001',
-            displayName: 'Jean Dupont',
+            userId: self::USER_ID,
             avatar: new AvatarInput(null, null, 'https://example.com/avatar.jpg'),
         ));
 
@@ -61,9 +64,9 @@ final class UploadPlayerAvatarCommandHandlerTest extends TestCase
 
     public function test_it_preserves_existing_display_name_and_bio(): void
     {
-        $player = PlayerMother::create()->withId('00000000-0000-0000-0000-000000000001')->build();
+        $player = PlayerMother::create()->withId(self::USER_ID)->build();
         $player->updateIdentity(PlayerIdentity::of(
-            displayName: DisplayName::fromString('Jean Dupont'),
+            displayName: DisplayName::fromString(self::DISPLAY_NAME),
             bio: Bio::fromString('Ma bio'),
             avatar: null,
         ));
@@ -71,20 +74,40 @@ final class UploadPlayerAvatarCommandHandlerTest extends TestCase
         $this->repository->save($player);
 
         $result = $this->makeHandler()(new UploadPlayerAvatarCommand(
-            userId: '00000000-0000-0000-0000-000000000001',
-            displayName: 'Jean Dupont',
+            userId: self::USER_ID,
             avatar: null,
         ));
 
-        $this->assertEquals('Jean Dupont', $result->identity()->displayName()->value());
+        $this->assertEquals(self::DISPLAY_NAME, $result->identity()->displayName()->value());
         $this->assertEquals('Ma bio', $result->identity()->bio()->value());
+    }
+
+    public function test_it_uses_display_name_from_existing_player_identity_for_initials_fallback(): void
+    {
+        $player = PlayerMother::create()->withId(self::USER_ID)->build();
+        $player->updateIdentity(PlayerIdentity::of(
+            displayName: DisplayName::fromString(self::DISPLAY_NAME),
+            bio: null,
+            avatar: null,
+        ));
+        $player->pullDomainEvents();
+        $this->repository->save($player);
+
+        $provisioner = FakeAvatarProvisioner::thatSucceeds();
+
+        $this->makeHandler($provisioner)(new UploadPlayerAvatarCommand(
+            userId: self::USER_ID,
+            avatar: null,
+        ));
+
+        $this->assertEquals(self::DISPLAY_NAME, $provisioner->lastProvisionedDisplayName);
     }
 
     public function test_it_deletes_old_avatar_when_one_existed(): void
     {
-        $player = PlayerMother::create()->withId('00000000-0000-0000-0000-000000000001')->build();
+        $player = PlayerMother::create()->withId(self::USER_ID)->build();
         $player->updateIdentity(PlayerIdentity::of(
-            displayName: DisplayName::fromString('Jean Dupont'),
+            displayName: DisplayName::fromString(self::DISPLAY_NAME),
             bio: null,
             avatar: AvatarUrl::fromString('http://localhost/storage/avatars/old.jpg'),
         ));
@@ -94,8 +117,7 @@ final class UploadPlayerAvatarCommandHandlerTest extends TestCase
         $provisioner = FakeAvatarProvisioner::thatSucceeds('http://localhost/storage/avatars/new.jpg');
 
         $this->makeHandler($provisioner)(new UploadPlayerAvatarCommand(
-            userId: '00000000-0000-0000-0000-000000000001',
-            displayName: 'Jean Dupont',
+            userId: self::USER_ID,
             avatar: null,
         ));
 
@@ -104,14 +126,13 @@ final class UploadPlayerAvatarCommandHandlerTest extends TestCase
 
     public function test_it_does_not_delete_old_avatar_when_none_existed(): void
     {
-        $player = PlayerMother::create()->withId('00000000-0000-0000-0000-000000000001')->build();
+        $player = PlayerMother::create()->withId(self::USER_ID)->build();
         $this->repository->save($player);
 
         $provisioner = FakeAvatarProvisioner::thatSucceeds();
 
         $this->makeHandler($provisioner)(new UploadPlayerAvatarCommand(
-            userId: '00000000-0000-0000-0000-000000000001',
-            displayName: 'Jean Dupont',
+            userId: self::USER_ID,
             avatar: null,
         ));
 
@@ -120,12 +141,11 @@ final class UploadPlayerAvatarCommandHandlerTest extends TestCase
 
     public function test_it_dispatches_player_identity_updated_event(): void
     {
-        $player = PlayerMother::create()->withId('00000000-0000-0000-0000-000000000001')->build();
+        $player = PlayerMother::create()->withId(self::USER_ID)->build();
         $this->repository->save($player);
 
         $this->makeHandler()(new UploadPlayerAvatarCommand(
-            userId: '00000000-0000-0000-0000-000000000001',
-            displayName: 'Jean Dupont',
+            userId: self::USER_ID,
             avatar: null,
         ));
 
@@ -138,7 +158,6 @@ final class UploadPlayerAvatarCommandHandlerTest extends TestCase
 
         $this->makeHandler()(new UploadPlayerAvatarCommand(
             userId: '00000000-0000-0000-0000-000000000099',
-            displayName: 'Jean Dupont',
             avatar: null,
         ));
     }
@@ -147,12 +166,11 @@ final class UploadPlayerAvatarCommandHandlerTest extends TestCase
     {
         $this->expectException(InvalidAvatarUrlException::class);
 
-        $player = PlayerMother::create()->withId('00000000-0000-0000-0000-000000000001')->build();
+        $player = PlayerMother::create()->withId(self::USER_ID)->build();
         $this->repository->save($player);
 
         $this->makeHandler(FakeAvatarProvisioner::thatFails())(new UploadPlayerAvatarCommand(
-            userId: '00000000-0000-0000-0000-000000000001',
-            displayName: 'Jean Dupont',
+            userId: self::USER_ID,
             avatar: new AvatarInput(null, null, 'https://example.com/avatar.jpg'),
         ));
     }

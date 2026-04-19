@@ -10,7 +10,6 @@ final readonly class UploadPlayerAvatarCommand
 {
     public function __construct(
         public string $userId,
-        public string $displayName,
         public ?AvatarInput $avatar,
     ) {}
 }

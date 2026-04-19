@@ -10,20 +10,12 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UploadPlayerAvatarRequest extends FormRequest
 {
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'displayName' => $this->has('displayName') ? strip_tags((string) $this->input('displayName')) : null,
-        ]);
-    }
-
     /**
      * @return array<string, array<string>>
      */
     public function rules(): array
     {
         return [
-            'displayName' => ['nullable', 'string', 'max:30', 'regex:/^[\pL\s]+$/u'],
             'avatar' => ['nullable'],
         ];
     }
@@ -52,7 +44,6 @@ class UploadPlayerAvatarRequest extends FormRequest
             'avatar.mimes' => 'Avatar must be a JPG or PNG file.',
             'avatar.max' => 'Avatar must not exceed 2 MB.',
             'avatar.regex' => 'Avatar must be an HTTPS URL when sent as text.',
-            'displayName.regex' => 'The display name may only contain letters and spaces.',
         ];
     }
 
