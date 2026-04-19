@@ -6,12 +6,12 @@ namespace Tests\Unit\Features\Player\Application\Command\UpdatePlayerIdentity;
 
 use App\Features\Player\Application\Commands\UpdatePlayerIdentity\UpdatePlayerIdentityCommand;
 use App\Features\Player\Application\Commands\UpdatePlayerIdentity\UpdatePlayerIdentityCommandHandler;
-use App\Features\Player\Application\Dto\AvatarInput;
 use App\Features\Player\Domain\Events\PlayerIdentityUpdated;
-use App\Features\Player\Domain\Exceptions\InvalidAvatarUrlException;
 use App\Features\Player\Domain\Exceptions\PlayerProfileNotFoundException;
+use App\Features\Player\Domain\ValueObjects\AvatarUrl;
+use App\Features\Player\Domain\ValueObjects\DisplayName;
+use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
 use App\Shared\Application\Optional;
-use Tests\Shared\Mother\Fake\FakeAvatarProvisioner;
 use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
@@ -46,7 +46,6 @@ final class UpdatePlayerIdentityCommandHandlerTest extends TestCase
             userId: '00000000-0000-0000-0000-000000000001',
             displayName: Optional::of('New Name'),
             bio: Optional::absent(),
-            avatar: null,
         ));
 
         $this->assertEquals('New Name', $result->identity()->displayName()->value());
@@ -54,7 +53,6 @@ final class UpdatePlayerIdentityCommandHandlerTest extends TestCase
 
     public function test_it_keeps_existing_display_name_when_absent(): void
     {
-        // PlayerMother builds with displayName = 'Jean Dupont'
         $player = PlayerMother::create()->withId('00000000-0000-0000-0000-000000000001')->build();
         $this->repository->save($player);
 
@@ -62,7 +60,6 @@ final class UpdatePlayerIdentityCommandHandlerTest extends TestCase
             userId: '00000000-0000-0000-0000-000000000001',
             displayName: Optional::absent(),
             bio: Optional::absent(),
-            avatar: null,
         ));
 
         $this->assertEquals('Jean Dupont', $result->identity()->displayName()->value());
@@ -77,82 +74,32 @@ final class UpdatePlayerIdentityCommandHandlerTest extends TestCase
             userId: '00000000-0000-0000-0000-000000000001',
             displayName: Optional::of(null),
             bio: Optional::absent(),
-            avatar: null,
         ));
 
         $this->assertNull($result->identity()->displayName());
     }
 
-    public function test_it_provisions_avatar_when_provided(): void
+    public function test_it_preserves_existing_avatar_url(): void
     {
         $player = PlayerMother::create()->withId('00000000-0000-0000-0000-000000000001')->build();
+        $player->updateIdentity(PlayerIdentity::of(
+            displayName: DisplayName::fromString('Jean Dupont'),
+            bio: null,
+            avatar: AvatarUrl::fromString('http://localhost/storage/avatars/existing.jpg'),
+        ));
+        $player->pullDomainEvents();
         $this->repository->save($player);
 
-        $provisioner = FakeAvatarProvisioner::thatSucceeds('http://localhost/storage/avatars/new.jpg');
-
-        $result = $this->makeHandler($provisioner)(new UpdatePlayerIdentityCommand(
+        $result = $this->makeHandler()(new UpdatePlayerIdentityCommand(
             userId: '00000000-0000-0000-0000-000000000001',
-            displayName: Optional::absent(),
+            displayName: Optional::of('Updated Name'),
             bio: Optional::absent(),
-            avatar: new AvatarInput(
-                uploadedFilePath: null,
-                uploadedFileExtension: null,
-                remoteUrl: 'https://example.com/avatar.jpg',
-            ),
         ));
 
         $this->assertEquals(
-            'http://localhost/storage/avatars/new.jpg',
+            'http://localhost/storage/avatars/existing.jpg',
             $result->identity()->avatarUrl()->value(),
         );
-    }
-
-    public function test_it_deletes_old_avatar_when_replacing(): void
-    {
-        // Build a player with an existing avatar URL
-        $player = PlayerMother::create()->withId('00000000-0000-0000-0000-000000000001')->build();
-        // Manually set an avatar by updating identity directly
-        $player->updateIdentity(\App\Features\Player\Domain\ValueObjects\PlayerIdentity::of(
-            displayName: \App\Features\Player\Domain\ValueObjects\DisplayName::fromString('Jean Dupont'),
-            bio: null,
-            avatar: \App\Features\Player\Domain\ValueObjects\AvatarUrl::fromString('http://localhost/storage/avatars/old.jpg'),
-        ));
-        $player->pullDomainEvents(); // clear the event recorded by updateIdentity
-        $this->repository->save($player);
-
-        $provisioner = FakeAvatarProvisioner::thatSucceeds('http://localhost/storage/avatars/new.jpg');
-
-        $this->makeHandler($provisioner)(new UpdatePlayerIdentityCommand(
-            userId: '00000000-0000-0000-0000-000000000001',
-            displayName: Optional::absent(),
-            bio: Optional::absent(),
-            avatar: new AvatarInput(
-                uploadedFilePath: null,
-                uploadedFileExtension: null,
-                remoteUrl: 'https://example.com/new-avatar.jpg',
-            ),
-        ));
-
-        $this->assertEquals('http://localhost/storage/avatars/old.jpg', $provisioner->lastDeletedUrl);
-    }
-
-    public function test_it_fails_when_provisioner_fails(): void
-    {
-        $this->expectException(InvalidAvatarUrlException::class);
-
-        $player = PlayerMother::create()->withId('00000000-0000-0000-0000-000000000001')->build();
-        $this->repository->save($player);
-
-        $this->makeHandler(FakeAvatarProvisioner::thatFails())(new UpdatePlayerIdentityCommand(
-            userId: '00000000-0000-0000-0000-000000000001',
-            displayName: Optional::absent(),
-            bio: Optional::absent(),
-            avatar: new AvatarInput(
-                uploadedFilePath: null,
-                uploadedFileExtension: null,
-                remoteUrl: 'https://example.com/avatar.jpg',
-            ),
-        ));
     }
 
     public function test_it_dispatches_player_identity_updated_event(): void
@@ -164,7 +111,6 @@ final class UpdatePlayerIdentityCommandHandlerTest extends TestCase
             userId: '00000000-0000-0000-0000-000000000001',
             displayName: Optional::of('New Name'),
             bio: Optional::absent(),
-            avatar: null,
         ));
 
         $this->assertTrue($this->eventDispatcher->dispatched(PlayerIdentityUpdated::class));
@@ -178,15 +124,13 @@ final class UpdatePlayerIdentityCommandHandlerTest extends TestCase
             userId: '00000000-0000-0000-0000-000000000099',
             displayName: Optional::absent(),
             bio: Optional::absent(),
-            avatar: null,
         ));
     }
 
-    private function makeHandler(?FakeAvatarProvisioner $provisioner = null): UpdatePlayerIdentityCommandHandler
+    private function makeHandler(): UpdatePlayerIdentityCommandHandler
     {
         return new UpdatePlayerIdentityCommandHandler(
             playerRepository: $this->repository,
-            avatarProvisioner: $provisioner ?? FakeAvatarProvisioner::thatSucceeds(),
             eventDispatcher: $this->eventDispatcher,
             transactionManager: new ImmediateTransactionManager,
         );
