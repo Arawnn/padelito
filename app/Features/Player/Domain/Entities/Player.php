@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Player\Domain\Entities;
 
 use App\Features\Player\Domain\Events\PlayerIdentityUpdated;
+use App\Features\Player\Domain\Events\PlayerMatchResultApplied;
 use App\Features\Player\Domain\Events\PlayerPreferencesUpdated;
 use App\Features\Player\Domain\Events\PlayerProfileCreated;
 use App\Features\Player\Domain\Events\PlayerUsernameChanged;
@@ -154,5 +155,16 @@ final class Player extends AggregateRoot
             newUsername: $username->value(),
         ));
         $this->username = $username;
+    }
+
+    public function applyMatchResult(PlayerStats $newStats, string $matchId, bool $won, int $eloChange): void
+    {
+        $this->stats = $newStats;
+        $this->recordDomainEvent(new PlayerMatchResultApplied(
+            playerId: $this->id->value(),
+            matchId: $matchId,
+            won: $won,
+            eloChange: $eloChange,
+        ));
     }
 }
