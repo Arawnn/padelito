@@ -80,9 +80,15 @@ final class RegisterEndpointTest extends FeatureTestCase
     {
         $this->app->bind(PlayerRepositoryInterface::class, fn () => new class implements PlayerRepositoryInterface
         {
-            public function findById(Id $_id): ?Player { return null; }
+            public function findById(Id $_id): ?Player
+            {
+                return null;
+            }
 
-            public function findByUsername(Username $_username): ?Player { return null; }
+            public function findByUsername(Username $_username): ?Player
+            {
+                return null;
+            }
 
             public function save(Player $_player): void
             {
