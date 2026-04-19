@@ -9,7 +9,6 @@ use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerPro
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Events\PlayerProfileCreated;
 use App\Features\Player\Domain\Exceptions\PlayerProfileAlreadyExistException;
-use Tests\Shared\Mother\Fake\FakeAvatarProvisioner;
 use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
@@ -51,6 +50,7 @@ final class CreatePlayerProfileCommandHandlerTest extends TestCase
         $this->assertEquals('jean_dupont', $persisted->username()->value());
         $this->assertEquals('beginner', $persisted->level()->value()->value);
         $this->assertEquals(1500, $persisted->stats()->eloRating()->value());
+        $this->assertNull($persisted->identity()?->avatarUrl());
     }
 
     public function test_it_dispatches_player_profile_created_event(): void
@@ -109,7 +109,6 @@ final class CreatePlayerProfileCommandHandlerTest extends TestCase
             username: 'jean_dupont',
             level: 'beginner',
             displayName: 'Jean Dupont',
-            avatar: null,
             bio: null,
             location: null,
             dominantHand: 'right',
@@ -123,7 +122,6 @@ final class CreatePlayerProfileCommandHandlerTest extends TestCase
             playerRepository: $this->repository,
             transactionManager: $this->tx,
             eventDispatcher: $this->eventDispatcher,
-            avatarProvisioner: FakeAvatarProvisioner::thatSucceeds(),
         );
     }
 }

@@ -8,8 +8,6 @@ use App\Features\Auth\Application\Commands\LoginUser\LoginUserCommand;
 use App\Features\Auth\Application\Commands\LoginUser\LoginUserCommandHandler;
 use App\Features\Auth\Application\Commands\LogoutUser\LogoutUserCommand;
 use App\Features\Auth\Application\Commands\LogoutUser\LogoutUserCommandHandler;
-use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommand;
-use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommandHandler;
 use App\Features\Auth\Application\Commands\SendPasswordResetEmail\SendPasswordResetEmailCommand;
 use App\Features\Auth\Application\Commands\SendPasswordResetEmail\SendPasswordResetEmailCommandHandler;
 use App\Features\Auth\Application\Commands\UpdateUserPassword\UpdateUserPasswordCommand;
@@ -46,7 +44,6 @@ final class AuthServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
 
         $map = $this->app->make(HandlerMap::class);
-        $map->register(RegisterUserCommand::class, RegisterUserCommandHandler::class);
         $map->register(LoginUserCommand::class, LoginUserCommandHandler::class);
         $map->register(LogoutUserCommand::class, LogoutUserCommandHandler::class);
         $map->register(UpdateUserPasswordCommand::class, UpdateUserPasswordCommandHandler::class);

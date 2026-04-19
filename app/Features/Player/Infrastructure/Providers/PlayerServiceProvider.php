@@ -10,10 +10,14 @@ use App\Features\Player\Application\Commands\ChangeUsername\ChangeUsernameComman
 use App\Features\Player\Application\Commands\ChangeUsername\ChangeUsernameCommandHandler;
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommand;
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommandHandler;
+use App\Features\Player\Application\Commands\InitializePlayerProfile\InitializePlayerProfileCommand;
+use App\Features\Player\Application\Commands\InitializePlayerProfile\InitializePlayerProfileCommandHandler;
 use App\Features\Player\Application\Commands\UpdatePlayerIdentity\UpdatePlayerIdentityCommand;
 use App\Features\Player\Application\Commands\UpdatePlayerIdentity\UpdatePlayerIdentityCommandHandler;
 use App\Features\Player\Application\Commands\UpdatePlayerPreferences\UpdatePlayerPreferencesCommand;
 use App\Features\Player\Application\Commands\UpdatePlayerPreferences\UpdatePlayerPreferencesCommandHandler;
+use App\Features\Player\Application\Commands\UploadPlayerAvatar\UploadPlayerAvatarCommand;
+use App\Features\Player\Application\Commands\UploadPlayerAvatar\UploadPlayerAvatarCommandHandler;
 use App\Features\Player\Application\Contracts\AvatarProvisionerInterface;
 use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQuery;
 use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQueryHandler;
@@ -43,6 +47,8 @@ final class PlayerServiceProvider extends ServiceProvider
 
         $map = $this->app->make(HandlerMap::class);
         $map->register(CreatePlayerProfileCommand::class, CreatePlayerProfileCommandHandler::class);
+        $map->register(InitializePlayerProfileCommand::class, InitializePlayerProfileCommandHandler::class);
+        $map->register(UploadPlayerAvatarCommand::class, UploadPlayerAvatarCommandHandler::class);
         $map->register(ChangeProfileVisibilityCommand::class, ChangeProfileVisibilityCommandHandler::class);
         $map->register(ChangeUsernameCommand::class, ChangeUsernameCommandHandler::class);
         $map->register(UpdatePlayerIdentityCommand::class, UpdatePlayerIdentityCommandHandler::class);

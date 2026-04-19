@@ -27,7 +27,8 @@ final readonly class RegisterUserCommandHandler
     ) {}
 
     /**
-     * TODO: return a DTO instead of exposing the aggregate root
+     * Transaction root : l'appelant (ex: RegisterPlayerCommandHandler).
+     * Appelé seul, afterCommit() execute immédiatement (pas de transaction active).
      */
     public function __invoke(RegisterUserCommand $command): User
     {
@@ -37,17 +38,8 @@ final readonly class RegisterUserCommandHandler
             throw UserAlreadyExistsException::fromEmail($email);
         }
 
-        $id = Id::fromString($this->uuidGenerator->generate());
-
-        return $this->transactionManager->run(
-            fn () => $this->createUser($command, $id, $email)
-        );
-    }
-
-    private function createUser(RegisterUserCommand $command, Id $id, Email $email): User
-    {
         $user = User::register(
-            id: $id,
+            id: Id::fromString($this->uuidGenerator->generate()),
             name: Name::fromString($command->name),
             email: $email,
             password: $this->passwordHasher->hash(
@@ -58,7 +50,6 @@ final readonly class RegisterUserCommandHandler
         $this->userRepository->save($user);
 
         $domainEvents = $user->pullDomainEvents();
-
         $this->transactionManager->afterCommit(
             fn () => $this->eventDispatcher->dispatchEvents($domainEvents)
         );

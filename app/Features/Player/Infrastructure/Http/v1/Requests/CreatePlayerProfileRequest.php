@@ -29,7 +29,7 @@ class CreatePlayerProfileRequest extends FormRequest
     }
 
     /**
-     * @return array<string, array<mixed>|string|ValidationRule>
+     * @return array<string, array<mixed>|string>
      */
     public function rules(): array
     {
@@ -62,9 +62,6 @@ class CreatePlayerProfileRequest extends FormRequest
                 'string',
                 'max:255',
             ],
-            'avatar' => [
-                'nullable',
-            ],
             'level' => [
                 'required',
                 Rule::in($levelValues),
@@ -80,21 +77,6 @@ class CreatePlayerProfileRequest extends FormRequest
         ];
     }
 
-    public function withValidator(Validator $validator): void
-    {
-        $validator->sometimes(
-            'avatar',
-            ['file', 'mimes:jpg,jpeg,png', 'max:2048'],
-            fn () => $this->hasFile('avatar'),
-        );
-
-        $validator->sometimes(
-            'avatar',
-            ['string', 'max:2048', 'regex:/^https:\/\/.+/i'],
-            fn () => ! $this->hasFile('avatar') && $this->filled('avatar'),
-        );
-    }
-
     /**
      * @return array<string, string>
      */
@@ -107,9 +89,6 @@ class CreatePlayerProfileRequest extends FormRequest
             'level.in' => 'Invalid level. Accepted values: '.implode(', ', array_column(PlayerLevelEnum::cases(), 'value')).'.',
             'dominantHand.in' => 'Invalid dominant hand. Accepted values: '.implode(', ', array_column(DominantHandEnum::cases(), 'value')).'.',
             'preferredPosition.in' => 'Invalid preferred position. Accepted values: '.implode(', ', array_column(PreferredPositionEnum::cases(), 'value')).'.',
-            'avatar.mimes' => 'Avatar must be a JPG or PNG file.',
-            'avatar.max' => 'Avatar must not exceed 2 MB.',
-            'avatar.regex' => 'Avatar must be an HTTPS URL when sent as text.',
         ];
     }
 

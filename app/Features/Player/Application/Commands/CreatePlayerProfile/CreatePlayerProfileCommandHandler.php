@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Application\Commands\CreatePlayerProfile;
 
-use App\Features\Player\Application\Contracts\AvatarProvisionerInterface;
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Enums\DominantHandEnum;
 use App\Features\Player\Domain\Enums\PlayerLevelEnum;
 use App\Features\Player\Domain\Enums\PreferredPositionEnum;
 use App\Features\Player\Domain\Exceptions\PlayerProfileAlreadyExistException;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
-use App\Features\Player\Domain\ValueObjects\AvatarUrl;
 use App\Features\Player\Domain\ValueObjects\Bio;
 use App\Features\Player\Domain\ValueObjects\DisplayName;
 use App\Features\Player\Domain\ValueObjects\DominantHand;
@@ -33,48 +31,20 @@ final readonly class CreatePlayerProfileCommandHandler
         private PlayerRepositoryInterface $playerRepository,
         private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
-        private AvatarProvisionerInterface $avatarProvisioner,
     ) {}
 
     public function __invoke(CreatePlayerProfileCommand $command): Player
     {
-        $avatarUrl = null;
+        $userId = Id::fromString($command->userId);
 
-        try {
-            $userId = Id::fromString($command->userId);
-
-            if ($this->playerRepository->findById($userId)) {
-                throw PlayerProfileAlreadyExistException::create();
-            }
-
-            if ($this->playerRepository->findByUsername(Username::fromString($command->username))) {
-                throw PlayerProfileAlreadyExistException::create();
-            }
-
-            $avatarUrl = $this->avatarProvisioner->provision(
-                userId: $command->userId,
-                displayName: $command->displayName ?? '',
-                avatar: $command->avatar,
-            );
-
-            return $this->transactionManager->run(
-                fn () => $this->buildProfile($command, $userId, $avatarUrl)
-            );
-        } catch (\Throwable $e) {
-            $this->deleteAvatar($avatarUrl);
-            throw $e;
+        if ($this->playerRepository->findById($userId)) {
+            throw PlayerProfileAlreadyExistException::create();
         }
-    }
 
-    private function deleteAvatar(?string $avatarUrl): void
-    {
-        if ($avatarUrl !== null) {
-            $this->avatarProvisioner->deleteByPublicUrl($avatarUrl);
+        if ($this->playerRepository->findByUsername(Username::fromString($command->username))) {
+            throw PlayerProfileAlreadyExistException::create();
         }
-    }
 
-    private function buildProfile(CreatePlayerProfileCommand $command, Id $userId, ?string $avatarUrl): Player
-    {
         $preferences = PlayerPreferences::of(
             dominantHand: $command->dominantHand ? DominantHand::fromDominantHandEnum(DominantHandEnum::from($command->dominantHand)) : null,
             preferredPosition: $command->preferredPosition ? PreferredPosition::fromPreferredPositionEnum(PreferredPositionEnum::from($command->preferredPosition)) : null,
@@ -84,10 +54,10 @@ final readonly class CreatePlayerProfileCommandHandler
         $identity = PlayerIdentity::of(
             displayName: $command->displayName ? DisplayName::fromString($command->displayName) : null,
             bio: $command->bio ? Bio::fromString($command->bio) : null,
-            avatar: $avatarUrl ? AvatarUrl::fromString($avatarUrl) : null,
+            avatar: null,
         );
 
-        $playerProfile = Player::create(
+        $player = Player::create(
             id: $userId,
             username: Username::fromString($command->username),
             level: PlayerLevel::fromPlayerLevelEnum(PlayerLevelEnum::from($command->level)),
@@ -97,11 +67,11 @@ final readonly class CreatePlayerProfileCommandHandler
             padelCoins: PadelCoins::initialize(),
         );
 
-        $this->playerRepository->save($playerProfile);
+        $this->playerRepository->save($player);
 
-        $domainEvents = $playerProfile->pullDomainEvents();
+        $domainEvents = $player->pullDomainEvents();
         $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($domainEvents));
 
-        return $playerProfile;
+        return $player;
     }
 }
