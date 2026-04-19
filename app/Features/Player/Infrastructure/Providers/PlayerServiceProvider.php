@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Infrastructure\Providers;
 
-use App\Features\Auth\Domain\Events\UserCreated;
 use App\Features\Player\Application\Commands\ChangeProfileVisibility\ChangeProfileVisibilityCommand;
 use App\Features\Player\Application\Commands\ChangeProfileVisibility\ChangeProfileVisibilityCommandHandler;
 use App\Features\Player\Application\Commands\ChangeUsername\ChangeUsernameCommand;
 use App\Features\Player\Application\Commands\ChangeUsername\ChangeUsernameCommandHandler;
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommand;
 use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerProfileCommandHandler;
+use App\Features\Player\Application\Commands\InitializePlayerProfile\InitializePlayerProfileCommand;
+use App\Features\Player\Application\Commands\InitializePlayerProfile\InitializePlayerProfileCommandHandler;
 use App\Features\Player\Application\Commands\UpdatePlayerIdentity\UpdatePlayerIdentityCommand;
 use App\Features\Player\Application\Commands\UpdatePlayerIdentity\UpdatePlayerIdentityCommandHandler;
 use App\Features\Player\Application\Commands\UpdatePlayerPreferences\UpdatePlayerPreferencesCommand;
@@ -24,11 +25,9 @@ use App\Features\Player\Application\Queries\GetPublicPlayerProfile\GetPublicPlay
 use App\Features\Player\Application\Queries\GetPublicPlayerProfile\GetPublicPlayerProfileQueryHandler;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Infrastructure\Http\v1\Exceptions\PlayerExceptionMapper;
-use App\Features\Player\Infrastructure\Listeners\CreateDefaultPlayerProfileOnUserCreated;
 use App\Features\Player\Infrastructure\Persistence\Eloquent\Repositories\EloquentPlayerRepository;
 use App\Features\Player\Infrastructure\Services\DefaultAvatarProvisioner;
 use App\Shared\Application\Bus\HandlerMap;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 final class PlayerServiceProvider extends ServiceProvider
@@ -46,10 +45,9 @@ final class PlayerServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/../Routes/api.php');
 
-        Event::listen(UserCreated::class, CreateDefaultPlayerProfileOnUserCreated::class);
-
         $map = $this->app->make(HandlerMap::class);
         $map->register(CreatePlayerProfileCommand::class, CreatePlayerProfileCommandHandler::class);
+        $map->register(InitializePlayerProfileCommand::class, InitializePlayerProfileCommandHandler::class);
         $map->register(UploadPlayerAvatarCommand::class, UploadPlayerAvatarCommandHandler::class);
         $map->register(ChangeProfileVisibilityCommand::class, ChangeProfileVisibilityCommandHandler::class);
         $map->register(ChangeUsernameCommand::class, ChangeUsernameCommandHandler::class);

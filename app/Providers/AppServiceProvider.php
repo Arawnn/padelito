@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Features\Auth\Infrastructure\Providers\AuthServiceProvider;
+use App\Features\Onboarding\Infrastructure\Providers\OnboardingServiceProvider;
 use App\Features\Player\Infrastructure\Providers\PlayerServiceProvider;
 use App\Shared\Application\Bus\HandlerMap;
 use App\Shared\Infrastructure\Providers\SharedServiceProvider;
@@ -26,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         // Features second
         $this->app->register(AuthServiceProvider::class);
         $this->app->register(PlayerServiceProvider::class);
+        $this->app->register(OnboardingServiceProvider::class);
     }
 
     /**

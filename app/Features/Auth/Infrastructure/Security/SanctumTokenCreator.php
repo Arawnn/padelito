@@ -17,4 +17,12 @@ final readonly class SanctumTokenCreator implements TokenCreatorInterface
 
         return $model->createToken('auth_token')->plainTextToken;
     }
+
+    public function createForId(string $userId): string
+    {
+        /** @var EloquentUser $model */
+        $model = EloquentUser::findOrFail($userId);
+
+        return $model->createToken('auth_token')->plainTextToken;
+    }
 }

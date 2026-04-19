@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Auth\Infrastructure\Http\v1\Controllers;
+namespace App\Features\Onboarding\Infrastructure\Http\v1\Controllers;
 
-use App\Features\Auth\Application\Commands\RegisterUser\RegisterUserCommand;
 use App\Features\Auth\Infrastructure\Contracts\TokenCreatorInterface;
 use App\Features\Auth\Infrastructure\Http\v1\Requests\RegisterRequest;
+use App\Features\Onboarding\Application\RegisterPlayer\RegisterPlayerCommand;
 use App\Shared\Application\Bus\CommandBusInterface;
 use App\Shared\Infrastructure\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
-class RegisterController extends Controller
+final class RegisterPlayerController extends Controller
 {
     public function __construct(
         private CommandBusInterface $commandBus,
@@ -20,21 +20,20 @@ class RegisterController extends Controller
 
     public function __invoke(RegisterRequest $request): JsonResponse
     {
-        $user = $this->commandBus->dispatch(new RegisterUserCommand(
+        $result = $this->commandBus->dispatch(new RegisterPlayerCommand(
             name: $request->name,
             email: $request->email,
             password: $request->password,
         ));
 
-        $token = $this->tokenCreator->createFor($user);
+        $token = $this->tokenCreator->createForId($result->userId);
 
-        // TODO create a resource object
         return response()->json([
             'data' => [
                 'user' => [
-                    'id' => $user->id()->value(),
-                    'name' => $user->name()->value(),
-                    'email' => $user->email()->value(),
+                    'id' => $result->userId,
+                    'name' => $result->name,
+                    'email' => $result->email,
                 ],
             ],
             'token' => $token,

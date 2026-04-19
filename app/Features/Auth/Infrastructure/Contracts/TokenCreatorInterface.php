@@ -7,4 +7,6 @@ use App\Features\Auth\Domain\Entities\User;
 interface TokenCreatorInterface
 {
     public function createFor(User $user): string;
+
+    public function createForId(string $userId): string;
 }
