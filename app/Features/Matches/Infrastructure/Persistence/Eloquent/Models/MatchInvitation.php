@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $match_id
  * @property string $invitee_id
  * @property string $team
- * @property int $position
+ * @property string $type
  * @property string $status
  * @property string $invited_at
  * @property string|null $responded_at
@@ -31,16 +31,9 @@ class MatchInvitation extends Model
         'match_id',
         'invitee_id',
         'team',
-        'position',
+        'type',
         'status',
         'invited_at',
         'responded_at',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'position' => 'integer',
-        ];
-    }
 }

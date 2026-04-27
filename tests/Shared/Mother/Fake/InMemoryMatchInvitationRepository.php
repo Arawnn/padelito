@@ -20,19 +20,6 @@ final class InMemoryMatchInvitationRepository implements MatchInvitationReposito
         return $this->store[$id->value()] ?? null;
     }
 
-    public function findByMatchAndSlot(MatchId $matchId, string $team, int $position): ?MatchInvitation
-    {
-        foreach ($this->store as $invitation) {
-            if ($invitation->matchId()->value() === $matchId->value()
-                && $invitation->team()->value()->value === $team
-                && $invitation->position() === $position) {
-                return $invitation;
-            }
-        }
-
-        return null;
-    }
-
     public function findByMatchAndInvitee(MatchId $matchId, PlayerId $inviteeId): ?MatchInvitation
     {
         foreach ($this->store as $invitation) {

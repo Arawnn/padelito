@@ -7,6 +7,7 @@ namespace App\Features\Matches\Infrastructure\Persistence\Eloquent\Mappers;
 use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Entities\PadelMatch;
 use App\Features\Matches\Domain\Enums\InvitationStatusEnum;
+use App\Features\Matches\Domain\Enums\InvitationTypeEnum;
 use App\Features\Matches\Domain\Enums\MatchFormatEnum;
 use App\Features\Matches\Domain\Enums\MatchStatusEnum;
 use App\Features\Matches\Domain\Enums\MatchTypeEnum;
@@ -15,6 +16,7 @@ use App\Features\Matches\Domain\ValueObjects\CourtName;
 use App\Features\Matches\Domain\ValueObjects\EloChange;
 use App\Features\Matches\Domain\ValueObjects\EloRating;
 use App\Features\Matches\Domain\ValueObjects\InvitationStatus;
+use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchFormat;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
@@ -41,24 +43,23 @@ final readonly class MatchMapper
 
         return PadelMatch::reconstitute(
             id: MatchId::fromString($model->id),
+            status: MatchStatus::fromEnum(MatchStatusEnum::from($model->status)),
+            creator: PlayerId::fromString($model->team_a_player1_id),
+            partner: $model->team_a_player2_id ? PlayerId::fromString($model->team_a_player2_id) : null,
+            opponent1: $model->team_b_player1_id ? PlayerId::fromString($model->team_b_player1_id) : null,
+            opponent2: $model->team_b_player2_id ? PlayerId::fromString($model->team_b_player2_id) : null,
             type: MatchType::fromEnum(MatchTypeEnum::from($model->match_type)),
             format: MatchFormat::fromEnum(MatchFormatEnum::from($model->match_format)),
-            status: MatchStatus::fromEnum(MatchStatusEnum::from($model->status)),
-            createdBy: PlayerId::fromString($model->created_by),
-            teamAPlayer1Id: PlayerId::fromString($model->team_a_player1_id),
-            teamAPlayer2Id: $model->team_a_player2_id ? PlayerId::fromString($model->team_a_player2_id) : null,
-            teamBPlayer1Id: $model->team_b_player1_id ? PlayerId::fromString($model->team_b_player1_id) : null,
-            teamBPlayer2Id: $model->team_b_player2_id ? PlayerId::fromString($model->team_b_player2_id) : null,
-            setsDetail: $setsDetail,
             teamAScore: $model->team_a_score !== null ? Score::fromInt($model->team_a_score) : null,
             teamBScore: $model->team_b_score !== null ? Score::fromInt($model->team_b_score) : null,
+            setsDetail: $setsDetail,
+            setsToWin: SetsToWin::fromInt($model->sets_to_win ?? 2),
             courtName: $model->court_name ? CourtName::fromString($model->court_name) : null,
             notes: $model->notes !== null ? Notes::fromString($model->notes) : null,
+            matchDate: $model->match_date ? new DateTimeImmutable($model->match_date) : null,
             teamAEloBefore: $model->team_a_elo_before !== null ? EloRating::fromInt($model->team_a_elo_before) : null,
             teamBEloBefore: $model->team_b_elo_before !== null ? EloRating::fromInt($model->team_b_elo_before) : null,
             eloChange: $model->elo_change !== null ? EloChange::fromInt($model->elo_change) : null,
-            setsToWin: SetsToWin::fromInt($model->sets_to_win ?? 2),
-            matchDate: $model->match_date ? new DateTimeImmutable($model->match_date) : null,
             confirmedPlayerIds: array_map(fn (string $id) => PlayerId::fromString($id), $confirmedPlayerIds),
         );
     }
@@ -101,7 +102,7 @@ final readonly class MatchMapper
             matchId: MatchId::fromString($model->match_id),
             inviteeId: PlayerId::fromString($model->invitee_id),
             team: Team::fromEnum(TeamEnum::from($model->team)),
-            position: $model->position,
+            type: InvitationType::fromEnum(InvitationTypeEnum::from($model->type)),
             status: InvitationStatus::fromEnum(InvitationStatusEnum::from($model->status)),
             invitedAt: new DateTimeImmutable($model->invited_at),
             respondedAt: $model->responded_at ? new DateTimeImmutable($model->responded_at) : null,
@@ -116,7 +117,7 @@ final readonly class MatchMapper
             'match_id' => $invitation->matchId()->value(),
             'invitee_id' => $invitation->inviteeId()->value(),
             'team' => $invitation->team()->value()->value,
-            'position' => $invitation->position(),
+            'type' => $invitation->type()->value()->value,
             'status' => $invitation->status()->value()->value,
             'invited_at' => $invitation->invitedAt()->format('Y-m-d H:i:s'),
             'responded_at' => $invitation->respondedAt()?->format('Y-m-d H:i:s'),

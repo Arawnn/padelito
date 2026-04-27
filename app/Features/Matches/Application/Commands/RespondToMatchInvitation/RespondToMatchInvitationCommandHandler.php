@@ -48,7 +48,7 @@ final readonly class RespondToMatchInvitationCommandHandler
 
         if ($command->accept) {
             $invitation->accept();
-            $match->assignPlayer($responderId, $invitation->team(), $invitation->position());
+            $match->assignPlayer($responderId, $invitation->team());
 
             $confirmationsReset = false;
             foreach ($match->pullDomainEvents() as $event) {

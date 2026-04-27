@@ -11,12 +11,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('match_confirmations', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->uuid('match_id');
             $table->foreign('match_id')->references('id')->on('matches')->cascadeOnDelete();
             $table->uuid('player_id');
             $table->foreign('player_id')->references('id')->on('profiles')->cascadeOnDelete();
-            $table->timestampTz('confirmed_at')->useCurrent();
+            $table->timestamp('confirmed_at')->useCurrent();
 
             $table->unique(['match_id', 'player_id']);
         });

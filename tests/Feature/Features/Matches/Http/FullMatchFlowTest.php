@@ -51,19 +51,19 @@ final class FullMatchFlowTest extends FeatureTestCase
         $inv2 = $this->postJson("/api/v1/matches/{$matchId}/invitations", [
             'invitee_id' => $this->player2->id,
             'team' => 'A',
-            'position' => 2,
+            'type' => 'partner',
         ])->assertStatus(201)->json('data.id');
 
         $inv3 = $this->postJson("/api/v1/matches/{$matchId}/invitations", [
             'invitee_id' => $this->player3->id,
             'team' => 'B',
-            'position' => 1,
+            'type' => 'opponent',
         ])->assertStatus(201)->json('data.id');
 
         $inv4 = $this->postJson("/api/v1/matches/{$matchId}/invitations", [
             'invitee_id' => $this->player4->id,
             'team' => 'B',
-            'position' => 2,
+            'type' => 'opponent',
         ])->assertStatus(201)->json('data.id');
 
         // 3. All 3 players accept their invitation
@@ -117,7 +117,7 @@ final class FullMatchFlowTest extends FeatureTestCase
         $this->postJson("/api/v1/matches/{$matchId}/invitations", [
             'invitee_id' => $this->player2->id,
             'team' => 'B',
-            'position' => 1,
+            'type' => 'opponent',
         ]);
 
         Sanctum::actingAs($this->player2);
@@ -139,7 +139,7 @@ final class FullMatchFlowTest extends FeatureTestCase
         $invId = $this->postJson("/api/v1/matches/{$matchId}/invitations", [
             'invitee_id' => $this->player2->id,
             'team' => 'B',
-            'position' => 1,
+            'type' => 'opponent',
         ])->json('data.id');
 
         Sanctum::actingAs($this->player2);

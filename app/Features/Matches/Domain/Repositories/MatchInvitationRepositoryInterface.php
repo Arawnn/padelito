@@ -13,8 +13,6 @@ interface MatchInvitationRepositoryInterface
 {
     public function findById(MatchInvitationId $id): ?MatchInvitation;
 
-    public function findByMatchAndSlot(MatchId $matchId, string $team, int $position): ?MatchInvitation;
-
     public function findByMatchAndInvitee(MatchId $matchId, PlayerId $inviteeId): ?MatchInvitation;
 
     public function save(MatchInvitation $invitation): void;

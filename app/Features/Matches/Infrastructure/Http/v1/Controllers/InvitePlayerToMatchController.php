@@ -21,7 +21,7 @@ final readonly class InvitePlayerToMatchController
             inviterId: $request->user()->id,
             inviteeId: $request->string('invitee_id')->value(),
             team: $request->string('team')->value(),
-            position: (int) $request->input('position'),
+            type: $request->string('type')->value(),
         ));
 
         return (new MatchInvitationResource($invitation))->response()->setStatusCode(201);

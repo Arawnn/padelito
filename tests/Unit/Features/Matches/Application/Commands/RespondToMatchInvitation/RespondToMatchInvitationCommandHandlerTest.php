@@ -11,6 +11,7 @@ use App\Features\Matches\Domain\Events\MatchInvitationAccepted;
 use App\Features\Matches\Domain\Events\MatchInvitationDeclined;
 use App\Features\Matches\Domain\Exceptions\MatchInvitationAlreadyRespondedException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
+use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
@@ -130,7 +131,7 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
             matchId: MatchId::fromString(self::MATCH_ID),
             inviteeId: PlayerId::fromString(self::INVITEE_ID),
             team: Team::B(),
-            position: 1,
+            type: InvitationType::opponent(),
             status: \App\Features\Matches\Domain\ValueObjects\InvitationStatus::pending(),
             invitedAt: new \DateTimeImmutable,
             respondedAt: null,

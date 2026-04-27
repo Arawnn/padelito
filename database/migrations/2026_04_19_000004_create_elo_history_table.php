@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('elo_history', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->uuid('player_id');
             $table->foreign('player_id')->references('id')->on('profiles')->cascadeOnDelete();
             $table->uuid('match_id');
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('elo_before')->unsigned();
             $table->integer('elo_after')->unsigned();
             $table->integer('elo_change');
-            $table->timestampTz('recorded_at')->useCurrent();
+            $table->timestamp('recorded_at')->useCurrent();
 
             $table->index(['player_id', 'recorded_at']);
         });

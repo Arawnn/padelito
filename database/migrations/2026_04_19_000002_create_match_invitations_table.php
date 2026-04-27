@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('match_invitations', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->uuid('match_id');
             $table->foreign('match_id')->references('id')->on('matches')->cascadeOnDelete();
             $table->uuid('invitee_id');
@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('team', 1);
             $table->unsignedTinyInteger('position');
             $table->string('status', 20)->default('pending');
-            $table->timestampTz('invited_at')->useCurrent();
-            $table->timestampTz('responded_at')->nullable();
+            $table->timestamp('invited_at')->useCurrent();
+            $table->timestamp('responded_at')->nullable();
 
             $table->unique(['match_id', 'invitee_id']);
             $table->unique(['match_id', 'team', 'position']);

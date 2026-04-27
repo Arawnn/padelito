@@ -59,6 +59,7 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
         $this->assertInstanceOf(MatchInvitation::class, $invitation);
         $this->assertEquals(self::INVITEE_ID, $invitation->inviteeId()->value());
         $this->assertTrue($invitation->status()->isPending());
+        $this->assertEquals('opponent', $invitation->type()->value()->value);
     }
 
     public function test_non_creator_cannot_invite(): void
@@ -73,7 +74,7 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
             inviterId: '99999999-9999-9999-9999-999999999999',
             inviteeId: self::INVITEE_ID,
             team: 'B',
-            position: 1,
+            type: 'opponent',
         ));
     }
 
@@ -99,7 +100,7 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
             inviterId: self::CREATOR_ID,
             inviteeId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
             team: 'B',
-            position: 1,
+            type: 'opponent',
         ));
     }
 
@@ -115,7 +116,7 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
             inviterId: self::CREATOR_ID,
             inviteeId: self::CREATOR_ID,
             team: 'A',
-            position: 2,
+            type: 'partner',
         ));
     }
 
@@ -126,7 +127,7 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
             inviterId: self::CREATOR_ID,
             inviteeId: self::INVITEE_ID,
             team: 'B',
-            position: 1,
+            type: 'opponent',
         );
     }
 

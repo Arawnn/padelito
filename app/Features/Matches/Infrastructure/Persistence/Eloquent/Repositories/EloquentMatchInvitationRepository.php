@@ -25,16 +25,6 @@ final class EloquentMatchInvitationRepository implements MatchInvitationReposito
         return $model ? $this->mapper->invitationToDomain($model) : null;
     }
 
-    public function findByMatchAndSlot(MatchId $matchId, string $team, int $position): ?MatchInvitation
-    {
-        $model = EloquentMatchInvitation::where('match_id', $matchId->value())
-            ->where('team', $team)
-            ->where('position', $position)
-            ->first();
-
-        return $model ? $this->mapper->invitationToDomain($model) : null;
-    }
-
     public function findByMatchAndInvitee(MatchId $matchId, PlayerId $inviteeId): ?MatchInvitation
     {
         $model = EloquentMatchInvitation::where('match_id', $matchId->value())

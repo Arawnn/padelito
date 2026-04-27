@@ -11,8 +11,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('matches', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
-            $table->timestampTz('match_date')->nullable();
+            $table->uuid('id')->primary();
+            $table->timestamp('match_date')->nullable();
             $table->string('court_name', 100)->nullable();
             $table->string('match_type', 20)->default('friendly');
             $table->string('match_format', 20)->default('doubles');
@@ -41,7 +41,7 @@ return new class extends Migration
             $table->uuid('created_by');
             $table->foreign('created_by')->references('id')->on('profiles');
 
-            $table->timestampsTz();
+            $table->timestamps();
         });
     }
 

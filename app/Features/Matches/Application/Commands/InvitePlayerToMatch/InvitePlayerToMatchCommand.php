@@ -11,6 +11,6 @@ final readonly class InvitePlayerToMatchCommand
         public string $inviterId,
         public string $inviteeId,
         public string $team,
-        public int $position,
+        public string $type,
     ) {}
 }

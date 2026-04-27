@@ -9,6 +9,7 @@ use App\Features\Matches\Domain\Events\MatchInvitationDeclined;
 use App\Features\Matches\Domain\Events\PlayerInvitedToMatch;
 use App\Features\Matches\Domain\Exceptions\MatchInvitationAlreadyRespondedException;
 use App\Features\Matches\Domain\ValueObjects\InvitationStatus;
+use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
@@ -23,7 +24,7 @@ final class MatchInvitation extends AggregateRoot
         private readonly MatchId $matchId,
         private readonly PlayerId $inviteeId,
         private readonly Team $team,
-        private readonly int $position,
+        private readonly InvitationType $type,
         private InvitationStatus $status,
         private readonly DateTimeImmutable $invitedAt,
         private ?DateTimeImmutable $respondedAt,
@@ -35,14 +36,14 @@ final class MatchInvitation extends AggregateRoot
         PlayerId $inviteeId,
         PlayerId $invitedByPlayerId,
         Team $team,
-        int $position,
+        InvitationType $type,
     ): self {
         $invitation = new self(
             id: $id,
             matchId: $matchId,
             inviteeId: $inviteeId,
             team: $team,
-            position: $position,
+            type: $type,
             status: InvitationStatus::pending(),
             invitedAt: new DateTimeImmutable,
             respondedAt: null,
@@ -63,7 +64,7 @@ final class MatchInvitation extends AggregateRoot
         MatchId $matchId,
         PlayerId $inviteeId,
         Team $team,
-        int $position,
+        InvitationType $type,
         InvitationStatus $status,
         DateTimeImmutable $invitedAt,
         ?DateTimeImmutable $respondedAt,
@@ -73,7 +74,7 @@ final class MatchInvitation extends AggregateRoot
             matchId: $matchId,
             inviteeId: $inviteeId,
             team: $team,
-            position: $position,
+            type: $type,
             status: $status,
             invitedAt: $invitedAt,
             respondedAt: $respondedAt,
@@ -130,9 +131,9 @@ final class MatchInvitation extends AggregateRoot
         return $this->team;
     }
 
-    public function position(): int
+    public function type(): InvitationType
     {
-        return $this->position;
+        return $this->type;
     }
 
     public function status(): InvitationStatus

@@ -13,6 +13,7 @@ use App\Features\Matches\Domain\Exceptions\PlayerNotRegisteredInAppException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
 use App\Features\Matches\Domain\Repositories\MatchInvitationRepositoryInterface;
 use App\Features\Matches\Domain\Repositories\MatchRepositoryInterface;
+use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
@@ -38,6 +39,7 @@ final readonly class InvitePlayerToMatchCommandHandler
         $inviterId = PlayerId::fromString($command->inviterId);
         $inviteeId = PlayerId::fromString($command->inviteeId);
         $team = Team::fromString($command->team);
+        $type = InvitationType::fromString($command->type);
 
         $match = $this->matchRepository->findById($matchId);
         if ($match === null) {
@@ -77,7 +79,7 @@ final readonly class InvitePlayerToMatchCommandHandler
             inviteeId: $inviteeId,
             invitedByPlayerId: $inviterId,
             team: $team,
-            position: $command->position,
+            type: $type,
         );
 
         $this->invitationRepository->save($invitation);

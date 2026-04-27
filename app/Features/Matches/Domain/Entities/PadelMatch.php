@@ -18,8 +18,12 @@ use App\Features\Matches\Domain\Exceptions\PlayerNotParticipantException;
 use App\Features\Matches\Domain\ValueObjects\CourtName;
 use App\Features\Matches\Domain\ValueObjects\EloChange;
 use App\Features\Matches\Domain\ValueObjects\EloRating;
+use App\Features\Matches\Domain\ValueObjects\EloSnapshot;
+use App\Features\Matches\Domain\ValueObjects\MatchConfiguration;
 use App\Features\Matches\Domain\ValueObjects\MatchFormat;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
+use App\Features\Matches\Domain\ValueObjects\MatchInformation;
+use App\Features\Matches\Domain\ValueObjects\MatchScore;
 use App\Features\Matches\Domain\ValueObjects\MatchStatus;
 use App\Features\Matches\Domain\ValueObjects\MatchType;
 use App\Features\Matches\Domain\ValueObjects\Notes;
@@ -28,6 +32,7 @@ use App\Features\Matches\Domain\ValueObjects\Score;
 use App\Features\Matches\Domain\ValueObjects\SetsDetail;
 use App\Features\Matches\Domain\ValueObjects\SetsToWin;
 use App\Features\Matches\Domain\ValueObjects\Team;
+use App\Features\Matches\Domain\ValueObjects\TeamComposition;
 use App\Shared\Domain\Entities\AggregateRoot;
 use DateTimeImmutable;
 
@@ -36,24 +41,12 @@ final class PadelMatch extends AggregateRoot
     /** @param list<PlayerId> $confirmedPlayerIds */
     private function __construct(
         private readonly MatchId $id,
-        private MatchType $type,
-        private MatchFormat $format,
         private MatchStatus $status,
-        private readonly PlayerId $createdBy,
-        private PlayerId $teamAPlayer1Id,
-        private ?PlayerId $teamAPlayer2Id,
-        private ?PlayerId $teamBPlayer1Id,
-        private ?PlayerId $teamBPlayer2Id,
-        private ?SetsDetail $setsDetail,
-        private ?Score $teamAScore,
-        private ?Score $teamBScore,
-        private ?CourtName $courtName,
-        private ?Notes $notes,
-        private ?EloRating $teamAEloBefore,
-        private ?EloRating $teamBEloBefore,
-        private ?EloChange $eloChange,
-        private SetsToWin $setsToWin,
-        private ?DateTimeImmutable $matchDate,
+        private TeamComposition $composition,
+        private MatchConfiguration $configuration,
+        private MatchScore $score,
+        private MatchInformation $information,
+        private ?EloSnapshot $eloSnapshot,
         private array $confirmedPlayerIds,
     ) {}
 
@@ -69,24 +62,12 @@ final class PadelMatch extends AggregateRoot
     ): self {
         $padelMatch = new self(
             id: $id,
-            type: $type,
-            format: $format,
             status: MatchStatus::pending(),
-            createdBy: $createdBy,
-            teamAPlayer1Id: $createdBy,
-            teamAPlayer2Id: null,
-            teamBPlayer1Id: null,
-            teamBPlayer2Id: null,
-            setsDetail: null,
-            teamAScore: null,
-            teamBScore: null,
-            courtName: $courtName,
-            notes: $notes,
-            teamAEloBefore: null,
-            teamBEloBefore: null,
-            eloChange: null,
-            setsToWin: $setsToWin ?? SetsToWin::fromInt(2),
-            matchDate: $matchDate,
+            composition: TeamComposition::withCreator($createdBy),
+            configuration: MatchConfiguration::from($type, $format),
+            score: MatchScore::empty($setsToWin ?? SetsToWin::fromInt(2)),
+            information: MatchInformation::reconstitute($courtName, $notes, $matchDate),
+            eloSnapshot: null,
             confirmedPlayerIds: [],
         );
 
@@ -98,46 +79,37 @@ final class PadelMatch extends AggregateRoot
     /** @param list<PlayerId> $confirmedPlayerIds */
     public static function reconstitute(
         MatchId $id,
+        MatchStatus $status,
+        PlayerId $creator,
+        ?PlayerId $partner,
+        ?PlayerId $opponent1,
+        ?PlayerId $opponent2,
         MatchType $type,
         MatchFormat $format,
-        MatchStatus $status,
-        PlayerId $createdBy,
-        PlayerId $teamAPlayer1Id,
-        ?PlayerId $teamAPlayer2Id,
-        ?PlayerId $teamBPlayer1Id,
-        ?PlayerId $teamBPlayer2Id,
-        ?SetsDetail $setsDetail,
         ?Score $teamAScore,
         ?Score $teamBScore,
+        ?SetsDetail $setsDetail,
+        SetsToWin $setsToWin,
         ?CourtName $courtName,
         ?Notes $notes,
+        ?DateTimeImmutable $matchDate,
         ?EloRating $teamAEloBefore,
         ?EloRating $teamBEloBefore,
         ?EloChange $eloChange,
-        SetsToWin $setsToWin,
-        ?DateTimeImmutable $matchDate,
         array $confirmedPlayerIds,
     ): self {
+        $eloSnapshot = ($teamAEloBefore !== null && $teamBEloBefore !== null && $eloChange !== null)
+            ? EloSnapshot::from($teamAEloBefore, $teamBEloBefore, $eloChange)
+            : null;
+
         return new self(
             id: $id,
-            type: $type,
-            format: $format,
             status: $status,
-            createdBy: $createdBy,
-            teamAPlayer1Id: $teamAPlayer1Id,
-            teamAPlayer2Id: $teamAPlayer2Id,
-            teamBPlayer1Id: $teamBPlayer1Id,
-            teamBPlayer2Id: $teamBPlayer2Id,
-            setsDetail: $setsDetail,
-            teamAScore: $teamAScore,
-            teamBScore: $teamBScore,
-            courtName: $courtName,
-            notes: $notes,
-            teamAEloBefore: $teamAEloBefore,
-            teamBEloBefore: $teamBEloBefore,
-            eloChange: $eloChange,
-            setsToWin: $setsToWin,
-            matchDate: $matchDate,
+            composition: TeamComposition::reconstitute($creator, $partner, $opponent1, $opponent2),
+            configuration: MatchConfiguration::from($type, $format),
+            score: MatchScore::reconstitute($teamAScore, $teamBScore, $setsDetail, $setsToWin),
+            information: MatchInformation::reconstitute($courtName, $notes, $matchDate),
+            eloSnapshot: $eloSnapshot,
             confirmedPlayerIds: $confirmedPlayerIds,
         );
     }
@@ -145,40 +117,29 @@ final class PadelMatch extends AggregateRoot
     /** @return list<PlayerId> */
     public function participantIds(): array
     {
-        return array_values(array_filter([
-            $this->teamAPlayer1Id,
-            $this->teamAPlayer2Id,
-            $this->teamBPlayer1Id,
-            $this->teamBPlayer2Id,
-        ]));
+        return $this->composition->participants();
     }
 
     public function participantCount(): int
     {
-        return count($this->participantIds());
+        return $this->composition->participantCount();
     }
 
     public function isParticipant(PlayerId $playerId): bool
     {
-        foreach ($this->participantIds() as $participant) {
-            if ($participant->equals($playerId)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->composition->isParticipant($playerId);
     }
 
     public function isCreator(PlayerId $playerId): bool
     {
-        return $this->createdBy->equals($playerId);
+        return $this->composition->isCreator($playerId);
     }
 
     public function isReadyForConfirmation(): bool
     {
-        return $this->setsDetail !== null
-            && $this->participantCount() === $this->format->requiredPlayerCount()
-            && $this->setsDetail->hasWinner($this->setsToWin->value());
+        return $this->score->setsDetail() !== null
+            && $this->composition->participantCount() === $this->configuration->requiredPlayerCount()
+            && $this->score->setsDetail()->hasWinner($this->score->setsToWin()->value());
     }
 
     public function hasAllParticipantsConfirmed(): bool
@@ -194,11 +155,7 @@ final class PadelMatch extends AggregateRoot
     /** @return array{0: int, 1: int} */
     public function derivedScores(): array
     {
-        if ($this->setsDetail === null) {
-            return [0, 0];
-        }
-
-        return [$this->setsDetail->teamASetsWon(), $this->setsDetail->teamBSetsWon()];
+        return $this->score->derivedScores();
     }
 
     public function winningTeam(): ?Team
@@ -216,18 +173,14 @@ final class PadelMatch extends AggregateRoot
         return null;
     }
 
-    public function assignPlayer(PlayerId $playerId, Team $team, int $position): void
+    public function assignPlayer(PlayerId $playerId, Team $team): void
     {
         if ($team->isA()) {
-            if ($position === 2) {
-                $this->teamAPlayer2Id = $playerId;
-            }
+            $this->composition = $this->composition->withPartner($playerId);
+        } elseif ($this->composition->opponent1() === null) {
+            $this->composition = $this->composition->withOpponent1($playerId);
         } else {
-            if ($position === 1) {
-                $this->teamBPlayer1Id = $playerId;
-            } else {
-                $this->teamBPlayer2Id = $playerId;
-            }
+            $this->composition = $this->composition->withOpponent2($playerId);
         }
 
         $this->resetConfirmations();
@@ -267,55 +220,51 @@ final class PadelMatch extends AggregateRoot
 
     private function finalize(): void
     {
-        [$a, $b] = $this->derivedScores();
-        $this->teamAScore = Score::fromInt($a);
-        $this->teamBScore = Score::fromInt($b);
+        $this->score = $this->score->withFinalizedScores();
         $this->status = MatchStatus::validated();
         $this->recordDomainEvent(new MatchValidated($this->id->value()));
     }
 
-    public function recordEloSnapshot(EloRating $teamAEloBefore, EloRating $teamBEloBefore, EloChange $eloChange): void
+    public function recordEloSnapshot(EloRating $teamABefore, EloRating $teamBBefore, EloChange $change): void
     {
-        $this->teamAEloBefore = $teamAEloBefore;
-        $this->teamBEloBefore = $teamBEloBefore;
-        $this->eloChange = $eloChange;
+        $this->eloSnapshot = EloSnapshot::from($teamABefore, $teamBBefore, $change);
     }
 
     public function updateCourtName(?CourtName $courtName): void
     {
-        $this->courtName = $courtName;
+        $this->information = $this->information->withCourtName($courtName);
     }
 
     public function updateMatchDate(?DateTimeImmutable $matchDate): void
     {
-        $this->matchDate = $matchDate;
+        $this->information = $this->information->withMatchDate($matchDate);
     }
 
     public function updateNotes(?Notes $notes): void
     {
-        $this->notes = $notes;
+        $this->information = $this->information->withNotes($notes);
     }
 
     public function updateSetsDetail(?SetsDetail $setsDetail): void
     {
-        $this->setsDetail = $setsDetail;
+        $this->score = $this->score->withSetsDetail($setsDetail);
         $this->resetConfirmations();
     }
 
     public function updateSetsToWin(SetsToWin $setsToWin): void
     {
-        $this->setsToWin = $setsToWin;
+        $this->score = $this->score->withSetsToWin($setsToWin);
         $this->resetConfirmations();
     }
 
     public function updateFormat(MatchFormat $format): void
     {
-        if ($format->isSingles() && $this->participantCount() >= 3) {
+        if ($format->isSingles() && $this->composition->participantCount() >= 3) {
             throw CannotSwitchToSinglesWithMultiplePlayersException::create();
         }
 
-        $changed = $this->format->value() !== $format->value();
-        $this->format = $format;
+        $changed = $this->configuration->format()->value() !== $format->value();
+        $this->configuration = $this->configuration->withFormat($format);
 
         if ($changed) {
             $this->resetConfirmations();
@@ -324,7 +273,7 @@ final class PadelMatch extends AggregateRoot
 
     public function updateType(MatchType $type): void
     {
-        $this->type = $type;
+        $this->configuration = $this->configuration->withType($type);
         $this->resetConfirmations();
     }
 
@@ -350,19 +299,38 @@ final class PadelMatch extends AggregateRoot
         $this->recordDomainEvent(new MatchCancelled($this->id->value()));
     }
 
+    // --- Composite VO accessors ---
+
+    public function composition(): TeamComposition
+    {
+        return $this->composition;
+    }
+
+    public function configuration(): MatchConfiguration
+    {
+        return $this->configuration;
+    }
+
+    public function matchScore(): MatchScore
+    {
+        return $this->score;
+    }
+
+    public function information(): MatchInformation
+    {
+        return $this->information;
+    }
+
+    public function eloSnapshot(): ?EloSnapshot
+    {
+        return $this->eloSnapshot;
+    }
+
+    // --- Flat delegation accessors (backward-compatible) ---
+
     public function id(): MatchId
     {
         return $this->id;
-    }
-
-    public function type(): MatchType
-    {
-        return $this->type;
-    }
-
-    public function format(): MatchFormat
-    {
-        return $this->format;
     }
 
     public function status(): MatchStatus
@@ -372,77 +340,87 @@ final class PadelMatch extends AggregateRoot
 
     public function createdBy(): PlayerId
     {
-        return $this->createdBy;
+        return $this->composition->creator();
     }
 
-    public function teamAPlayer1Id(): PlayerId
+    public function type(): MatchType
     {
-        return $this->teamAPlayer1Id;
+        return $this->configuration->type();
     }
 
-    public function teamAPlayer2Id(): ?PlayerId
+    public function format(): MatchFormat
     {
-        return $this->teamAPlayer2Id;
-    }
-
-    public function teamBPlayer1Id(): ?PlayerId
-    {
-        return $this->teamBPlayer1Id;
-    }
-
-    public function teamBPlayer2Id(): ?PlayerId
-    {
-        return $this->teamBPlayer2Id;
-    }
-
-    public function setsDetail(): ?SetsDetail
-    {
-        return $this->setsDetail;
-    }
-
-    public function teamAScore(): ?Score
-    {
-        return $this->teamAScore;
-    }
-
-    public function teamBScore(): ?Score
-    {
-        return $this->teamBScore;
+        return $this->configuration->format();
     }
 
     public function courtName(): ?CourtName
     {
-        return $this->courtName;
+        return $this->information->courtName();
     }
 
     public function notes(): ?Notes
     {
-        return $this->notes;
-    }
-
-    public function teamAEloBefore(): ?EloRating
-    {
-        return $this->teamAEloBefore;
-    }
-
-    public function teamBEloBefore(): ?EloRating
-    {
-        return $this->teamBEloBefore;
-    }
-
-    public function eloChange(): ?EloChange
-    {
-        return $this->eloChange;
-    }
-
-    public function setsToWin(): SetsToWin
-    {
-        return $this->setsToWin;
+        return $this->information->notes();
     }
 
     public function matchDate(): ?DateTimeImmutable
     {
-        return $this->matchDate;
+        return $this->information->matchDate();
+    }
+
+    public function setsDetail(): ?SetsDetail
+    {
+        return $this->score->setsDetail();
+    }
+
+    public function setsToWin(): SetsToWin
+    {
+        return $this->score->setsToWin();
+    }
+
+    public function teamAScore(): ?Score
+    {
+        return $this->score->teamAScore();
+    }
+
+    public function teamBScore(): ?Score
+    {
+        return $this->score->teamBScore();
+    }
+
+    public function teamAEloBefore(): ?EloRating
+    {
+        return $this->eloSnapshot?->teamABefore();
+    }
+
+    public function teamBEloBefore(): ?EloRating
+    {
+        return $this->eloSnapshot?->teamBBefore();
+    }
+
+    public function eloChange(): ?EloChange
+    {
+        return $this->eloSnapshot?->change();
+    }
+
+    public function teamAPlayer1Id(): PlayerId
+    {
+        return $this->composition->creator();
+    }
+
+    public function teamAPlayer2Id(): ?PlayerId
+    {
+        return $this->composition->partner();
+    }
+
+    public function teamBPlayer1Id(): ?PlayerId
+    {
+        return $this->composition->opponent1();
+    }
+
+    public function teamBPlayer2Id(): ?PlayerId
+    {
+        return $this->composition->opponent2();
     }
 
     /** @return list<PlayerId> */
