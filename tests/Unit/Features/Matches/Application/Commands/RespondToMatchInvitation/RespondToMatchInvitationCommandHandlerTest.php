@@ -17,7 +17,6 @@ use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryMatchInvitationRepository;
 use Tests\Shared\Mother\Fake\InMemoryMatchRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
@@ -277,7 +276,6 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
         return new RespondToMatchInvitationCommandHandler(
             matchRepository: $this->matchRepository,
             invitationRepository: $this->invitationRepository,
-            transactionManager: new ImmediateTransactionManager,
             eventDispatcher: $this->eventDispatcher,
         );
     }

@@ -20,7 +20,6 @@ use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\ValueObjects\Id;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 
 final readonly class InvitePlayerToMatchCommandHandler
@@ -29,7 +28,6 @@ final readonly class InvitePlayerToMatchCommandHandler
         private MatchRepositoryInterface $matchRepository,
         private MatchInvitationRepositoryInterface $invitationRepository,
         private PlayerRepositoryInterface $playerRepository,
-        private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 
@@ -87,7 +85,7 @@ final readonly class InvitePlayerToMatchCommandHandler
         $this->invitationRepository->save($invitation);
 
         $events = $invitation->pullDomainEvents();
-        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($events));
+        $this->eventDispatcher->dispatchEvents($events);
 
         return $invitation;
     }

@@ -17,7 +17,6 @@ use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\ValueObjects\Id;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 
 final readonly class ConfirmMatchCommandHandler
@@ -27,7 +26,6 @@ final readonly class ConfirmMatchCommandHandler
         private PlayerRepositoryInterface $playerRepository,
         private EloCalculationService $eloCalculationService,
         private EloHistoryRepositoryInterface $eloHistoryRepository,
-        private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 
@@ -56,7 +54,7 @@ final readonly class ConfirmMatchCommandHandler
 
         $this->matchRepository->save($match);
 
-        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($domainEvents));
+        $this->eventDispatcher->dispatchEvents($domainEvents);
     }
 
     private function finalizeMatch(PadelMatch $match): void

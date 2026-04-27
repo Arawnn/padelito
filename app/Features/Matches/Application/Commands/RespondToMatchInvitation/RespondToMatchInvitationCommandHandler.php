@@ -14,7 +14,6 @@ use App\Features\Matches\Domain\Repositories\MatchInvitationRepositoryInterface;
 use App\Features\Matches\Domain\Repositories\MatchRepositoryInterface;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use App\Shared\Domain\Events\DomainEventCollection;
 
@@ -23,7 +22,6 @@ final readonly class RespondToMatchInvitationCommandHandler
     public function __construct(
         private MatchRepositoryInterface $matchRepository,
         private MatchInvitationRepositoryInterface $invitationRepository,
-        private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 
@@ -105,6 +103,6 @@ final readonly class RespondToMatchInvitationCommandHandler
             $events->add($event);
         }
 
-        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($events));
+        $this->eventDispatcher->dispatchEvents($events);
     }
 }

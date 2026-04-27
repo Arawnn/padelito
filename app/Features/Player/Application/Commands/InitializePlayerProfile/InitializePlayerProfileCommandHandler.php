@@ -18,13 +18,12 @@ use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
 use App\Features\Player\Domain\ValueObjects\PlayerLevel;
 use App\Features\Player\Domain\ValueObjects\PlayerPreferences;
 use App\Features\Player\Domain\ValueObjects\PlayerStats;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 
 /**
  * Bootstrap initial d'un profil player lors de la création d'un compte.
  * Ne sert ni à recréer ni à mettre à jour un joueur existant.
- * Transaction root : appelé par (RegisterPlayerCommandHandler).
+ * La transaction est ouverte par le command bus appelant.
  */
 final readonly class InitializePlayerProfileCommandHandler
 {
@@ -32,7 +31,6 @@ final readonly class InitializePlayerProfileCommandHandler
         private PlayerRepositoryInterface $playerRepository,
         private UsernameGeneratorService $usernameGenerator,
         private AvatarProvisionerInterface $avatarProvisioner,
-        private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 
@@ -73,6 +71,6 @@ final readonly class InitializePlayerProfileCommandHandler
         $this->playerRepository->save($player);
 
         $domainEvents = $player->pullDomainEvents();
-        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($domainEvents));
+        $this->eventDispatcher->dispatchEvents($domainEvents);
     }
 }

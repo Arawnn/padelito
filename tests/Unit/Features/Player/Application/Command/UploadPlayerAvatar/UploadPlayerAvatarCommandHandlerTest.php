@@ -15,7 +15,6 @@ use App\Features\Player\Domain\ValueObjects\Bio;
 use App\Features\Player\Domain\ValueObjects\DisplayName;
 use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
 use Tests\Shared\Mother\Fake\FakeAvatarProvisioner;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\PlayerMother;
@@ -181,7 +180,6 @@ final class UploadPlayerAvatarCommandHandlerTest extends TestCase
             playerRepository: $this->repository,
             avatarProvisioner: $provisioner ?? FakeAvatarProvisioner::thatSucceeds(),
             eventDispatcher: $this->eventDispatcher,
-            transactionManager: new ImmediateTransactionManager,
         );
     }
 }

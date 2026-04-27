@@ -9,7 +9,6 @@ use App\Features\Player\Domain\Exceptions\PlayerProfileNotFoundException;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\ProfileVisibility;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 
 final readonly class ChangeProfileVisibilityCommandHandler
@@ -17,7 +16,6 @@ final readonly class ChangeProfileVisibilityCommandHandler
     public function __construct(
         private PlayerRepositoryInterface $playerRepository,
         private EventDispatcherInterface $eventDispatcher,
-        private TransactionManagerInterface $transactionManager,
     ) {}
 
     public function __invoke(ChangeProfileVisibilityCommand $command): Player
@@ -33,7 +31,7 @@ final readonly class ChangeProfileVisibilityCommandHandler
 
         $this->playerRepository->save($player);
         $events = $player->pullDomainEvents();
-        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($events));
+        $this->eventDispatcher->dispatchEvents($events);
 
         return $player;
     }

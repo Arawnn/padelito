@@ -8,7 +8,6 @@ use App\Features\Matches\Application\Commands\UpdateMatch\UpdateMatchCommand;
 use App\Features\Matches\Application\Commands\UpdateMatch\UpdateMatchCommandHandler;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryMatchRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\MatchMother;
@@ -106,7 +105,6 @@ final class UpdateMatchCommandHandlerTest extends TestCase
     {
         return new UpdateMatchCommandHandler(
             matchRepository: $this->matchRepository,
-            transactionManager: new ImmediateTransactionManager,
             eventDispatcher: new SpyEventDispatcher,
         );
     }

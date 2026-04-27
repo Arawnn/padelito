@@ -21,7 +21,6 @@ use App\Features\Matches\Domain\ValueObjects\Notes;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Features\Matches\Domain\ValueObjects\SetsDetail;
 use App\Features\Matches\Domain\ValueObjects\SetsToWin;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use DateTimeImmutable;
 
@@ -29,7 +28,6 @@ final readonly class UpdateMatchCommandHandler
 {
     public function __construct(
         private MatchRepositoryInterface $matchRepository,
-        private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 
@@ -72,7 +70,7 @@ final readonly class UpdateMatchCommandHandler
 
         $this->matchRepository->save($match);
 
-        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($domainEvents));
+        $this->eventDispatcher->dispatchEvents($domainEvents);
 
         return $match;
     }

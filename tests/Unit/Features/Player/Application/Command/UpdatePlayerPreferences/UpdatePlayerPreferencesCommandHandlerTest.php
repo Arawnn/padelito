@@ -9,7 +9,6 @@ use App\Features\Player\Application\Commands\UpdatePlayerPreferences\UpdatePlaye
 use App\Features\Player\Domain\Events\PlayerPreferencesUpdated;
 use App\Features\Player\Domain\Exceptions\PlayerProfileNotFoundException;
 use App\Shared\Application\Optional;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\PlayerMother;
@@ -127,7 +126,6 @@ final class UpdatePlayerPreferencesCommandHandlerTest extends TestCase
         return new UpdatePlayerPreferencesCommandHandler(
             playerRepository: $this->repository,
             eventDispatcher: $this->eventDispatcher,
-            transactionManager: new ImmediateTransactionManager,
         );
     }
 }

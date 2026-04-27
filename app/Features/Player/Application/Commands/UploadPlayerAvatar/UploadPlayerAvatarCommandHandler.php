@@ -11,7 +11,6 @@ use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\ValueObjects\AvatarUrl;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 
 final readonly class UploadPlayerAvatarCommandHandler
@@ -20,7 +19,6 @@ final readonly class UploadPlayerAvatarCommandHandler
         private PlayerRepositoryInterface $playerRepository,
         private AvatarProvisionerInterface $avatarProvisioner,
         private EventDispatcherInterface $eventDispatcher,
-        private TransactionManagerInterface $transactionManager,
     ) {}
 
     public function __invoke(UploadPlayerAvatarCommand $command): Player
@@ -54,9 +52,7 @@ final readonly class UploadPlayerAvatarCommandHandler
         }
 
         $events = $player->pullDomainEvents();
-        $this->transactionManager->afterCommit(
-            fn () => $this->eventDispatcher->dispatchEvents($events)
-        );
+        $this->eventDispatcher->dispatchEvents($events);
 
         return $player;
     }

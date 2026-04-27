@@ -10,14 +10,12 @@ use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
 use App\Features\Matches\Domain\Repositories\MatchRepositoryInterface;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 
 final readonly class CancelMatchCommandHandler
 {
     public function __construct(
         private MatchRepositoryInterface $matchRepository,
-        private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 
@@ -45,6 +43,6 @@ final readonly class CancelMatchCommandHandler
 
         $this->matchRepository->save($match);
 
-        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($domainEvents));
+        $this->eventDispatcher->dispatchEvents($domainEvents);
     }
 }

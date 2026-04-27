@@ -14,7 +14,6 @@ use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
 use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
 use App\Features\Matches\Domain\Exceptions\PlayerNotRegisteredInAppException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryMatchInvitationRepository;
 use Tests\Shared\Mother\Fake\InMemoryMatchRepository;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
@@ -217,7 +216,6 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
             matchRepository: $this->matchRepository,
             invitationRepository: $this->invitationRepository,
             playerRepository: $this->playerRepository,
-            transactionManager: new ImmediateTransactionManager,
             eventDispatcher: new SpyEventDispatcher,
         );
     }
@@ -227,7 +225,6 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
         return new RespondToMatchInvitationCommandHandler(
             matchRepository: $this->matchRepository,
             invitationRepository: $this->invitationRepository,
-            transactionManager: new ImmediateTransactionManager,
             eventDispatcher: new SpyEventDispatcher,
         );
     }

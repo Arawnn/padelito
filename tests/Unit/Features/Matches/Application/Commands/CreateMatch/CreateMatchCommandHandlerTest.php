@@ -9,7 +9,6 @@ use App\Features\Matches\Application\Commands\CreateMatch\CreateMatchCommandHand
 use App\Features\Matches\Domain\Entities\PadelMatch;
 use App\Features\Matches\Domain\Events\MatchCreated;
 use App\Features\Matches\Domain\Exceptions\PlayerNotRegisteredInAppException;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryMatchRepository;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
@@ -91,7 +90,6 @@ final class CreateMatchCommandHandlerTest extends TestCase
         return new CreateMatchCommandHandler(
             matchRepository: $this->matchRepository,
             playerRepository: $this->playerRepository,
-            transactionManager: new ImmediateTransactionManager,
             eventDispatcher: $this->eventDispatcher,
         );
     }

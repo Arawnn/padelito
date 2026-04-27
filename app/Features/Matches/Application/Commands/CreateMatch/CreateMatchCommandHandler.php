@@ -18,7 +18,6 @@ use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Features\Matches\Domain\ValueObjects\SetsToWin;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\ValueObjects\Id;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use DateTimeImmutable;
 
@@ -27,7 +26,6 @@ final readonly class CreateMatchCommandHandler
     public function __construct(
         private MatchRepositoryInterface $matchRepository,
         private PlayerRepositoryInterface $playerRepository,
-        private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 
@@ -53,7 +51,7 @@ final readonly class CreateMatchCommandHandler
         $this->matchRepository->save($match);
 
         $domainEvents = $match->pullDomainEvents();
-        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($domainEvents));
+        $this->eventDispatcher->dispatchEvents($domainEvents);
 
         return $match;
     }

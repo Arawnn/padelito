@@ -12,7 +12,6 @@ use App\Features\Player\Domain\Exceptions\PlayerProfileAlreadyExistException;
 use App\Features\Player\Domain\Services\UsernameGeneratorService;
 use App\Features\Player\Domain\ValueObjects\Id;
 use Tests\Shared\Mother\Fake\FakeAvatarProvisioner;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\PlayerMother;
@@ -31,8 +30,6 @@ final class InitializePlayerProfileCommandHandlerTest extends TestCase
 
     private InMemoryPlayerRepository $repository;
 
-    private ImmediateTransactionManager $tx;
-
     private SpyEventDispatcher $eventDispatcher;
 
     protected function setUp(): void
@@ -40,7 +37,6 @@ final class InitializePlayerProfileCommandHandlerTest extends TestCase
         parent::setUp();
 
         $this->repository = new InMemoryPlayerRepository;
-        $this->tx = new ImmediateTransactionManager;
         $this->eventDispatcher = new SpyEventDispatcher;
     }
 
@@ -156,7 +152,6 @@ final class InitializePlayerProfileCommandHandlerTest extends TestCase
             playerRepository: $this->repository,
             usernameGenerator: new UsernameGeneratorService($this->repository),
             avatarProvisioner: $provisioner ?? FakeAvatarProvisioner::thatSucceeds(),
-            transactionManager: $this->tx,
             eventDispatcher: $this->eventDispatcher,
         );
     }

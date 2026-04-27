@@ -9,7 +9,6 @@ use App\Features\Player\Application\Commands\CreatePlayerProfile\CreatePlayerPro
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Events\PlayerProfileCreated;
 use App\Features\Player\Domain\Exceptions\PlayerProfileAlreadyExistException;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\PlayerMother;
@@ -24,8 +23,6 @@ final class CreatePlayerProfileCommandHandlerTest extends TestCase
 {
     private InMemoryPlayerRepository $repository;
 
-    private ImmediateTransactionManager $tx;
-
     private SpyEventDispatcher $eventDispatcher;
 
     protected function setUp(): void
@@ -33,7 +30,6 @@ final class CreatePlayerProfileCommandHandlerTest extends TestCase
         parent::setUp();
 
         $this->repository = new InMemoryPlayerRepository;
-        $this->tx = new ImmediateTransactionManager;
         $this->eventDispatcher = new SpyEventDispatcher;
     }
 
@@ -120,7 +116,6 @@ final class CreatePlayerProfileCommandHandlerTest extends TestCase
     {
         return new CreatePlayerProfileCommandHandler(
             playerRepository: $this->repository,
-            transactionManager: $this->tx,
             eventDispatcher: $this->eventDispatcher,
         );
     }

@@ -22,14 +22,12 @@ use App\Features\Player\Domain\ValueObjects\PlayerPreferences;
 use App\Features\Player\Domain\ValueObjects\PlayerStats;
 use App\Features\Player\Domain\ValueObjects\PreferredPosition;
 use App\Features\Player\Domain\ValueObjects\Username;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 
 final readonly class CreatePlayerProfileCommandHandler
 {
     public function __construct(
         private PlayerRepositoryInterface $playerRepository,
-        private TransactionManagerInterface $transactionManager,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 
@@ -70,7 +68,7 @@ final readonly class CreatePlayerProfileCommandHandler
         $this->playerRepository->save($player);
 
         $domainEvents = $player->pullDomainEvents();
-        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($domainEvents));
+        $this->eventDispatcher->dispatchEvents($domainEvents);
 
         return $player;
     }

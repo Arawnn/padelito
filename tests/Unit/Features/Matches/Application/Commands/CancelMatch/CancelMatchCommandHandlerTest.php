@@ -10,7 +10,6 @@ use App\Features\Matches\Domain\Events\MatchCancelled;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
 use App\Features\Matches\Domain\Exceptions\MatchNotFoundException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryMatchRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\MatchMother;
@@ -94,7 +93,6 @@ final class CancelMatchCommandHandlerTest extends TestCase
     {
         return new CancelMatchCommandHandler(
             matchRepository: $this->matchRepository,
-            transactionManager: new ImmediateTransactionManager,
             eventDispatcher: $this->eventDispatcher,
         );
     }

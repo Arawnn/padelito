@@ -14,7 +14,6 @@ use App\Features\Auth\Domain\Exceptions\InvalidPasswordException;
 use App\Features\Auth\Domain\Exceptions\UserAlreadyExistsException;
 use Tests\Shared\Mother\Fake\FakePasswordHasher;
 use Tests\Shared\Mother\Fake\FakeUuidGenerator;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryUserRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\UserMother;
@@ -29,8 +28,6 @@ final class RegisterUserCommandHandlerTest extends TestCase
 {
     private InMemoryUserRepository $repository;
 
-    private ImmediateTransactionManager $tx;
-
     private FakeUuidGenerator $uuidGenerator;
 
     private FakePasswordHasher $passwordHasher;
@@ -42,7 +39,6 @@ final class RegisterUserCommandHandlerTest extends TestCase
         parent::setUp();
 
         $this->repository = new InMemoryUserRepository;
-        $this->tx = new ImmediateTransactionManager;
         $this->uuidGenerator = new FakeUuidGenerator;
         $this->passwordHasher = new FakePasswordHasher;
         $this->eventDispatcher = new SpyEventDispatcher;
@@ -145,7 +141,6 @@ final class RegisterUserCommandHandlerTest extends TestCase
     {
         return new RegisterUserCommandHandler(
             $this->repository,
-            $this->tx,
             $this->passwordHasher,
             $this->uuidGenerator,
             $this->eventDispatcher

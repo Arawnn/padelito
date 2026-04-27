@@ -8,7 +8,6 @@ use App\Features\Player\Application\Commands\ChangeProfileVisibility\ChangeProfi
 use App\Features\Player\Application\Commands\ChangeProfileVisibility\ChangeProfileVisibilityCommandHandler;
 use App\Features\Player\Domain\Events\PlayerVisibilityChanged;
 use App\Features\Player\Domain\Exceptions\PlayerProfileNotFoundException;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\PlayerMother;
@@ -87,7 +86,6 @@ final class ChangeProfileVisibilityCommandHandlerTest extends TestCase
         return new ChangeProfileVisibilityCommandHandler(
             playerRepository: $this->repository,
             eventDispatcher: $this->eventDispatcher,
-            transactionManager: new ImmediateTransactionManager,
         );
     }
 }

@@ -18,7 +18,6 @@ use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Features\Matches\Domain\ValueObjects\SetsDetail;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryEloHistoryRepository;
 use Tests\Shared\Mother\Fake\InMemoryMatchInvitationRepository;
 use Tests\Shared\Mother\Fake\InMemoryMatchRepository;
@@ -251,7 +250,6 @@ final class ConfirmMatchCommandHandlerTest extends TestCase
             playerRepository: $this->playerRepository,
             eloCalculationService: new EloCalculationService,
             eloHistoryRepository: $this->eloHistoryRepository,
-            transactionManager: new ImmediateTransactionManager,
             eventDispatcher: $this->eventDispatcher,
         );
     }
