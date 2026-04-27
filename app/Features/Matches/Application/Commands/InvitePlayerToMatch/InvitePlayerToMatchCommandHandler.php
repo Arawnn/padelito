@@ -7,6 +7,7 @@ namespace App\Features\Matches\Application\Commands\InvitePlayerToMatch;
 use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Exceptions\DuplicatePlayerInMatchException;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
+use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
 use App\Features\Matches\Domain\Exceptions\MatchNotFoundException;
 use App\Features\Matches\Domain\Exceptions\PlayerNotRegisteredInAppException;
@@ -69,6 +70,10 @@ final readonly class InvitePlayerToMatchCommandHandler
         $existing = $this->invitationRepository->findByMatchAndInvitee($matchId, $inviteeId);
         if ($existing !== null && $existing->status()->isPending()) {
             throw DuplicatePlayerInMatchException::create();
+        }
+
+        if ($type->isPartner() && $match->isTeamFull($type->toTeam())) {
+            throw MatchTeamFullException::create();
         }
 
         $invitation = MatchInvitation::invite(

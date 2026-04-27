@@ -12,6 +12,7 @@ use App\Features\Matches\Domain\Exceptions\MatchInvitationAlreadyRespondedExcept
 use App\Features\Matches\Domain\Exceptions\MatchInvitationNotFoundException;
 use App\Features\Matches\Domain\Exceptions\MatchNotFoundException;
 use App\Features\Matches\Domain\Exceptions\MatchNotReadyForConfirmationException;
+use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
 use App\Features\Matches\Domain\Exceptions\PlayerAlreadyConfirmedException;
 use App\Features\Matches\Domain\Exceptions\PlayerNotParticipantException;
 use App\Features\Matches\Domain\Exceptions\PlayerNotRegisteredInAppException;
@@ -31,6 +32,7 @@ final class MatchExceptionMapper implements DomainExceptionRendererInterface
         MatchAlreadyValidatedException::class => Response::HTTP_CONFLICT,
         MatchAlreadyCancelledException::class => Response::HTTP_CONFLICT,
         MatchInvitationAlreadyRespondedException::class => Response::HTTP_CONFLICT,
+        MatchTeamFullException::class => Response::HTTP_CONFLICT,
         PlayerAlreadyConfirmedException::class => Response::HTTP_CONFLICT,
         DuplicatePlayerInMatchException::class => Response::HTTP_CONFLICT,
         UnauthorizedMatchOperationException::class => Response::HTTP_FORBIDDEN,
@@ -46,6 +48,7 @@ final class MatchExceptionMapper implements DomainExceptionRendererInterface
         'MATCH_ALREADY_VALIDATED' => 'This match has already been validated.',
         'MATCH_ALREADY_CANCELLED' => 'This match has already been cancelled.',
         'MATCH_INVITATION_ALREADY_RESPONDED' => 'This invitation has already been responded to.',
+        'MATCH_TEAM_FULL' => 'This team is already full.',
         'PLAYER_ALREADY_CONFIRMED' => 'You have already confirmed this match.',
         'DUPLICATE_PLAYER_IN_MATCH' => 'This player is already part of the match.',
         'UNAUTHORIZED_MATCH_OPERATION' => 'You are not authorized to perform this action.',

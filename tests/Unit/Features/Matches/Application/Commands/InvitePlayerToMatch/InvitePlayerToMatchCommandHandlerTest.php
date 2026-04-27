@@ -9,6 +9,7 @@ use App\Features\Matches\Application\Commands\InvitePlayerToMatch\InvitePlayerTo
 use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Exceptions\DuplicatePlayerInMatchException;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
+use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
 use App\Features\Matches\Domain\Exceptions\PlayerNotRegisteredInAppException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
 use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
@@ -31,6 +32,8 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
 
     private const INVITEE_ID = '00000000-0000-0000-0000-000000000002';
 
+    private const SECOND_INVITEE_ID = '00000000-0000-0000-0000-000000000003';
+
     private InMemoryMatchRepository $matchRepository;
 
     private InMemoryMatchInvitationRepository $invitationRepository;
@@ -47,6 +50,7 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
 
         $this->playerRepository->save(PlayerMother::create()->withId(self::CREATOR_ID)->build());
         $this->playerRepository->save(PlayerMother::create()->withId(self::INVITEE_ID)->withUsername('invitee')->build());
+        $this->playerRepository->save(PlayerMother::create()->withId(self::SECOND_INVITEE_ID)->withUsername('invitee_2')->build());
     }
 
     public function test_it_creates_an_invitation(): void
@@ -113,6 +117,48 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
             matchId: $match->id()->value(),
             inviterId: self::CREATOR_ID,
             inviteeId: self::CREATOR_ID,
+            type: 'partner',
+        ));
+    }
+
+    public function test_it_allows_multiple_pending_partner_invitations_for_different_players(): void
+    {
+        $match = MatchMother::create()->withCreator(self::CREATOR_ID)->build();
+        $this->matchRepository->save($match);
+
+        $handler = $this->makeHandler();
+        $first = $handler(new InvitePlayerToMatchCommand(
+            matchId: $match->id()->value(),
+            inviterId: self::CREATOR_ID,
+            inviteeId: self::INVITEE_ID,
+            type: 'partner',
+        ));
+        $second = $handler(new InvitePlayerToMatchCommand(
+            matchId: $match->id()->value(),
+            inviterId: self::CREATOR_ID,
+            inviteeId: self::SECOND_INVITEE_ID,
+            type: 'partner',
+        ));
+
+        $this->assertTrue($first->status()->isPending());
+        $this->assertTrue($second->status()->isPending());
+        $this->assertTrue($second->type()->isPartner());
+    }
+
+    public function test_cannot_invite_partner_when_partner_slot_is_already_filled(): void
+    {
+        $this->expectException(MatchTeamFullException::class);
+
+        $match = MatchMother::create()
+            ->withCreator(self::CREATOR_ID)
+            ->withTeamAPlayer2('00000000-0000-0000-0000-000000000010')
+            ->build();
+        $this->matchRepository->save($match);
+
+        $this->makeHandler()(new InvitePlayerToMatchCommand(
+            matchId: $match->id()->value(),
+            inviterId: self::CREATOR_ID,
+            inviteeId: self::INVITEE_ID,
             type: 'partner',
         ));
     }
