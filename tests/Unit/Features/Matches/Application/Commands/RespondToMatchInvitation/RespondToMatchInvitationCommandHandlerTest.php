@@ -9,9 +9,9 @@ use App\Features\Matches\Application\Commands\RespondToMatchInvitation\RespondTo
 use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Events\MatchInvitationAccepted;
 use App\Features\Matches\Domain\Events\MatchInvitationDeclined;
-use App\Features\Matches\Domain\Exceptions\MatchInvitationAlreadyRespondedException;
 use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
+use App\Features\Matches\Domain\ValueObjects\InvitationStatus;
 use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
@@ -109,22 +109,75 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
         ));
     }
 
-    public function test_cannot_respond_twice(): void
+    public function test_it_allows_updating_response_from_accepted_to_declined_and_removes_player_from_match(): void
     {
-        $this->expectException(MatchInvitationAlreadyRespondedException::class);
+        $match = MatchMother::create()
+            ->withId(self::MATCH_ID)
+            ->withCreator(self::CREATOR_ID)
+            ->withTeamAPlayer2(self::INVITEE_ID)
+            ->build();
+        $this->matchRepository->save($match);
 
-        $this->invitationRepository->save($this->pendingInvitation());
+        $this->invitationRepository->save($this->invitationWithStatus(
+            invitationId: self::INVITATION_ID,
+            inviteeId: self::INVITEE_ID,
+            status: InvitationStatus::accepted(),
+        ));
 
-        $handler = $this->makeHandler();
-        $handler(new RespondToMatchInvitationCommand(
+        $this->makeHandler()(new RespondToMatchInvitationCommand(
+            invitationId: self::INVITATION_ID,
+            responderId: self::INVITEE_ID,
+            accept: false,
+        ));
+
+        $invitation = $this->invitationRepository->findById(MatchInvitationId::fromString(self::INVITATION_ID));
+        $this->assertTrue($invitation->status()->isDeclined());
+
+        $updatedMatch = $this->matchRepository->findById(MatchId::fromString(self::MATCH_ID));
+        $this->assertNull($updatedMatch->teamAPlayer2Id());
+    }
+
+    public function test_it_allows_updating_response_from_declined_to_accepted_and_assigns_player(): void
+    {
+        $this->invitationRepository->save($this->invitationWithStatus(
+            invitationId: self::INVITATION_ID,
+            inviteeId: self::INVITEE_ID,
+            status: InvitationStatus::declined(),
+        ));
+
+        $this->makeHandler()(new RespondToMatchInvitationCommand(
             invitationId: self::INVITATION_ID,
             responderId: self::INVITEE_ID,
             accept: true,
         ));
-        $handler(new RespondToMatchInvitationCommand(
+
+        $invitation = $this->invitationRepository->findById(MatchInvitationId::fromString(self::INVITATION_ID));
+        $this->assertTrue($invitation->status()->isAccepted());
+
+        $updatedMatch = $this->matchRepository->findById(MatchId::fromString(self::MATCH_ID));
+        $this->assertEquals(self::INVITEE_ID, $updatedMatch->teamAPlayer2Id()?->value());
+    }
+
+    public function test_declined_to_accepted_fails_when_partner_slot_became_full(): void
+    {
+        $match = MatchMother::create()
+            ->withId(self::MATCH_ID)
+            ->withCreator(self::CREATOR_ID)
+            ->withTeamAPlayer2(self::SECOND_INVITEE_ID)
+            ->build();
+        $this->matchRepository->save($match);
+
+        $this->invitationRepository->save($this->invitationWithStatus(
+            invitationId: self::INVITATION_ID,
+            inviteeId: self::INVITEE_ID,
+            status: InvitationStatus::declined(),
+        ));
+
+        $this->expectException(MatchTeamFullException::class);
+        $this->makeHandler()(new RespondToMatchInvitationCommand(
             invitationId: self::INVITATION_ID,
             responderId: self::INVITEE_ID,
-            accept: false,
+            accept: true,
         ));
     }
 
@@ -153,19 +206,32 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
 
     private function pendingInvitation(): MatchInvitation
     {
-        return $this->pendingPartnerInvitation(self::INVITATION_ID, self::INVITEE_ID);
+        return $this->invitationWithStatus(
+            invitationId: self::INVITATION_ID,
+            inviteeId: self::INVITEE_ID,
+            status: InvitationStatus::pending(),
+        );
     }
 
     private function pendingPartnerInvitation(string $invitationId, string $inviteeId): MatchInvitation
+    {
+        return $this->invitationWithStatus(
+            invitationId: $invitationId,
+            inviteeId: $inviteeId,
+            status: InvitationStatus::pending(),
+        );
+    }
+
+    private function invitationWithStatus(string $invitationId, string $inviteeId, InvitationStatus $status): MatchInvitation
     {
         return MatchInvitation::reconstitute(
             id: MatchInvitationId::fromString($invitationId),
             matchId: MatchId::fromString(self::MATCH_ID),
             inviteeId: PlayerId::fromString($inviteeId),
             type: InvitationType::partner(),
-            status: \App\Features\Matches\Domain\ValueObjects\InvitationStatus::pending(),
+            status: $status,
             invitedAt: new \DateTimeImmutable,
-            respondedAt: null,
+            respondedAt: $status->isPending() ? null : new \DateTimeImmutable,
         );
     }
 

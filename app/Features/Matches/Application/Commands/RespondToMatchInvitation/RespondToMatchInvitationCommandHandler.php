@@ -46,16 +46,20 @@ final readonly class RespondToMatchInvitationCommandHandler
         }
 
         $events = new DomainEventCollection;
+        $wasAccepted = $invitation->status()->isAccepted();
+        $wasDeclined = $invitation->status()->isDeclined();
 
         if ($command->accept) {
             $team = $invitation->type()->toTeam();
 
-            if ($match->isTeamFull($team)) {
+            if (! $wasAccepted && $match->isTeamFull($team)) {
                 throw MatchTeamFullException::create();
             }
 
             $invitation->accept();
-            $match->assignPlayer($responderId, $team);
+            if (! $wasAccepted) {
+                $match->assignPlayer($responderId, $team);
+            }
 
             $confirmationsReset = false;
             foreach ($match->pullDomainEvents() as $event) {
@@ -72,6 +76,23 @@ final readonly class RespondToMatchInvitationCommandHandler
             $this->matchRepository->save($match);
         } else {
             $invitation->decline();
+            if ($wasAccepted) {
+                $match->removePlayer($responderId);
+
+                $confirmationsReset = false;
+                foreach ($match->pullDomainEvents() as $event) {
+                    $events->add($event);
+                    if ($event instanceof MatchConfirmationsReset) {
+                        $confirmationsReset = true;
+                    }
+                }
+
+                if ($confirmationsReset) {
+                    $this->matchRepository->deleteConfirmations($invitation->matchId());
+                }
+
+                $this->matchRepository->save($match);
+            }
         }
 
         $this->invitationRepository->save($invitation);

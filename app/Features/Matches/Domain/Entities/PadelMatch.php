@@ -195,6 +195,35 @@ final class PadelMatch extends AggregateRoot
         $this->resetConfirmations();
     }
 
+    public function removePlayer(PlayerId $playerId): void
+    {
+        if ($this->composition->partner()?->equals($playerId) === true) {
+            $this->composition = $this->composition->withoutPartner();
+            $this->resetConfirmations();
+
+            return;
+        }
+
+        if ($this->composition->opponent1()?->equals($playerId) === true) {
+            $newComposition = $this->composition->withoutOpponent1();
+            if ($newComposition->opponent2() !== null) {
+                $newComposition = $newComposition
+                    ->withOpponent1($newComposition->opponent2())
+                    ->withoutOpponent2();
+            }
+
+            $this->composition = $newComposition;
+            $this->resetConfirmations();
+
+            return;
+        }
+
+        if ($this->composition->opponent2()?->equals($playerId) === true) {
+            $this->composition = $this->composition->withoutOpponent2();
+            $this->resetConfirmations();
+        }
+    }
+
     public function confirm(PlayerId $playerId): void
     {
         if ($this->status->isValidated()) {

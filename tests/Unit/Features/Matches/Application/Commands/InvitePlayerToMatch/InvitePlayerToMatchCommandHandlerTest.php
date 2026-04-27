@@ -6,6 +6,8 @@ namespace Tests\Unit\Features\Matches\Application\Commands\InvitePlayerToMatch;
 
 use App\Features\Matches\Application\Commands\InvitePlayerToMatch\InvitePlayerToMatchCommand;
 use App\Features\Matches\Application\Commands\InvitePlayerToMatch\InvitePlayerToMatchCommandHandler;
+use App\Features\Matches\Application\Commands\RespondToMatchInvitation\RespondToMatchInvitationCommand;
+use App\Features\Matches\Application\Commands\RespondToMatchInvitation\RespondToMatchInvitationCommandHandler;
 use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Exceptions\DuplicatePlayerInMatchException;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
@@ -163,6 +165,42 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
         ));
     }
 
+    public function test_can_invite_new_partner_after_previously_accepted_player_withdraws(): void
+    {
+        $match = MatchMother::create()->withCreator(self::CREATOR_ID)->build();
+        $this->matchRepository->save($match);
+
+        $inviteHandler = $this->makeHandler();
+        $invitation = $inviteHandler(new InvitePlayerToMatchCommand(
+            matchId: $match->id()->value(),
+            inviterId: self::CREATOR_ID,
+            inviteeId: self::INVITEE_ID,
+            type: 'partner',
+        ));
+
+        $respondHandler = $this->makeRespondHandler();
+        $respondHandler(new RespondToMatchInvitationCommand(
+            invitationId: $invitation->id()->value(),
+            responderId: self::INVITEE_ID,
+            accept: true,
+        ));
+        $respondHandler(new RespondToMatchInvitationCommand(
+            invitationId: $invitation->id()->value(),
+            responderId: self::INVITEE_ID,
+            accept: false,
+        ));
+
+        $newInvitation = $inviteHandler(new InvitePlayerToMatchCommand(
+            matchId: $match->id()->value(),
+            inviterId: self::CREATOR_ID,
+            inviteeId: self::SECOND_INVITEE_ID,
+            type: 'partner',
+        ));
+
+        $this->assertTrue($newInvitation->status()->isPending());
+        $this->assertTrue($newInvitation->type()->isPartner());
+    }
+
     private function validCommand(string $matchId): InvitePlayerToMatchCommand
     {
         return new InvitePlayerToMatchCommand(
@@ -179,6 +217,16 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
             matchRepository: $this->matchRepository,
             invitationRepository: $this->invitationRepository,
             playerRepository: $this->playerRepository,
+            transactionManager: new ImmediateTransactionManager,
+            eventDispatcher: new SpyEventDispatcher,
+        );
+    }
+
+    private function makeRespondHandler(): RespondToMatchInvitationCommandHandler
+    {
+        return new RespondToMatchInvitationCommandHandler(
+            matchRepository: $this->matchRepository,
+            invitationRepository: $this->invitationRepository,
             transactionManager: new ImmediateTransactionManager,
             eventDispatcher: new SpyEventDispatcher,
         );

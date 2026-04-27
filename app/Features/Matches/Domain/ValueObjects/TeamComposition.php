@@ -51,6 +51,30 @@ final class TeamComposition
         return $clone;
     }
 
+    public function withoutPartner(): self
+    {
+        $clone = clone $this;
+        $clone->partner = null;
+
+        return $clone;
+    }
+
+    public function withoutOpponent1(): self
+    {
+        $clone = clone $this;
+        $clone->opponent1 = null;
+
+        return $clone;
+    }
+
+    public function withoutOpponent2(): self
+    {
+        $clone = clone $this;
+        $clone->opponent2 = null;
+
+        return $clone;
+    }
+
     public function creator(): PlayerId
     {
         return $this->creator;

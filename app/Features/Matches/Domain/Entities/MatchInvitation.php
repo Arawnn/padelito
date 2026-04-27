@@ -7,7 +7,6 @@ namespace App\Features\Matches\Domain\Entities;
 use App\Features\Matches\Domain\Events\MatchInvitationAccepted;
 use App\Features\Matches\Domain\Events\MatchInvitationDeclined;
 use App\Features\Matches\Domain\Events\PlayerInvitedToMatch;
-use App\Features\Matches\Domain\Exceptions\MatchInvitationAlreadyRespondedException;
 use App\Features\Matches\Domain\ValueObjects\InvitationStatus;
 use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
@@ -77,8 +76,8 @@ final class MatchInvitation extends AggregateRoot
 
     public function accept(): void
     {
-        if (! $this->status->isPending()) {
-            throw MatchInvitationAlreadyRespondedException::create();
+        if ($this->status->isAccepted()) {
+            return;
         }
 
         $this->status = InvitationStatus::accepted();
@@ -92,8 +91,8 @@ final class MatchInvitation extends AggregateRoot
 
     public function decline(): void
     {
-        if (! $this->status->isPending()) {
-            throw MatchInvitationAlreadyRespondedException::create();
+        if ($this->status->isDeclined()) {
+            return;
         }
 
         $this->status = InvitationStatus::declined();
