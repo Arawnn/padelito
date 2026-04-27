@@ -6,14 +6,21 @@ namespace Tests\Unit\Features\Matches\Application\Commands\ConfirmMatch;
 
 use App\Features\Matches\Application\Commands\ConfirmMatch\ConfirmMatchCommand;
 use App\Features\Matches\Application\Commands\ConfirmMatch\ConfirmMatchCommandHandler;
+use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Events\MatchValidated;
 use App\Features\Matches\Domain\Exceptions\MatchNotReadyForConfirmationException;
 use App\Features\Matches\Domain\Exceptions\PlayerAlreadyConfirmedException;
 use App\Features\Matches\Domain\Exceptions\PlayerNotParticipantException;
 use App\Features\Matches\Domain\Services\EloCalculationService;
+use App\Features\Matches\Domain\ValueObjects\InvitationStatus;
+use App\Features\Matches\Domain\ValueObjects\InvitationType;
+use App\Features\Matches\Domain\ValueObjects\MatchId;
+use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
+use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Features\Matches\Domain\ValueObjects\SetsDetail;
 use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryEloHistoryRepository;
+use Tests\Shared\Mother\Fake\InMemoryMatchInvitationRepository;
 use Tests\Shared\Mother\Fake\InMemoryMatchRepository;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
@@ -36,6 +43,8 @@ final class ConfirmMatchCommandHandlerTest extends TestCase
 
     private const P4 = '00000000-0000-0000-0000-000000000004';
 
+    private const PENDING_INVITEE = '00000000-0000-0000-0000-000000000005';
+
     private InMemoryMatchRepository $matchRepository;
 
     private InMemoryPlayerRepository $playerRepository;
@@ -56,7 +65,7 @@ final class ConfirmMatchCommandHandlerTest extends TestCase
         $this->eventDispatcher = new SpyEventDispatcher;
         $this->twoZero = SetsDetail::fromArray([['a' => 6, 'b' => 3], ['a' => 6, 'b' => 2]]);
 
-        foreach ([self::P1, self::P2, self::P3, self::P4] as $i => $id) {
+        foreach ([self::P1, self::P2, self::P3, self::P4, self::PENDING_INVITEE] as $i => $id) {
             $this->playerRepository->save(
                 PlayerMother::create()->withId($id)->withUsername('player_'.$i)->build()
             );
@@ -163,6 +172,27 @@ final class ConfirmMatchCommandHandlerTest extends TestCase
         $this->matchRepository->save($match);
 
         $this->makeHandler()(new ConfirmMatchCommand($match->id()->value(), '99999999-9999-9999-9999-999999999999'));
+    }
+
+    public function test_pending_invitee_cannot_confirm_without_being_assigned_to_a_team(): void
+    {
+        $this->expectException(PlayerNotParticipantException::class);
+
+        $match = $this->readyDoublesMatch();
+        $this->matchRepository->save($match);
+
+        $invitationRepository = new InMemoryMatchInvitationRepository;
+        $invitationRepository->save(MatchInvitation::reconstitute(
+            id: MatchInvitationId::fromString('20000000-0000-0000-0000-000000000001'),
+            matchId: MatchId::fromString($match->id()->value()),
+            inviteeId: PlayerId::fromString(self::PENDING_INVITEE),
+            type: InvitationType::partner(),
+            status: InvitationStatus::pending(),
+            invitedAt: new \DateTimeImmutable,
+            respondedAt: null,
+        ));
+
+        $this->makeHandler()(new ConfirmMatchCommand($match->id()->value(), self::PENDING_INVITEE));
     }
 
     public function test_cannot_confirm_incomplete_match(): void
