@@ -50,19 +50,16 @@ final class FullMatchFlowTest extends FeatureTestCase
         // 2. Creator invites 3 other players
         $inv2 = $this->postJson("/api/v1/matches/{$matchId}/invitations", [
             'invitee_id' => $this->player2->id,
-            'team' => 'A',
             'type' => 'partner',
         ])->assertStatus(201)->json('data.id');
 
         $inv3 = $this->postJson("/api/v1/matches/{$matchId}/invitations", [
             'invitee_id' => $this->player3->id,
-            'team' => 'B',
             'type' => 'opponent',
         ])->assertStatus(201)->json('data.id');
 
         $inv4 = $this->postJson("/api/v1/matches/{$matchId}/invitations", [
             'invitee_id' => $this->player4->id,
-            'team' => 'B',
             'type' => 'opponent',
         ])->assertStatus(201)->json('data.id');
 
@@ -116,7 +113,6 @@ final class FullMatchFlowTest extends FeatureTestCase
 
         $this->postJson("/api/v1/matches/{$matchId}/invitations", [
             'invitee_id' => $this->player2->id,
-            'team' => 'B',
             'type' => 'opponent',
         ]);
 
@@ -138,7 +134,6 @@ final class FullMatchFlowTest extends FeatureTestCase
 
         $invId = $this->postJson("/api/v1/matches/{$matchId}/invitations", [
             'invitee_id' => $this->player2->id,
-            'team' => 'B',
             'type' => 'opponent',
         ])->json('data.id');
 

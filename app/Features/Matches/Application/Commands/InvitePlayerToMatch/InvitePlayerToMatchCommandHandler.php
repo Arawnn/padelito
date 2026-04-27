@@ -17,7 +17,6 @@ use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
-use App\Features\Matches\Domain\ValueObjects\Team;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Shared\Application\Transaction\TransactionManagerInterface;
@@ -38,7 +37,6 @@ final readonly class InvitePlayerToMatchCommandHandler
         $matchId = MatchId::fromString($command->matchId);
         $inviterId = PlayerId::fromString($command->inviterId);
         $inviteeId = PlayerId::fromString($command->inviteeId);
-        $team = Team::fromString($command->team);
         $type = InvitationType::fromString($command->type);
 
         $match = $this->matchRepository->findById($matchId);
@@ -78,7 +76,6 @@ final readonly class InvitePlayerToMatchCommandHandler
             matchId: $matchId,
             inviteeId: $inviteeId,
             invitedByPlayerId: $inviterId,
-            team: $team,
             type: $type,
         );
 

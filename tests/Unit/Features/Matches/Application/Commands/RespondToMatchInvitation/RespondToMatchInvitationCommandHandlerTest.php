@@ -15,7 +15,6 @@ use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
-use App\Features\Matches\Domain\ValueObjects\Team;
 use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryMatchInvitationRepository;
 use Tests\Shared\Mother\Fake\InMemoryMatchRepository;
@@ -130,7 +129,6 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
             id: MatchInvitationId::fromString(self::INVITATION_ID),
             matchId: MatchId::fromString(self::MATCH_ID),
             inviteeId: PlayerId::fromString(self::INVITEE_ID),
-            team: Team::B(),
             type: InvitationType::opponent(),
             status: \App\Features\Matches\Domain\ValueObjects\InvitationStatus::pending(),
             invitedAt: new \DateTimeImmutable,

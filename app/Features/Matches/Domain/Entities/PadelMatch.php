@@ -173,6 +173,15 @@ final class PadelMatch extends AggregateRoot
         return null;
     }
 
+    public function isTeamFull(Team $team): bool
+    {
+        if ($team->isA()) {
+            return $this->composition->partner() !== null;
+        }
+
+        return $this->composition->opponent1() !== null && $this->composition->opponent2() !== null;
+    }
+
     public function assignPlayer(PlayerId $playerId, Team $team): void
     {
         if ($team->isA()) {

@@ -13,7 +13,6 @@ use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
-use App\Features\Matches\Domain\ValueObjects\Team;
 use App\Shared\Domain\Entities\AggregateRoot;
 use DateTimeImmutable;
 
@@ -23,7 +22,6 @@ final class MatchInvitation extends AggregateRoot
         private readonly MatchInvitationId $id,
         private readonly MatchId $matchId,
         private readonly PlayerId $inviteeId,
-        private readonly Team $team,
         private readonly InvitationType $type,
         private InvitationStatus $status,
         private readonly DateTimeImmutable $invitedAt,
@@ -35,14 +33,12 @@ final class MatchInvitation extends AggregateRoot
         MatchId $matchId,
         PlayerId $inviteeId,
         PlayerId $invitedByPlayerId,
-        Team $team,
         InvitationType $type,
     ): self {
         $invitation = new self(
             id: $id,
             matchId: $matchId,
             inviteeId: $inviteeId,
-            team: $team,
             type: $type,
             status: InvitationStatus::pending(),
             invitedAt: new DateTimeImmutable,
@@ -63,7 +59,6 @@ final class MatchInvitation extends AggregateRoot
         MatchInvitationId $id,
         MatchId $matchId,
         PlayerId $inviteeId,
-        Team $team,
         InvitationType $type,
         InvitationStatus $status,
         DateTimeImmutable $invitedAt,
@@ -73,7 +68,6 @@ final class MatchInvitation extends AggregateRoot
             id: $id,
             matchId: $matchId,
             inviteeId: $inviteeId,
-            team: $team,
             type: $type,
             status: $status,
             invitedAt: $invitedAt,
@@ -124,11 +118,6 @@ final class MatchInvitation extends AggregateRoot
     public function inviteeId(): PlayerId
     {
         return $this->inviteeId;
-    }
-
-    public function team(): Team
-    {
-        return $this->team;
     }
 
     public function type(): InvitationType

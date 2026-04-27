@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $id
  * @property string $match_id
  * @property string $invitee_id
- * @property string $team
  * @property string $type
  * @property string $status
  * @property string $invited_at
@@ -30,7 +29,6 @@ class MatchInvitation extends Model
         'id',
         'match_id',
         'invitee_id',
-        'team',
         'type',
         'status',
         'invited_at',

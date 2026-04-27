@@ -24,7 +24,8 @@ final class InMemoryMatchInvitationRepository implements MatchInvitationReposito
     {
         foreach ($this->store as $invitation) {
             if ($invitation->matchId()->value() === $matchId->value()
-                && $invitation->inviteeId()->value() === $inviteeId->value()) {
+                && $invitation->inviteeId()->value() === $inviteeId->value()
+            ) {
                 return $invitation;
             }
         }

@@ -20,7 +20,6 @@ final readonly class InvitePlayerToMatchController
             matchId: $id,
             inviterId: $request->user()->id,
             inviteeId: $request->string('invitee_id')->value(),
-            team: $request->string('team')->value(),
             type: $request->string('type')->value(),
         ));
 

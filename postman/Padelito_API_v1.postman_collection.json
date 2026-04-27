@@ -1,0 +1,850 @@
+{
+	"info": {
+		"_postman_id": "padelito-api-v1-full",
+		"name": "Padelito - API v1 (Onboarding, Auth, Player, Matches)",
+		"description": "Routes `api/v1` pour Onboarding, Auth, Player et Matches.\n\n- **Sanctum** : la collection utilise `Authorization: Bearer {{token}}` par défaut.\n- **Public (`noauth`)** : register, login, reset-password, reset-password/confirm.\n- Après **Register** ou **Login**, copie la valeur `token` de la réponse JSON dans la variable de collection `token`.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "public_username",
+			"value": "johndoe"
+		},
+		{
+			"key": "match_id",
+			"value": "00000000-0000-4000-8000-000000000001"
+		},
+		{
+			"key": "invitation_id",
+			"value": "00000000-0000-4000-8000-000000000002"
+		},
+		{
+			"key": "invitee_player_id",
+			"value": "00000000-0000-4000-8000-000000000003"
+		}
+	],
+	"item": [
+		{
+			"name": "Onboarding",
+			"item": [
+				{
+					"name": "Register player",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Jean Dupont\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"Str0ng!PassWord\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"register"
+							]
+						},
+						"description": "Crée un utilisateur (`RegisterRequest` : `name`, `email` unique, `password`). Règles mot de passe : ≥12 caractères, au moins une majuscule, une minuscule, un chiffre et un caractère spécial parmi ceux acceptés par `Password` (domaine Auth). Réponse 201 avec `token` et `data.user`."
+					}
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"yourpassword12\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"login"
+							]
+						},
+						"description": "`password` : minimum 12 caractères. La réponse contient `token` (à mettre dans `{{token}}`)."
+					}
+				},
+				{
+					"name": "Request password reset",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/reset-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reset-password"
+							]
+						},
+						"description": "Envoie l’e-mail de réinitialisation si le compte existe."
+					}
+				},
+				{
+					"name": "Confirm password reset",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"token\": \"token-from-email\",\n  \"password\": \"newpassword12345\",\n  \"password_confirmation\": \"newpassword12345\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/reset-password/confirm",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reset-password",
+								"confirm"
+							]
+						},
+						"description": "Règle Laravel `confirmed` : `password_confirmation` doit matcher `password`."
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"logout"
+							]
+						},
+						"description": "Nécessite `Bearer {{token}}`."
+					}
+				}
+			]
+		},
+		{
+			"name": "Player",
+			"item": [
+				{
+					"name": "Get my player profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"me"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get public player profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/players/{{public_username}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"players",
+								"{{public_username}}"
+							]
+						},
+						"description": "`username` du joueur (slug), pas l’UUID."
+					}
+				},
+				{
+					"name": "Create player profile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"john_doe\",\n  \"displayName\": \"John Doe\",\n  \"bio\": \"Padel addict\",\n  \"location\": \"Paris\",\n  \"level\": \"intermediate\",\n  \"dominantHand\": \"right\",\n  \"preferredPosition\": \"back\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/player",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player"
+							]
+						},
+						"description": "**level** : `beginner` | `intermediate` | `advanced` | `confirmed` | `expert`.\n**dominantHand** : `left` | `right` | `ambidextrous`.\n**preferredPosition** : `back` | `net` | `any`.\n**username** : min 3, max 30, `[a-z0-9_]`. **displayName** : lettres et espaces."
+					}
+				},
+				{
+					"name": "Change profile visibility",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"is_public\": true\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/me/visibility",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"me",
+								"visibility"
+							]
+						}
+					}
+				},
+				{
+					"name": "Change username",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"new_username\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/me/username",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"me",
+								"username"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update player identity",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"displayName\": \"Jean Dupont\",\n  \"bio\": \"Mise à jour bio\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/me/identity",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"me",
+								"identity"
+							]
+						},
+						"description": "Seuls les champs envoyés sont pris en compte (`has()` côté serveur)."
+					}
+				},
+				{
+					"name": "Upload player avatar (file)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"description": "JPG ou PNG, max 2 Mo. Choisis un fichier via Postman.",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/me/avatar",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"me",
+								"avatar"
+							]
+						}
+					}
+				},
+				{
+					"name": "Upload player avatar (HTTPS URL)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"value": "https://example.com/avatar.png",
+									"description": "URL HTTPS (champ texte, pas de fichier).",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/me/avatar",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"me",
+								"avatar"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update player preferences",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dominantHand\": \"left\",\n  \"preferredPosition\": \"net\",\n  \"location\": \"Lyon\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/me/preferences",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"me",
+								"preferences"
+							]
+						},
+						"description": "Champs optionnels ; seuls ceux présents dans le JSON sont mis à jour."
+					}
+				}
+			]
+		},
+		{
+			"name": "Matches",
+			"item": [
+				{
+					"name": "Create match",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"match_type\": \"friendly\",\n  \"match_format\": \"doubles\",\n  \"court_name\": \"Court Central\",\n  \"match_date\": \"2026-05-01T18:00:00Z\",\n  \"notes\": \"Match entre amis\",\n  \"sets_to_win\": 2\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/matches",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"matches"
+							]
+						},
+						"description": "`match_type`: `friendly` | `ranked`. `match_format`: `singles` | `doubles`. Réponse 201."
+					}
+				},
+				{
+					"name": "Cancel match",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/matches/{{match_id}}/cancel",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"matches",
+								"{{match_id}}",
+								"cancel"
+							]
+						},
+						"description": "204 sans corps."
+					}
+				},
+				{
+					"name": "Invite player to match",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invitee_id\": \"{{invitee_player_id}}\",\n  \"type\": \"partner\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/matches/{{match_id}}/invitations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"matches",
+								"{{match_id}}",
+								"invitations"
+							]
+						},
+						"description": "`type`: `partner` | `opponent`. `invitee_id` = UUID joueur. 201."
+					}
+				},
+				{
+					"name": "Confirm match",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/matches/{{match_id}}/confirm",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"matches",
+								"{{match_id}}",
+								"confirm"
+							]
+						},
+						"description": "204 sans corps."
+					}
+				},
+				{
+					"name": "Update match",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"court_name\": \"Court 2\",\n  \"match_date\": \"2026-05-02T10:00:00Z\",\n  \"notes\": \"Reporté\",\n  \"match_type\": \"ranked\",\n  \"match_format\": \"doubles\",\n  \"sets_to_win\": 2,\n  \"sets_detail\": [\n    { \"a\": 6, \"b\": 4 },\n    { \"a\": 3, \"b\": 6 },\n    { \"a\": 7, \"b\": 5 }\n  ]\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/matches/{{match_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"matches",
+								"{{match_id}}"
+							]
+						},
+						"description": "Champs `sometimes` : n’envoyer que ce qui change."
+					}
+				},
+				{
+					"name": "Respond to match invitation",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accept\": true\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/matches/{{match_id}}/invitations/{{invitation_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"matches",
+								"{{match_id}}",
+								"invitations",
+								"{{invitation_id}}"
+							]
+						},
+						"description": "`accept` booléen JSON. 204."
+					}
+				},
+				{
+					"name": "Get match",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/matches/{{match_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"matches",
+								"{{match_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get my matches",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/me/matches?filter=pending",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"me",
+								"matches"
+							],
+							"query": [
+								{
+									"key": "filter",
+									"value": "pending",
+									"description": "Optionnel : `pending`, `won`, `lost`."
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get my match invitations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/player/me/invitations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"me",
+								"invitations"
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

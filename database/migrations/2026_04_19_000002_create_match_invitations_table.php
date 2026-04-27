@@ -16,14 +16,12 @@ return new class extends Migration
             $table->foreign('match_id')->references('id')->on('matches')->cascadeOnDelete();
             $table->uuid('invitee_id');
             $table->foreign('invitee_id')->references('id')->on('profiles')->cascadeOnDelete();
-            $table->string('team', 1);
-            $table->unsignedTinyInteger('position');
+            $table->string('type', 10);
             $table->string('status', 20)->default('pending');
             $table->timestamp('invited_at')->useCurrent();
             $table->timestamp('responded_at')->nullable();
 
-            $table->unique(['match_id', 'invitee_id']);
-            $table->unique(['match_id', 'team', 'position']);
+            $table->unique(['match_id', 'invitee_id', 'type']);
         });
     }
 

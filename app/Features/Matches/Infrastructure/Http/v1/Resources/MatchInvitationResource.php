@@ -17,7 +17,6 @@ final class MatchInvitationResource extends JsonResource
             'id' => $this->id()->value(),
             'match_id' => $this->matchId()->value(),
             'invitee_id' => $this->inviteeId()->value(),
-            'team' => $this->team()->value()->value,
             'type' => $this->type()->value()->value,
             'status' => $this->status()->value()->value,
             'invited_at' => $this->invitedAt()->format('Y-m-d H:i:s'),

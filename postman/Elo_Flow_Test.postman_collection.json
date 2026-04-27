@@ -1,0 +1,709 @@
+{
+  "info": {
+    "_postman_id": "padelito-elo-flow-test",
+    "name": "Padelito - ELO Flow Test",
+    "description": "Scénario complet : 4 joueurs (P1+P2 vs P3+P4), match ranked doubles, invitations, score 2-1, 4 confirmations, vérification ELO.\n\nLe script tourne en séquence dans le **Collection Runner** (ou Newman). Tous les tokens et IDs sont auto-stockés via les scripts Tests.\n\n**ELO attendu (joueurs à 1500, 0 match joué, K=40, sets 2-1, multiplicateur 1.0)**\n- Team A (P1+P2) → +20 pts → 1520\n- Team B (P3+P4) → -20 pts → 1480",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8001" },
+    { "key": "token_p1",         "value": "" },
+    { "key": "token_p2",         "value": "" },
+    { "key": "token_p3",         "value": "" },
+    { "key": "token_p4",         "value": "" },
+    { "key": "player_id_p1",     "value": "" },
+    { "key": "player_id_p2",     "value": "" },
+    { "key": "player_id_p3",     "value": "" },
+    { "key": "player_id_p4",     "value": "" },
+    { "key": "match_id",         "value": "" },
+    { "key": "inv_id_p2",        "value": "" },
+    { "key": "inv_id_p3",        "value": "" },
+    { "key": "inv_id_p4",        "value": "" },
+    { "key": "_ts",              "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 - Register P1",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Génère un timestamp unique pour éviter les conflits d'email",
+              "pm.collectionVariables.set('_ts', Date.now());"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.test('Token présent', () => pm.expect(json.token).to.be.a('string').and.not.empty);",
+              "pm.collectionVariables.set('token_p1', json.token);",
+              "// player_id = data.user.id (profil auto-créé par RegisterPlayerCommandHandler)",
+              "pm.collectionVariables.set('player_id_p1', json.data.user.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [
+          { "key": "Accept",       "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Player One\",\n  \"email\": \"p1_{{_ts}}@test.padelito\",\n  \"password\": \"Test@123456!\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/register",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "register"]
+        }
+      }
+    },
+    {
+      "name": "02 - Register P2",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('token_p2', json.token);",
+              "pm.collectionVariables.set('player_id_p2', json.data.user.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [
+          { "key": "Accept",       "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Player Two\",\n  \"email\": \"p2_{{_ts}}@test.padelito\",\n  \"password\": \"Test@123456!\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/register",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "register"]
+        }
+      }
+    },
+    {
+      "name": "03 - Register P3",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('token_p3', json.token);",
+              "pm.collectionVariables.set('player_id_p3', json.data.user.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [
+          { "key": "Accept",       "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Player Three\",\n  \"email\": \"p3_{{_ts}}@test.padelito\",\n  \"password\": \"Test@123456!\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/register",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "register"]
+        }
+      }
+    },
+    {
+      "name": "04 - Register P4",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('token_p4', json.token);",
+              "pm.collectionVariables.set('player_id_p4', json.data.user.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [
+          { "key": "Accept",       "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Player Four\",\n  \"email\": \"p4_{{_ts}}@test.padelito\",\n  \"password\": \"Test@123456!\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/register",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "register"]
+        }
+      }
+    },
+    {
+      "name": "05 - P1 crée le match (ranked, doubles)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "const match = pm.response.json().data;",
+              "pm.test('match ranked', () => pm.expect(match.match_type).to.eql('ranked'));",
+              "pm.test('match doubles', () => pm.expect(match.match_format).to.eql('doubles'));",
+              "pm.test('status pending', () => pm.expect(match.status).to.eql('pending'));",
+              "pm.collectionVariables.set('match_id', match.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p1}}", "type": "string" }] },
+        "method": "POST",
+        "header": [
+          { "key": "Accept",       "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"match_type\": \"ranked\",\n  \"match_format\": \"doubles\",\n  \"court_name\": \"Court Test ELO\",\n  \"notes\": \"Test flow ELO automatisé\",\n  \"sets_to_win\": 2\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches"]
+        }
+      }
+    },
+    {
+      "name": "06 - P1 invite P2 (partner, Team A)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "const inv = pm.response.json().data;",
+              "pm.test('type partner', () => pm.expect(inv.type).to.eql('partner'));",
+              "pm.test('status pending', () => pm.expect(inv.status).to.eql('pending'));",
+              "pm.collectionVariables.set('inv_id_p2', inv.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p1}}", "type": "string" }] },
+        "method": "POST",
+        "header": [
+          { "key": "Accept",       "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"invitee_id\": \"{{player_id_p2}}\",\n  \"type\": \"partner\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches/{{match_id}}/invitations",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches", "{{match_id}}", "invitations"]
+        }
+      }
+    },
+    {
+      "name": "07 - P1 invite P3 (opponent, Team B)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "const inv = pm.response.json().data;",
+              "pm.test('type opponent', () => pm.expect(inv.type).to.eql('opponent'));",
+              "pm.collectionVariables.set('inv_id_p3', inv.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p1}}", "type": "string" }] },
+        "method": "POST",
+        "header": [
+          { "key": "Accept",       "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"invitee_id\": \"{{player_id_p3}}\",\n  \"type\": \"opponent\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches/{{match_id}}/invitations",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches", "{{match_id}}", "invitations"]
+        }
+      }
+    },
+    {
+      "name": "08 - P1 invite P4 (opponent, Team B)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "const inv = pm.response.json().data;",
+              "pm.test('type opponent', () => pm.expect(inv.type).to.eql('opponent'));",
+              "pm.collectionVariables.set('inv_id_p4', inv.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p1}}", "type": "string" }] },
+        "method": "POST",
+        "header": [
+          { "key": "Accept",       "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"invitee_id\": \"{{player_id_p4}}\",\n  \"type\": \"opponent\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches/{{match_id}}/invitations",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches", "{{match_id}}", "invitations"]
+        }
+      }
+    },
+    {
+      "name": "09 - P2 accepte son invitation",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p2}}", "type": "string" }] },
+        "method": "PATCH",
+        "header": [
+          { "key": "Accept",       "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accept\": true\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches/{{match_id}}/invitations/{{inv_id_p2}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches", "{{match_id}}", "invitations", "{{inv_id_p2}}"]
+        }
+      }
+    },
+    {
+      "name": "10 - P3 accepte son invitation",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p3}}", "type": "string" }] },
+        "method": "PATCH",
+        "header": [
+          { "key": "Accept",       "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accept\": true\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches/{{match_id}}/invitations/{{inv_id_p3}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches", "{{match_id}}", "invitations", "{{inv_id_p3}}"]
+        }
+      }
+    },
+    {
+      "name": "11 - P4 accepte son invitation",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p4}}", "type": "string" }] },
+        "method": "PATCH",
+        "header": [
+          { "key": "Accept",       "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accept\": true\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches/{{match_id}}/invitations/{{inv_id_p4}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches", "{{match_id}}", "invitations", "{{inv_id_p4}}"]
+        }
+      }
+    },
+    {
+      "name": "12 - P1 met à jour le score (Team A gagne 2-1)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const match = pm.response.json().data;",
+              "const sets = match.score.sets_detail;",
+              "pm.test('sets_detail enregistré (3 sets)', () => pm.expect(sets).to.have.lengthOf(3));",
+              "// score.team_a/b est null jusqu'à finalize() (4e confirmation)",
+              "// On vérifie les sets gagnés en dérivant depuis sets_detail",
+              "const setsWonA = sets.filter(s => s.a > s.b).length;",
+              "const setsWonB = sets.filter(s => s.b > s.a).length;",
+              "pm.test('Team A gagne 2 sets', () => pm.expect(setsWonA).to.eql(2));",
+              "pm.test('Team B gagne 1 set',  () => pm.expect(setsWonB).to.eql(1));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p1}}", "type": "string" }] },
+        "method": "PATCH",
+        "header": [
+          { "key": "Accept",       "value": "application/json" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sets_detail\": [\n    { \"a\": 6, \"b\": 2 },\n    { \"a\": 2, \"b\": 6 },\n    { \"a\": 7, \"b\": 5 }\n  ],\n  \"sets_to_win\": 2\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches/{{match_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches", "{{match_id}}"]
+        }
+      }
+    },
+    {
+      "name": "13 - P1 confirme",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p1}}", "type": "string" }] },
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches/{{match_id}}/confirm",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches", "{{match_id}}", "confirm"]
+        }
+      }
+    },
+    {
+      "name": "14 - P2 confirme",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p2}}", "type": "string" }] },
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches/{{match_id}}/confirm",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches", "{{match_id}}", "confirm"]
+        }
+      }
+    },
+    {
+      "name": "15 - P3 confirme",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p3}}", "type": "string" }] },
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches/{{match_id}}/confirm",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches", "{{match_id}}", "confirm"]
+        }
+      }
+    },
+    {
+      "name": "16 - P4 confirme (→ match validé + ELO calculé)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p4}}", "type": "string" }] },
+        "method": "POST",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches/{{match_id}}/confirm",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches", "{{match_id}}", "confirm"]
+        }
+      }
+    },
+    {
+      "name": "17 - GET match : vérification ELO snapshot",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const match = pm.response.json().data;",
+              "",
+              "// ─── Statut ───────────────────────────────────────────────",
+              "pm.test('Match validé', () => pm.expect(match.status).to.eql('validated'));",
+              "",
+              "// ─── Score ────────────────────────────────────────────────",
+              "pm.test('Score Team A = 2', () => pm.expect(match.score.team_a).to.eql(2));",
+              "pm.test('Score Team B = 1', () => pm.expect(match.score.team_b).to.eql(1));",
+              "",
+              "// ─── ELO snapshot ─────────────────────────────────────────",
+              "// Tous débutants : K=40, Elos 1500/1500, sets 2-1 → multiplier 1.0",
+              "// expectedA = 0.5 → changeA = round(40 * (1-0.5) * 1.0) = +20",
+              "pm.test('ELO avant Team A = 1500', () => pm.expect(match.elo.team_a_before).to.eql(1500));",
+              "pm.test('ELO avant Team B = 1500', () => pm.expect(match.elo.team_b_before).to.eql(1500));",
+              "pm.test('ELO change Team A = +20', () => pm.expect(match.elo.change).to.eql(20));",
+              "",
+              "// ─── Tous confirmés ───────────────────────────────────────",
+              "pm.test('4 joueurs confirmés', () => pm.expect(match.confirmed_player_ids).to.have.lengthOf(4));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p1}}", "type": "string" }] },
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/matches/{{match_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "matches", "{{match_id}}"]
+        }
+      }
+    },
+    {
+      "name": "18 - GET P1 profil : ELO +20 (gagnant)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const stats = pm.response.json().data.stats;",
+              "pm.test('P1 elo_rating = 1520', () => pm.expect(stats.elo_rating).to.eql(1520));",
+              "pm.test('P1 total_wins = 1',   () => pm.expect(stats.total_wins).to.eql(1));",
+              "pm.test('P1 total_losses = 0', () => pm.expect(stats.total_losses).to.eql(0));",
+              "pm.test('P1 total_matches = 1',() => pm.expect(stats.total_matches).to.eql(1));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p1}}", "type": "string" }] },
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/player/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "player", "me"]
+        }
+      }
+    },
+    {
+      "name": "19 - GET P2 profil : ELO +20 (gagnant)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const stats = pm.response.json().data.stats;",
+              "pm.test('P2 elo_rating = 1520', () => pm.expect(stats.elo_rating).to.eql(1520));",
+              "pm.test('P2 total_wins = 1',   () => pm.expect(stats.total_wins).to.eql(1));",
+              "pm.test('P2 total_losses = 0', () => pm.expect(stats.total_losses).to.eql(0));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p2}}", "type": "string" }] },
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/player/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "player", "me"]
+        }
+      }
+    },
+    {
+      "name": "20 - GET P3 profil : ELO -20 (perdant)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const stats = pm.response.json().data.stats;",
+              "pm.test('P3 elo_rating = 1480', () => pm.expect(stats.elo_rating).to.eql(1480));",
+              "pm.test('P3 total_wins = 0',   () => pm.expect(stats.total_wins).to.eql(0));",
+              "pm.test('P3 total_losses = 1', () => pm.expect(stats.total_losses).to.eql(1));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p3}}", "type": "string" }] },
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/player/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "player", "me"]
+        }
+      }
+    },
+    {
+      "name": "21 - GET P4 profil : ELO -20 (perdant)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const stats = pm.response.json().data.stats;",
+              "pm.test('P4 elo_rating = 1480', () => pm.expect(stats.elo_rating).to.eql(1480));",
+              "pm.test('P4 total_wins = 0',   () => pm.expect(stats.total_wins).to.eql(0));",
+              "pm.test('P4 total_losses = 1', () => pm.expect(stats.total_losses).to.eql(1));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token_p4}}", "type": "string" }] },
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/player/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "player", "me"]
+        }
+      }
+    }
+  ]
+}

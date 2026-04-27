@@ -7,6 +7,7 @@ namespace App\Features\Matches\Application\Commands\RespondToMatchInvitation;
 use App\Features\Matches\Domain\Events\MatchConfirmationsReset;
 use App\Features\Matches\Domain\Exceptions\MatchInvitationNotFoundException;
 use App\Features\Matches\Domain\Exceptions\MatchNotFoundException;
+use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
 use App\Features\Matches\Domain\Repositories\MatchInvitationRepositoryInterface;
 use App\Features\Matches\Domain\Repositories\MatchRepositoryInterface;
@@ -47,8 +48,14 @@ final readonly class RespondToMatchInvitationCommandHandler
         $events = new DomainEventCollection;
 
         if ($command->accept) {
+            $team = $invitation->type()->toTeam();
+
+            if ($match->isTeamFull($team)) {
+                throw MatchTeamFullException::create();
+            }
+
             $invitation->accept();
-            $match->assignPlayer($responderId, $invitation->team());
+            $match->assignPlayer($responderId, $team);
 
             $confirmationsReset = false;
             foreach ($match->pullDomainEvents() as $event) {

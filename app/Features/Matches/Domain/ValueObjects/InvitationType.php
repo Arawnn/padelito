@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Matches\Domain\ValueObjects;
 
 use App\Features\Matches\Domain\Enums\InvitationTypeEnum;
+use App\Features\Matches\Domain\Enums\TeamEnum;
 
 final readonly class InvitationType
 {
@@ -43,5 +44,10 @@ final readonly class InvitationType
     public function isOpponent(): bool
     {
         return $this->value === InvitationTypeEnum::OPPONENT;
+    }
+
+    public function toTeam(): Team
+    {
+        return $this->isPartner() ? Team::A() : Team::B();
     }
 }

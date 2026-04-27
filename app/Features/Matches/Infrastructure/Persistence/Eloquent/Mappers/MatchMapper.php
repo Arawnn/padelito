@@ -11,7 +11,6 @@ use App\Features\Matches\Domain\Enums\InvitationTypeEnum;
 use App\Features\Matches\Domain\Enums\MatchFormatEnum;
 use App\Features\Matches\Domain\Enums\MatchStatusEnum;
 use App\Features\Matches\Domain\Enums\MatchTypeEnum;
-use App\Features\Matches\Domain\Enums\TeamEnum;
 use App\Features\Matches\Domain\ValueObjects\CourtName;
 use App\Features\Matches\Domain\ValueObjects\EloChange;
 use App\Features\Matches\Domain\ValueObjects\EloRating;
@@ -27,7 +26,6 @@ use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Features\Matches\Domain\ValueObjects\Score;
 use App\Features\Matches\Domain\ValueObjects\SetsDetail;
 use App\Features\Matches\Domain\ValueObjects\SetsToWin;
-use App\Features\Matches\Domain\ValueObjects\Team;
 use App\Features\Matches\Infrastructure\Persistence\Eloquent\Models\MatchInvitation as EloquentMatchInvitation;
 use App\Features\Matches\Infrastructure\Persistence\Eloquent\Models\MatchModel as EloquentMatch;
 use DateTimeImmutable;
@@ -101,7 +99,6 @@ final readonly class MatchMapper
             id: MatchInvitationId::fromString($model->id),
             matchId: MatchId::fromString($model->match_id),
             inviteeId: PlayerId::fromString($model->invitee_id),
-            team: Team::fromEnum(TeamEnum::from($model->team)),
             type: InvitationType::fromEnum(InvitationTypeEnum::from($model->type)),
             status: InvitationStatus::fromEnum(InvitationStatusEnum::from($model->status)),
             invitedAt: new DateTimeImmutable($model->invited_at),
@@ -116,7 +113,6 @@ final readonly class MatchMapper
             'id' => $invitation->id()->value(),
             'match_id' => $invitation->matchId()->value(),
             'invitee_id' => $invitation->inviteeId()->value(),
-            'team' => $invitation->team()->value()->value,
             'type' => $invitation->type()->value()->value,
             'status' => $invitation->status()->value()->value,
             'invited_at' => $invitation->invitedAt()->format('Y-m-d H:i:s'),

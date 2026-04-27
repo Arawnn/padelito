@@ -73,7 +73,6 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
             matchId: $match->id()->value(),
             inviterId: '99999999-9999-9999-9999-999999999999',
             inviteeId: self::INVITEE_ID,
-            team: 'B',
             type: 'opponent',
         ));
     }
@@ -99,7 +98,6 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
             matchId: $match->id()->value(),
             inviterId: self::CREATOR_ID,
             inviteeId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-            team: 'B',
             type: 'opponent',
         ));
     }
@@ -115,7 +113,6 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
             matchId: $match->id()->value(),
             inviterId: self::CREATOR_ID,
             inviteeId: self::CREATOR_ID,
-            team: 'A',
             type: 'partner',
         ));
     }
@@ -126,7 +123,6 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
             matchId: $matchId,
             inviterId: self::CREATOR_ID,
             inviteeId: self::INVITEE_ID,
-            team: 'B',
             type: 'opponent',
         );
     }
