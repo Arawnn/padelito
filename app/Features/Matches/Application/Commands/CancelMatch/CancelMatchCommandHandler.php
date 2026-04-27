@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Matches\Application\Commands\CancelMatch;
 
+use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
 use App\Features\Matches\Domain\Exceptions\MatchNotFoundException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
 use App\Features\Matches\Domain\Repositories\MatchRepositoryInterface;
@@ -32,6 +33,10 @@ final readonly class CancelMatchCommandHandler
 
         if (! $match->isCreator($requesterId)) {
             throw UnauthorizedMatchOperationException::create();
+        }
+
+        if ($match->status()->isValidated()) {
+            throw MatchAlreadyValidatedException::create();
         }
 
         $match->cancel();

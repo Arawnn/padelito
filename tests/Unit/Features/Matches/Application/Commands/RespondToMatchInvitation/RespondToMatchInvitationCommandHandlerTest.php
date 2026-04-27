@@ -9,6 +9,7 @@ use App\Features\Matches\Application\Commands\RespondToMatchInvitation\RespondTo
 use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Events\MatchInvitationAccepted;
 use App\Features\Matches\Domain\Events\MatchInvitationDeclined;
+use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
 use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
 use App\Features\Matches\Domain\ValueObjects\InvitationStatus;
@@ -201,6 +202,42 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
             invitationId: self::SECOND_INVITATION_ID,
             responderId: self::SECOND_INVITEE_ID,
             accept: true,
+        ));
+    }
+
+    public function test_cannot_accept_invitation_when_match_is_validated(): void
+    {
+        $validatedMatch = MatchMother::create()
+            ->withId(self::MATCH_ID)
+            ->withCreator(self::CREATOR_ID)
+            ->withStatus('validated')
+            ->build();
+        $this->matchRepository->save($validatedMatch);
+        $this->invitationRepository->save($this->pendingInvitation());
+
+        $this->expectException(MatchAlreadyValidatedException::class);
+        $this->makeHandler()(new RespondToMatchInvitationCommand(
+            invitationId: self::INVITATION_ID,
+            responderId: self::INVITEE_ID,
+            accept: true,
+        ));
+    }
+
+    public function test_cannot_decline_invitation_when_match_is_validated(): void
+    {
+        $validatedMatch = MatchMother::create()
+            ->withId(self::MATCH_ID)
+            ->withCreator(self::CREATOR_ID)
+            ->withStatus('validated')
+            ->build();
+        $this->matchRepository->save($validatedMatch);
+        $this->invitationRepository->save($this->pendingInvitation());
+
+        $this->expectException(MatchAlreadyValidatedException::class);
+        $this->makeHandler()(new RespondToMatchInvitationCommand(
+            invitationId: self::INVITATION_ID,
+            responderId: self::INVITEE_ID,
+            accept: false,
         ));
     }
 

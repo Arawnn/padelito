@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Matches\Application\Commands\RespondToMatchInvitation;
 
 use App\Features\Matches\Domain\Events\MatchConfirmationsReset;
+use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
 use App\Features\Matches\Domain\Exceptions\MatchInvitationNotFoundException;
 use App\Features\Matches\Domain\Exceptions\MatchNotFoundException;
 use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
@@ -45,9 +46,12 @@ final readonly class RespondToMatchInvitationCommandHandler
             throw MatchNotFoundException::create();
         }
 
+        if ($match->status()->isValidated()) {
+            throw MatchAlreadyValidatedException::create();
+        }
+
         $events = new DomainEventCollection;
         $wasAccepted = $invitation->status()->isAccepted();
-        $wasDeclined = $invitation->status()->isDeclined();
 
         if ($command->accept) {
             $team = $invitation->type()->toTeam();
