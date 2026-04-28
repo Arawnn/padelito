@@ -260,7 +260,28 @@ final class PadelMatch extends AggregateRoot
     {
         $this->score = $this->score->withFinalizedScores();
         $this->status = MatchStatus::validated();
-        $this->recordDomainEvent(new MatchValidated($this->id->value()));
+        [$teamAScore, $teamBScore] = $this->derivedScores();
+
+        $this->recordDomainEvent(new MatchValidated(
+            matchId: $this->id->value(),
+            teamAPlayerIds: $this->playerIdValues([$this->teamAPlayer1Id(), $this->teamAPlayer2Id()]),
+            teamBPlayerIds: $this->playerIdValues([$this->teamBPlayer1Id(), $this->teamBPlayer2Id()]),
+            teamAScore: $teamAScore,
+            teamBScore: $teamBScore,
+            ranked: $this->type()->isRanked(),
+        ));
+    }
+
+    /**
+     * @param  list<PlayerId|null>  $playerIds
+     * @return list<string>
+     */
+    private function playerIdValues(array $playerIds): array
+    {
+        return array_values(array_map(
+            fn (PlayerId $playerId): string => $playerId->value(),
+            array_filter($playerIds),
+        ));
     }
 
     public function recordEloSnapshot(EloRating $teamABefore, EloRating $teamBBefore, EloChange $change): void

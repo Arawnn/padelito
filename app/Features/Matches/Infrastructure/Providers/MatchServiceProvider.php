@@ -22,11 +22,9 @@ use App\Features\Matches\Application\Queries\GetMyMatches\GetMyMatchesQuery;
 use App\Features\Matches\Application\Queries\GetMyMatches\GetMyMatchesQueryHandler;
 use App\Features\Matches\Application\Queries\GetMyMatchInvitations\GetMyMatchInvitationsQuery;
 use App\Features\Matches\Application\Queries\GetMyMatchInvitations\GetMyMatchInvitationsQueryHandler;
-use App\Features\Matches\Domain\Repositories\EloHistoryRepositoryInterface;
 use App\Features\Matches\Domain\Repositories\MatchInvitationRepositoryInterface;
 use App\Features\Matches\Domain\Repositories\MatchRepositoryInterface;
 use App\Features\Matches\Infrastructure\Http\v1\Exceptions\MatchExceptionMapper;
-use App\Features\Matches\Infrastructure\Persistence\Eloquent\Repositories\EloquentEloHistoryRepository;
 use App\Features\Matches\Infrastructure\Persistence\Eloquent\Repositories\EloquentMatchInvitationRepository;
 use App\Features\Matches\Infrastructure\Persistence\Eloquent\Repositories\EloquentMatchRepository;
 use App\Shared\Application\Bus\HandlerMap;
@@ -38,7 +36,6 @@ final class MatchServiceProvider extends ServiceProvider
     {
         $this->app->bind(MatchRepositoryInterface::class, EloquentMatchRepository::class);
         $this->app->bind(MatchInvitationRepositoryInterface::class, EloquentMatchInvitationRepository::class);
-        $this->app->bind(EloHistoryRepositoryInterface::class, EloquentEloHistoryRepository::class);
 
         $this->app->bind(MatchExceptionMapper::class);
         $this->app->tag([MatchExceptionMapper::class], 'domain_exception_renderers');

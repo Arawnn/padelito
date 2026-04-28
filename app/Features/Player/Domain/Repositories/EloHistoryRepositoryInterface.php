@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Matches\Domain\Repositories;
+namespace App\Features\Player\Domain\Repositories;
 
 interface EloHistoryRepositoryInterface
 {

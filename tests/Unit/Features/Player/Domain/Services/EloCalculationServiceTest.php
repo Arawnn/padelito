@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Features\Matches\Domain\Services;
+namespace Tests\Unit\Features\Player\Domain\Services;
 
-use App\Features\Matches\Domain\Services\EloCalculationService;
+use App\Features\Player\Domain\Services\EloCalculationService;
 use PHPUnit\Framework\TestCase;
 
 /**

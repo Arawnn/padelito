@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Shared\Mother\Fake;
 
-use App\Features\Matches\Domain\Repositories\EloHistoryRepositoryInterface;
+use App\Features\Player\Domain\Repositories\EloHistoryRepositoryInterface;
 
 final class InMemoryEloHistoryRepository implements EloHistoryRepositoryInterface
 {

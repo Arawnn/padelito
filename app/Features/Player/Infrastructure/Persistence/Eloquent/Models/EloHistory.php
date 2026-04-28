@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Matches\Infrastructure\Persistence\Eloquent\Models;
+namespace App\Features\Player\Infrastructure\Persistence\Eloquent\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

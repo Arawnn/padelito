@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Matches\Infrastructure\Persistence\Eloquent\Repositories;
+namespace App\Features\Player\Infrastructure\Persistence\Eloquent\Repositories;
 
-use App\Features\Matches\Domain\Repositories\EloHistoryRepositoryInterface;
-use App\Features\Matches\Infrastructure\Persistence\Eloquent\Models\EloHistory;
+use App\Features\Player\Domain\Repositories\EloHistoryRepositoryInterface;
+use App\Features\Player\Infrastructure\Persistence\Eloquent\Models\EloHistory;
 use Ramsey\Uuid\Uuid;
 
 final class EloquentEloHistoryRepository implements EloHistoryRepositoryInterface

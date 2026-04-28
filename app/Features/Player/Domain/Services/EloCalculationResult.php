@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Matches\Domain\Services;
+namespace App\Features\Player\Domain\Services;
 
 final readonly class EloCalculationResult
 {
