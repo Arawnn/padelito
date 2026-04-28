@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Matches\Infrastructure\Http\v1\Resources;
 
 use App\Features\Matches\Domain\Entities\PadelMatch;
+use App\Features\Player\Application\Services\MatchEloSummaryProvider;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -13,6 +14,8 @@ final class MatchResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $elo = app(MatchEloSummaryProvider::class)->forMatch($this->resource, $request->user()?->id);
+
         return [
             'id' => $this->id()->value(),
             'match_type' => $this->type()->value()->value,
@@ -36,11 +39,7 @@ final class MatchResource extends JsonResource
                 'team_b' => $this->teamBScore()?->value(),
                 'sets_detail' => $this->setsDetail()?->sets(),
             ],
-            'elo' => [
-                'team_a_before' => $this->teamAEloBefore()?->value(),
-                'team_b_before' => $this->teamBEloBefore()?->value(),
-                'change' => $this->eloChange()?->value(),
-            ],
+            'elo' => $elo?->toArray(),
             'confirmed_player_ids' => array_map(fn ($id) => $id->value(), $this->confirmedPlayerIds()),
         ];
     }

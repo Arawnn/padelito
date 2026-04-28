@@ -12,8 +12,6 @@ use App\Features\Matches\Domain\Enums\MatchFormatEnum;
 use App\Features\Matches\Domain\Enums\MatchStatusEnum;
 use App\Features\Matches\Domain\Enums\MatchTypeEnum;
 use App\Features\Matches\Domain\ValueObjects\CourtName;
-use App\Features\Matches\Domain\ValueObjects\EloChange;
-use App\Features\Matches\Domain\ValueObjects\EloRating;
 use App\Features\Matches\Domain\ValueObjects\InvitationStatus;
 use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchFormat;
@@ -55,9 +53,6 @@ final readonly class MatchMapper
             courtName: $model->court_name ? CourtName::fromString($model->court_name) : null,
             notes: $model->notes !== null ? Notes::fromString($model->notes) : null,
             matchDate: $model->match_date ? new DateTimeImmutable($model->match_date) : null,
-            teamAEloBefore: $model->team_a_elo_before !== null ? EloRating::fromInt($model->team_a_elo_before) : null,
-            teamBEloBefore: $model->team_b_elo_before !== null ? EloRating::fromInt($model->team_b_elo_before) : null,
-            eloChange: $model->elo_change !== null ? EloChange::fromInt($model->elo_change) : null,
             confirmedPlayerIds: array_map(fn (string $id) => PlayerId::fromString($id), $confirmedPlayerIds),
         );
     }
@@ -85,9 +80,6 @@ final readonly class MatchMapper
             'team_a_score' => $match->teamAScore()?->value(),
             'team_b_score' => $match->teamBScore()?->value(),
             'notes' => $match->notes()?->value(),
-            'team_a_elo_before' => $match->teamAEloBefore()?->value(),
-            'team_b_elo_before' => $match->teamBEloBefore()?->value(),
-            'elo_change' => $match->eloChange()?->value(),
             'sets_to_win' => $match->setsToWin()->value(),
             'created_by' => $match->createdBy()->value(),
         ];

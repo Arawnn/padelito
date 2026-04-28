@@ -10,6 +10,7 @@ use App\Features\Player\Domain\Exceptions\PlayerProfileNotFoundException;
 use App\Features\Player\Domain\Repositories\EloHistoryRepositoryInterface;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\Services\EloCalculationService;
+use App\Features\Player\Domain\ValueObjects\EloHistoryEntry;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use App\Shared\Domain\Events\DomainEventSubscriberInterface;
@@ -39,8 +40,12 @@ final readonly class UpdatePlayerStatsWhenMatchValidated implements DomainEventS
         $teamAWon = $event->teamAScore > $event->teamBScore;
         $teamBWon = $event->teamBScore > $event->teamAScore;
 
-        $this->applyResultsToTeam($event, $players, $event->teamAPlayerIds, $teamAWon, $teamAChange);
-        $this->applyResultsToTeam($event, $players, $event->teamBPlayerIds, $teamBWon, $teamBChange);
+        $eloHistoryEntries = [
+            ...$this->applyResultsToTeam($event, $players, $event->teamAPlayerIds, 'A', $teamAWon, $teamAChange),
+            ...$this->applyResultsToTeam($event, $players, $event->teamBPlayerIds, 'B', $teamBWon, $teamBChange),
+        ];
+
+        $this->eloHistoryRepository->recordMany($eloHistoryEntries);
     }
 
     /** @return array<string, Player> */
@@ -84,8 +89,10 @@ final readonly class UpdatePlayerStatsWhenMatchValidated implements DomainEventS
      * @param  array<string, Player>  $players
      * @param  list<string>  $teamPlayerIds
      */
-    private function applyResultsToTeam(MatchValidated $event, array $players, array $teamPlayerIds, bool $won, int $eloChange): void
+    private function applyResultsToTeam(MatchValidated $event, array $players, array $teamPlayerIds, string $team, bool $won, int $eloChange): array
     {
+        $eloHistoryEntries = [];
+
         foreach ($teamPlayerIds as $playerId) {
             $player = $players[$playerId];
             $eloBefore = $player->stats()->eloRating()->value();
@@ -98,9 +105,11 @@ final readonly class UpdatePlayerStatsWhenMatchValidated implements DomainEventS
             $this->playerRepository->save($player);
 
             if ($event->ranked) {
-                $this->eloHistoryRepository->record(
+                $eloHistoryEntries[] = EloHistoryEntry::from(
                     playerId: $playerId,
                     matchId: $event->matchId,
+                    team: $team,
+                    won: $won,
                     eloBefore: $eloBefore,
                     eloAfter: $player->stats()->eloRating()->value(),
                     eloChange: $change,
@@ -109,5 +118,7 @@ final readonly class UpdatePlayerStatsWhenMatchValidated implements DomainEventS
 
             $this->eventDispatcher->dispatchEvents($playerEvents);
         }
+
+        return $eloHistoryEntries;
     }
 }

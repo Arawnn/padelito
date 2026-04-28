@@ -90,6 +90,22 @@ final class UpdatePlayerStatsWhenMatchValidatedTest extends TestCase
         $this->assertGreaterThan($winnerEloBefore, $winner->stats()->eloRating()->value());
         $this->assertLessThan($loserEloBefore, $loser->stats()->eloRating()->value());
         $this->assertSame(4, $this->eloHistoryRepository->countForMatch(self::MATCH_ID));
+
+        $records = $this->eloHistoryRepository->all();
+        $this->assertSame('A', $records[0]['team']);
+        $this->assertTrue($records[0]['won']);
+        $this->assertSame('B', $records[2]['team']);
+        $this->assertFalse($records[2]['won']);
+    }
+
+    public function test_elo_history_is_idempotent_by_player_and_match(): void
+    {
+        $event = $this->matchValidated(ranked: true);
+
+        $this->makeHandler()($event);
+        $this->makeHandler()($event);
+
+        $this->assertSame(4, $this->eloHistoryRepository->countForMatch(self::MATCH_ID));
     }
 
     public function test_missing_player_fails_fast(): void

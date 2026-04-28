@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "padelito-elo-flow-test",
     "name": "Padelito - ELO Flow Test",
-    "description": "Scénario complet : 4 joueurs (P1+P2 vs P3+P4), match ranked doubles, invitations, score 2-1, 4 confirmations, vérification ELO.\n\nLe script tourne en séquence dans le **Collection Runner** (ou Newman). Tous les tokens et IDs sont auto-stockés via les scripts Tests.\n\n**ELO attendu (joueurs à 1500, 0 match joué, K=40, sets 2-1, multiplicateur 1.0)**\n- Team A (P1+P2) → +20 pts → 1520\n- Team B (P3+P4) → -20 pts → 1480",
+    "description": "Scénario complet : 4 joueurs (P1+P2 vs P3+P4), match ranked doubles, invitations, score 2-1, 4 confirmations, vérification ELO via le résumé Match et les profils Player.\n\nLe script tourne en séquence dans le **Collection Runner** (ou Newman). Tous les tokens et IDs sont auto-stockés via les scripts Tests.\n\nDepuis le découplage Matches/Player, le match ne stocke plus de snapshot ELO : Matches expose un résumé de lecture `elo`, Player met à jour les stats/ELO et écrit l'audit interne `elo_history` (`team`, `won`, `elo_before`, `elo_after`, `elo_change`, unique par `player_id + match_id`).\n\n**ELO attendu (joueurs à 1500, 0 match joué, K=40, sets 2-1, multiplicateur 1.0)**\n- Team A (P1+P2) → +20 pts → 1520\n- Team B (P3+P4) → -20 pts → 1480",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -551,7 +551,7 @@
       }
     },
     {
-      "name": "17 - GET match : vérification ELO snapshot",
+      "name": "17 - GET match : résumé ELO confirmé",
       "event": [
         {
           "listen": "test",
@@ -568,12 +568,14 @@
               "pm.test('Score Team A = 2', () => pm.expect(match.score.team_a).to.eql(2));",
               "pm.test('Score Team B = 1', () => pm.expect(match.score.team_b).to.eql(1));",
               "",
-              "// ─── ELO snapshot ─────────────────────────────────────────",
-              "// Tous débutants : K=40, Elos 1500/1500, sets 2-1 → multiplier 1.0",
-              "// expectedA = 0.5 → changeA = round(40 * (1-0.5) * 1.0) = +20",
+              "// ─── ELO read summary ────────────────────────────────────",
+              "// Le résumé vient de l'audit Player elo_history, pas de colonnes snapshot sur matches.",
               "pm.test('ELO avant Team A = 1500', () => pm.expect(match.elo.team_a_before).to.eql(1500));",
               "pm.test('ELO avant Team B = 1500', () => pm.expect(match.elo.team_b_before).to.eql(1500));",
-              "pm.test('ELO change Team A = +20', () => pm.expect(match.elo.change).to.eql(20));",
+              "pm.test('ELO change Team A = +20', () => pm.expect(match.elo.team_a_change).to.eql(20));",
+              "pm.test('ELO change Team B = -20', () => pm.expect(match.elo.team_b_change).to.eql(-20));",
+              "pm.test('ELO change utilisateur courant = +20', () => pm.expect(match.elo.current_user_change).to.eql(20));",
+              "pm.test('ELO source = confirmed', () => pm.expect(match.elo.source).to.eql('confirmed'));",
               "",
               "// ─── Tous confirmés ───────────────────────────────────────",
               "pm.test('4 joueurs confirmés', () => pm.expect(match.confirmed_player_ids).to.have.lengthOf(4));"

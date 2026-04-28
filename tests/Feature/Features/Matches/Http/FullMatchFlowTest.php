@@ -145,6 +145,77 @@ final class FullMatchFlowTest extends FeatureTestCase
             ->assertJsonCount(0, 'data');
     }
 
+    public function test_ranked_match_exposes_projected_then_confirmed_elo_summary(): void
+    {
+        Sanctum::actingAs($this->creator);
+        $matchId = $this->postJson('/api/v1/matches', [
+            'match_type' => 'ranked',
+            'match_format' => 'doubles',
+        ])->assertStatus(201)->json('data.id');
+
+        $inv2 = $this->postJson("/api/v1/matches/{$matchId}/invitations", [
+            'invitee_id' => $this->player2->id,
+            'type' => 'partner',
+        ])->assertStatus(201)->json('data.id');
+
+        $inv3 = $this->postJson("/api/v1/matches/{$matchId}/invitations", [
+            'invitee_id' => $this->player3->id,
+            'type' => 'opponent',
+        ])->assertStatus(201)->json('data.id');
+
+        $inv4 = $this->postJson("/api/v1/matches/{$matchId}/invitations", [
+            'invitee_id' => $this->player4->id,
+            'type' => 'opponent',
+        ])->assertStatus(201)->json('data.id');
+
+        Sanctum::actingAs($this->player2);
+        $this->patchJson("/api/v1/matches/{$matchId}/invitations/{$inv2}", ['accept' => true])
+            ->assertStatus(204);
+
+        Sanctum::actingAs($this->player3);
+        $this->patchJson("/api/v1/matches/{$matchId}/invitations/{$inv3}", ['accept' => true])
+            ->assertStatus(204);
+
+        Sanctum::actingAs($this->player4);
+        $this->patchJson("/api/v1/matches/{$matchId}/invitations/{$inv4}", ['accept' => true])
+            ->assertStatus(204);
+
+        Sanctum::actingAs($this->creator);
+        $this->patchJson("/api/v1/matches/{$matchId}", [
+            'sets_detail' => [
+                ['a' => 6, 'b' => 3],
+                ['a' => 4, 'b' => 6],
+                ['a' => 7, 'b' => 5],
+            ],
+        ])->assertStatus(200);
+
+        $this->getJson("/api/v1/matches/{$matchId}")
+            ->assertStatus(200)
+            ->assertJsonPath('data.elo.team_a_before', 1500)
+            ->assertJsonPath('data.elo.team_b_before', 1500)
+            ->assertJsonPath('data.elo.team_a_change', 20)
+            ->assertJsonPath('data.elo.team_b_change', -20)
+            ->assertJsonPath('data.elo.current_user_change', 20)
+            ->assertJsonPath('data.elo.source', 'projected');
+
+        foreach ([$this->creator, $this->player2, $this->player3, $this->player4] as $user) {
+            Sanctum::actingAs($user);
+            $this->postJson("/api/v1/matches/{$matchId}/confirm")
+                ->assertStatus(204);
+        }
+
+        Sanctum::actingAs($this->player3);
+        $this->getJson("/api/v1/matches/{$matchId}")
+            ->assertStatus(200)
+            ->assertJsonPath('data.status', 'validated')
+            ->assertJsonPath('data.elo.team_a_before', 1500)
+            ->assertJsonPath('data.elo.team_b_before', 1500)
+            ->assertJsonPath('data.elo.team_a_change', 20)
+            ->assertJsonPath('data.elo.team_b_change', -20)
+            ->assertJsonPath('data.elo.current_user_change', -20)
+            ->assertJsonPath('data.elo.source', 'confirmed');
+    }
+
     private function registerProfile(User $user, string $username): void
     {
         Sanctum::actingAs($user);

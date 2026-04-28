@@ -152,9 +152,6 @@ final class MatchMother
             courtName: null,
             notes: null,
             matchDate: null,
-            teamAEloBefore: null,
-            teamBEloBefore: null,
-            eloChange: null,
             confirmedPlayerIds: array_map(fn (string $id) => PlayerId::fromString($id), $this->confirmedPlayerIds),
         );
     }

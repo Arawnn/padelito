@@ -16,9 +16,6 @@ use App\Features\Matches\Domain\Exceptions\MatchNotReadyForConfirmationException
 use App\Features\Matches\Domain\Exceptions\PlayerAlreadyConfirmedException;
 use App\Features\Matches\Domain\Exceptions\PlayerNotParticipantException;
 use App\Features\Matches\Domain\ValueObjects\CourtName;
-use App\Features\Matches\Domain\ValueObjects\EloChange;
-use App\Features\Matches\Domain\ValueObjects\EloRating;
-use App\Features\Matches\Domain\ValueObjects\EloSnapshot;
 use App\Features\Matches\Domain\ValueObjects\MatchConfiguration;
 use App\Features\Matches\Domain\ValueObjects\MatchFormat;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
@@ -46,7 +43,6 @@ final class PadelMatch extends AggregateRoot
         private MatchConfiguration $configuration,
         private MatchScore $score,
         private MatchInformation $information,
-        private ?EloSnapshot $eloSnapshot,
         private array $confirmedPlayerIds,
     ) {}
 
@@ -67,7 +63,6 @@ final class PadelMatch extends AggregateRoot
             configuration: MatchConfiguration::from($type, $format),
             score: MatchScore::empty($setsToWin ?? SetsToWin::fromInt(2)),
             information: MatchInformation::reconstitute($courtName, $notes, $matchDate),
-            eloSnapshot: null,
             confirmedPlayerIds: [],
         );
 
@@ -93,15 +88,8 @@ final class PadelMatch extends AggregateRoot
         ?CourtName $courtName,
         ?Notes $notes,
         ?DateTimeImmutable $matchDate,
-        ?EloRating $teamAEloBefore,
-        ?EloRating $teamBEloBefore,
-        ?EloChange $eloChange,
         array $confirmedPlayerIds,
     ): self {
-        $eloSnapshot = ($teamAEloBefore !== null && $teamBEloBefore !== null && $eloChange !== null)
-            ? EloSnapshot::from($teamAEloBefore, $teamBEloBefore, $eloChange)
-            : null;
-
         return new self(
             id: $id,
             status: $status,
@@ -109,7 +97,6 @@ final class PadelMatch extends AggregateRoot
             configuration: MatchConfiguration::from($type, $format),
             score: MatchScore::reconstitute($teamAScore, $teamBScore, $setsDetail, $setsToWin),
             information: MatchInformation::reconstitute($courtName, $notes, $matchDate),
-            eloSnapshot: $eloSnapshot,
             confirmedPlayerIds: $confirmedPlayerIds,
         );
     }
@@ -284,11 +271,6 @@ final class PadelMatch extends AggregateRoot
         ));
     }
 
-    public function recordEloSnapshot(EloRating $teamABefore, EloRating $teamBBefore, EloChange $change): void
-    {
-        $this->eloSnapshot = EloSnapshot::from($teamABefore, $teamBBefore, $change);
-    }
-
     public function updateCourtName(?CourtName $courtName): void
     {
         $this->information = $this->information->withCourtName($courtName);
@@ -380,11 +362,6 @@ final class PadelMatch extends AggregateRoot
         return $this->information;
     }
 
-    public function eloSnapshot(): ?EloSnapshot
-    {
-        return $this->eloSnapshot;
-    }
-
     // --- Flat delegation accessors (backward-compatible) ---
 
     public function id(): MatchId
@@ -445,21 +422,6 @@ final class PadelMatch extends AggregateRoot
     public function teamBScore(): ?Score
     {
         return $this->score->teamBScore();
-    }
-
-    public function teamAEloBefore(): ?EloRating
-    {
-        return $this->eloSnapshot?->teamABefore();
-    }
-
-    public function teamBEloBefore(): ?EloRating
-    {
-        return $this->eloSnapshot?->teamBBefore();
-    }
-
-    public function eloChange(): ?EloChange
-    {
-        return $this->eloSnapshot?->change();
     }
 
     public function teamAPlayer1Id(): PlayerId

@@ -22,9 +22,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $team_a_score
  * @property int|null $team_b_score
  * @property string|null $notes
- * @property int|null $team_a_elo_before
- * @property int|null $team_b_elo_before
- * @property int|null $elo_change
  * @property string $created_by
  */
 class MatchModel extends Model
@@ -50,9 +47,6 @@ class MatchModel extends Model
         'team_a_score',
         'team_b_score',
         'notes',
-        'team_a_elo_before',
-        'team_b_elo_before',
-        'elo_change',
         'created_by',
     ];
 
@@ -62,9 +56,6 @@ class MatchModel extends Model
             'sets_detail' => 'array',
             'team_a_score' => 'integer',
             'team_b_score' => 'integer',
-            'team_a_elo_before' => 'integer',
-            'team_b_elo_before' => 'integer',
-            'elo_change' => 'integer',
         ];
     }
 
