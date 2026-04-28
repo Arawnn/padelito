@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Matches\Infrastructure\Http\v1\Controllers;
 
 use App\Features\Matches\Application\Queries\GetMyMatches\GetMyMatchesQuery;
+use App\Features\Matches\Application\ReadModels\MatchViewFactory;
 use App\Features\Matches\Infrastructure\Http\v1\Resources\MatchResource;
 use App\Shared\Application\Bus\QueryBusInterface;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +13,10 @@ use Illuminate\Http\Request;
 
 final readonly class GetMyMatchesController
 {
-    public function __construct(private QueryBusInterface $queryBus) {}
+    public function __construct(
+        private QueryBusInterface $queryBus,
+        private MatchViewFactory $matchViewFactory,
+    ) {}
 
     public function __invoke(Request $request): JsonResponse
     {
@@ -20,7 +24,8 @@ final readonly class GetMyMatchesController
             playerId: $request->user()->id,
             filter: $request->query('filter'),
         ));
+        $views = $this->matchViewFactory->fromMatches($matches, $request->user()->id);
 
-        return MatchResource::collection($matches)->response()->setStatusCode(200);
+        return MatchResource::collection($views)->response()->setStatusCode(200);
     }
 }

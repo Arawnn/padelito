@@ -4,43 +4,42 @@ declare(strict_types=1);
 
 namespace App\Features\Matches\Infrastructure\Http\v1\Resources;
 
-use App\Features\Matches\Domain\Entities\PadelMatch;
-use App\Features\Player\Application\Services\MatchEloSummaryProvider;
+use App\Features\Matches\Application\ReadModels\MatchView;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin PadelMatch */
+/** @mixin MatchView */
 final class MatchResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $elo = app(MatchEloSummaryProvider::class)->forMatch($this->resource, $request->user()?->id);
+        $match = $this->resource->match;
 
         return [
-            'id' => $this->id()->value(),
-            'match_type' => $this->type()->value()->value,
-            'match_format' => $this->format()->value()->value,
-            'status' => $this->status()->value()->value,
-            'court_name' => $this->courtName()?->value(),
-            'match_date' => $this->matchDate()?->format('Y-m-d H:i:s'),
-            'notes' => $this->notes()?->value(),
-            'created_by' => $this->createdBy()->value(),
+            'id' => $match->id()->value(),
+            'match_type' => $match->type()->value()->value,
+            'match_format' => $match->format()->value()->value,
+            'status' => $match->status()->value()->value,
+            'court_name' => $match->courtName()?->value(),
+            'match_date' => $match->matchDate()?->format('Y-m-d H:i:s'),
+            'notes' => $match->notes()?->value(),
+            'created_by' => $match->createdBy()->value(),
             'team_a' => [
-                'player1_id' => $this->teamAPlayer1Id()->value(),
-                'player2_id' => $this->teamAPlayer2Id()?->value(),
+                'player1_id' => $match->teamAPlayer1Id()->value(),
+                'player2_id' => $match->teamAPlayer2Id()?->value(),
             ],
             'team_b' => [
-                'player1_id' => $this->teamBPlayer1Id()?->value(),
-                'player2_id' => $this->teamBPlayer2Id()?->value(),
+                'player1_id' => $match->teamBPlayer1Id()?->value(),
+                'player2_id' => $match->teamBPlayer2Id()?->value(),
             ],
-            'sets_to_win' => $this->setsToWin()->value(),
+            'sets_to_win' => $match->setsToWin()->value(),
             'score' => [
-                'team_a' => $this->teamAScore()?->value(),
-                'team_b' => $this->teamBScore()?->value(),
-                'sets_detail' => $this->setsDetail()?->sets(),
+                'team_a' => $match->teamAScore()?->value(),
+                'team_b' => $match->teamBScore()?->value(),
+                'sets_detail' => $match->setsDetail()?->sets(),
             ],
-            'elo' => $elo?->toArray(),
-            'confirmed_player_ids' => array_map(fn ($id) => $id->value(), $this->confirmedPlayerIds()),
+            'elo' => $this->resource->elo?->toArray(),
+            'confirmed_player_ids' => array_map(fn ($id) => $id->value(), $match->confirmedPlayerIds()),
         ];
     }
 }
