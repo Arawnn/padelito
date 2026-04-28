@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Features\Matches\Infrastructure\Http\v1\Controllers;
 
 use App\Features\Matches\Application\Commands\CreateMatch\CreateMatchCommand;
-use App\Features\Matches\Application\ReadModels\MatchViewFactory;
 use App\Features\Matches\Infrastructure\Http\v1\Requests\CreateMatchRequest;
 use App\Features\Matches\Infrastructure\Http\v1\Resources\MatchResource;
+use App\Features\Matches\Infrastructure\Http\v1\ViewModels\MatchViewFactory;
 use App\Shared\Application\Bus\CommandBusInterface;
 use Illuminate\Http\JsonResponse;
 

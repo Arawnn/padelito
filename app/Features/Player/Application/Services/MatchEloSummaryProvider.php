@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Application\Services;
 
-use App\Features\Matches\Domain\Entities\PadelMatch;
-use App\Features\Player\Application\ReadModels\MatchEloSummary;
+use App\Features\Player\Application\Dto\MatchEloInput;
+use App\Features\Player\Application\Dto\MatchEloSummary;
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Repositories\EloHistoryRepositoryInterface;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
@@ -21,22 +21,22 @@ final readonly class MatchEloSummaryProvider
         private EloCalculationService $eloCalculationService,
     ) {}
 
-    public function forMatch(PadelMatch $match, ?string $currentUserId): ?MatchEloSummary
+    public function forMatch(MatchEloInput $input, ?string $currentUserId): ?MatchEloSummary
     {
-        if (! $match->type()->isRanked()) {
+        if (! $input->isRanked) {
             return null;
         }
 
-        if ($match->status()->isValidated()) {
-            return $this->confirmedSummary($match, $currentUserId);
+        if ($input->isValidated) {
+            return $this->confirmedSummary($input, $currentUserId);
         }
 
-        return $this->projectedSummary($match, $currentUserId);
+        return $this->projectedSummary($input, $currentUserId);
     }
 
-    private function confirmedSummary(PadelMatch $match, ?string $currentUserId): ?MatchEloSummary
+    private function confirmedSummary(MatchEloInput $input, ?string $currentUserId): ?MatchEloSummary
     {
-        $entries = $this->eloHistoryRepository->findByMatchId($match->id()->value());
+        $entries = $this->eloHistoryRepository->findByMatchId($input->matchId);
         if ($entries === []) {
             return null;
         }
@@ -55,40 +55,36 @@ final readonly class MatchEloSummaryProvider
             teamBBefore: $this->averageBefore($teamBEntries),
             teamAChange: $teamAChange,
             teamBChange: $teamBChange,
-            currentUserChange: $this->currentUserChange($match, $currentUserId, $teamAChange, $teamBChange),
+            currentUserChange: $this->currentUserChange($input, $currentUserId, $teamAChange, $teamBChange),
             source: 'confirmed',
         );
     }
 
-    private function projectedSummary(PadelMatch $match, ?string $currentUserId): ?MatchEloSummary
+    private function projectedSummary(MatchEloInput $input, ?string $currentUserId): ?MatchEloSummary
     {
-        if ($match->setsDetail() === null) {
+        if ($input->teamAScore === null || $input->teamBScore === null) {
             return null;
         }
 
-        [$teamAScore, $teamBScore] = $match->derivedScores();
-
-        $teamAPlayerIds = $this->teamAPlayerIds($match);
-        $teamBPlayerIds = $this->teamBPlayerIds($match);
-        if ($teamAPlayerIds === [] || $teamBPlayerIds === []) {
+        if ($input->teamAPlayerIds === [] || $input->teamBPlayerIds === []) {
             return null;
         }
 
-        $players = $this->loadPlayers([...$teamAPlayerIds, ...$teamBPlayerIds]);
-        if (count($players) !== count([...$teamAPlayerIds, ...$teamBPlayerIds])) {
+        $players = $this->loadPlayers([...$input->teamAPlayerIds, ...$input->teamBPlayerIds]);
+        if (count($players) !== count([...$input->teamAPlayerIds, ...$input->teamBPlayerIds])) {
             return null;
         }
 
-        $teamAElos = array_map(fn (string $id): int => $players[$id]->stats()->eloRating()->value(), $teamAPlayerIds);
-        $teamBElos = array_map(fn (string $id): int => $players[$id]->stats()->eloRating()->value(), $teamBPlayerIds);
+        $teamAElos = array_map(fn (string $id): int => $players[$id]->stats()->eloRating()->value(), $input->teamAPlayerIds);
+        $teamBElos = array_map(fn (string $id): int => $players[$id]->stats()->eloRating()->value(), $input->teamBPlayerIds);
 
         $result = $this->eloCalculationService->calculate(
             teamAElos: $teamAElos,
             teamBElos: $teamBElos,
-            teamAMatchCounts: array_map(fn (string $id): int => $players[$id]->stats()->totalMatches(), $teamAPlayerIds),
-            teamBMatchCounts: array_map(fn (string $id): int => $players[$id]->stats()->totalMatches(), $teamBPlayerIds),
-            teamAScore: $teamAScore,
-            teamBScore: $teamBScore,
+            teamAMatchCounts: array_map(fn (string $id): int => $players[$id]->stats()->totalMatches(), $input->teamAPlayerIds),
+            teamBMatchCounts: array_map(fn (string $id): int => $players[$id]->stats()->totalMatches(), $input->teamBPlayerIds),
+            teamAScore: $input->teamAScore,
+            teamBScore: $input->teamBScore,
         );
 
         return MatchEloSummary::from(
@@ -96,7 +92,7 @@ final readonly class MatchEloSummaryProvider
             teamBBefore: $this->average($teamBElos),
             teamAChange: $result->teamAChange,
             teamBChange: $result->teamBChange,
-            currentUserChange: $this->currentUserChange($match, $currentUserId, $result->teamAChange, $result->teamBChange),
+            currentUserChange: $this->currentUserChange($input, $currentUserId, $result->teamAChange, $result->teamBChange),
             source: 'projected',
         );
     }
@@ -137,38 +133,20 @@ final readonly class MatchEloSummaryProvider
         return (int) round(array_sum($values) / count($values));
     }
 
-    private function currentUserChange(PadelMatch $match, ?string $currentUserId, int $teamAChange, int $teamBChange): ?int
+    private function currentUserChange(MatchEloInput $input, ?string $currentUserId, int $teamAChange, int $teamBChange): ?int
     {
         if ($currentUserId === null) {
             return null;
         }
 
-        if (in_array($currentUserId, $this->teamAPlayerIds($match), true)) {
+        if (in_array($currentUserId, $input->teamAPlayerIds, true)) {
             return $teamAChange;
         }
 
-        if (in_array($currentUserId, $this->teamBPlayerIds($match), true)) {
+        if (in_array($currentUserId, $input->teamBPlayerIds, true)) {
             return $teamBChange;
         }
 
         return null;
-    }
-
-    /** @return list<string> */
-    private function teamAPlayerIds(PadelMatch $match): array
-    {
-        return array_values(array_filter([
-            $match->teamAPlayer1Id()->value(),
-            $match->teamAPlayer2Id()?->value(),
-        ]));
-    }
-
-    /** @return list<string> */
-    private function teamBPlayerIds(PadelMatch $match): array
-    {
-        return array_values(array_filter([
-            $match->teamBPlayer1Id()?->value(),
-            $match->teamBPlayer2Id()?->value(),
-        ]));
     }
 }

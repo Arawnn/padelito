@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Player\Application\ReadModels;
+namespace App\Features\Player\Application\Dto;
 
 final readonly class MatchEloSummary
 {

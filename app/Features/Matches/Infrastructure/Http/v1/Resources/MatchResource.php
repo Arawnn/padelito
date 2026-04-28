@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Matches\Infrastructure\Http\v1\Resources;
 
-use App\Features\Matches\Application\ReadModels\MatchView;
+use App\Features\Matches\Infrastructure\Http\v1\ViewModels\MatchView;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

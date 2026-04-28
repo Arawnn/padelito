@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Matches\Infrastructure\Http\v1\Controllers;
 
 use App\Features\Matches\Application\Queries\GetMyMatches\GetMyMatchesQuery;
-use App\Features\Matches\Application\ReadModels\MatchViewFactory;
 use App\Features\Matches\Infrastructure\Http\v1\Resources\MatchResource;
+use App\Features\Matches\Infrastructure\Http\v1\ViewModels\MatchViewFactory;
 use App\Shared\Application\Bus\QueryBusInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
