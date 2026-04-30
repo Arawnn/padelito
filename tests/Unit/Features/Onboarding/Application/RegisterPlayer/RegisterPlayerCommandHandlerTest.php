@@ -12,9 +12,9 @@ use App\Features\Onboarding\Application\RegisterPlayer\RegisterPlayerResult;
 use App\Features\Player\Application\Commands\InitializePlayerProfile\InitializePlayerProfileCommandHandler;
 use App\Features\Player\Domain\Services\UsernameGeneratorService;
 use App\Features\Player\Domain\ValueObjects\Id;
+use Tests\Shared\Mother\Fake\FakeAvatarProvisioner;
 use Tests\Shared\Mother\Fake\FakePasswordHasher;
 use Tests\Shared\Mother\Fake\FakeUuidGenerator;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\InMemoryUserRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
@@ -38,8 +38,6 @@ final class RegisterPlayerCommandHandlerTest extends TestCase
 
     private InMemoryPlayerRepository $playerRepository;
 
-    private ImmediateTransactionManager $tx;
-
     private SpyEventDispatcher $eventDispatcher;
 
     protected function setUp(): void
@@ -48,7 +46,6 @@ final class RegisterPlayerCommandHandlerTest extends TestCase
 
         $this->userRepository = new InMemoryUserRepository;
         $this->playerRepository = new InMemoryPlayerRepository;
-        $this->tx = new ImmediateTransactionManager;
         $this->eventDispatcher = new SpyEventDispatcher;
     }
 
@@ -129,7 +126,6 @@ final class RegisterPlayerCommandHandlerTest extends TestCase
     {
         $registerUserHandler = new RegisterUserCommandHandler(
             userRepository: $this->userRepository,
-            transactionManager: $this->tx,
             passwordHasher: new FakePasswordHasher,
             uuidGenerator: new FakeUuidGenerator,
             eventDispatcher: $this->eventDispatcher,
@@ -138,14 +134,13 @@ final class RegisterPlayerCommandHandlerTest extends TestCase
         $initializePlayerProfileHandler = new InitializePlayerProfileCommandHandler(
             playerRepository: $this->playerRepository,
             usernameGenerator: new UsernameGeneratorService($this->playerRepository),
-            transactionManager: $this->tx,
+            avatarProvisioner: FakeAvatarProvisioner::thatSucceeds(),
             eventDispatcher: $this->eventDispatcher,
         );
 
         return new RegisterPlayerCommandHandler(
             registerUserHandler: $registerUserHandler,
             initializePlayerProfileHandler: $initializePlayerProfileHandler,
-            transactionManager: $this->tx,
         );
     }
 }

@@ -19,12 +19,15 @@ use App\Features\Player\Application\Commands\UpdatePlayerPreferences\UpdatePlaye
 use App\Features\Player\Application\Commands\UploadPlayerAvatar\UploadPlayerAvatarCommand;
 use App\Features\Player\Application\Commands\UploadPlayerAvatar\UploadPlayerAvatarCommandHandler;
 use App\Features\Player\Application\Contracts\AvatarProvisionerInterface;
+use App\Features\Player\Application\Events\UpdatePlayerStats\UpdatePlayerStatsWhenMatchValidated;
 use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQuery;
 use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQueryHandler;
 use App\Features\Player\Application\Queries\GetPublicPlayerProfile\GetPublicPlayerProfileQuery;
 use App\Features\Player\Application\Queries\GetPublicPlayerProfile\GetPublicPlayerProfileQueryHandler;
+use App\Features\Player\Domain\Repositories\EloHistoryRepositoryInterface;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Infrastructure\Http\v1\Exceptions\PlayerExceptionMapper;
+use App\Features\Player\Infrastructure\Persistence\Eloquent\Repositories\EloquentEloHistoryRepository;
 use App\Features\Player\Infrastructure\Persistence\Eloquent\Repositories\EloquentPlayerRepository;
 use App\Features\Player\Infrastructure\Services\DefaultAvatarProvisioner;
 use App\Shared\Application\Bus\HandlerMap;
@@ -35,10 +38,12 @@ final class PlayerServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(PlayerRepositoryInterface::class, EloquentPlayerRepository::class);
+        $this->app->bind(EloHistoryRepositoryInterface::class, EloquentEloHistoryRepository::class);
         $this->app->bind(AvatarProvisionerInterface::class, DefaultAvatarProvisioner::class);
 
         $this->app->bind(PlayerExceptionMapper::class);
         $this->app->tag([PlayerExceptionMapper::class], 'domain_exception_renderers');
+        $this->app->tag([UpdatePlayerStatsWhenMatchValidated::class], 'domain_event_subscribers');
     }
 
     public function boot(): void

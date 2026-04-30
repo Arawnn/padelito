@@ -12,7 +12,6 @@ use App\Features\Player\Domain\ValueObjects\AvatarUrl;
 use App\Features\Player\Domain\ValueObjects\DisplayName;
 use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
 use App\Shared\Application\Optional;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\PlayerMother;
@@ -132,7 +131,6 @@ final class UpdatePlayerIdentityCommandHandlerTest extends TestCase
         return new UpdatePlayerIdentityCommandHandler(
             playerRepository: $this->repository,
             eventDispatcher: $this->eventDispatcher,
-            transactionManager: new ImmediateTransactionManager,
         );
     }
 }

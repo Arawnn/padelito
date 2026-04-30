@@ -13,9 +13,4 @@ interface TransactionManagerInterface
      * @return TReturn
      */
     public function run(callable $fn): mixed;
-
-    /**
-     * @param  callable(): void  $fn
-     */
-    public function afterCommit(callable $fn): void;
 }

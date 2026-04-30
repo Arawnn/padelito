@@ -38,7 +38,6 @@ final readonly class UploadPlayerAvatarController
 
         $player = $this->commandBus->dispatch(new UploadPlayerAvatarCommand(
             userId: $request->user()->id,
-            displayName: $request->input('displayName', ''),
             avatar: $avatar,
         ));
 

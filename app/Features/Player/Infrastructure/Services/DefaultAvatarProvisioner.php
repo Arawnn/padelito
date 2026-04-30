@@ -22,7 +22,7 @@ final readonly class DefaultAvatarProvisioner implements AvatarProvisionerInterf
 
     public function provision(
         string $userId,
-        string $displayName,
+        ?string $displayName,
         ?AvatarInput $avatar,
     ): ?string {
         if ($avatar?->hasUploadedFile()) {
@@ -53,9 +53,9 @@ final readonly class DefaultAvatarProvisioner implements AvatarProvisionerInterf
         $this->fileStorage->delete($publicUrl);
     }
 
-    private function placeholderUrlFromDisplayName(string $displayName): string
+    private function placeholderUrlFromDisplayName(?string $displayName): string
     {
-        $name = trim($displayName);
+        $name = trim($displayName ?? '');
         if ($name === '') {
             $name = '?';
         }

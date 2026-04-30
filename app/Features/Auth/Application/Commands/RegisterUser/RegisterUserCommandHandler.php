@@ -12,7 +12,6 @@ use App\Features\Auth\Domain\ValueObjects\Email;
 use App\Features\Auth\Domain\ValueObjects\Id;
 use App\Features\Auth\Domain\ValueObjects\Name;
 use App\Features\Auth\Domain\ValueObjects\Password;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use App\Shared\Domain\Contracts\UuidGeneratorInterface;
 
@@ -20,15 +19,13 @@ final readonly class RegisterUserCommandHandler
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,
-        private TransactionManagerInterface $transactionManager,
         private PasswordHasherInterface $passwordHasher,
         private UuidGeneratorInterface $uuidGenerator,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     /**
-     * Transaction root : l'appelant (ex: RegisterPlayerCommandHandler).
-     * Appelé seul, afterCommit() execute immédiatement (pas de transaction active).
+     * La transaction est ouverte par le command bus appelant.
      */
     public function __invoke(RegisterUserCommand $command): User
     {
@@ -50,9 +47,7 @@ final readonly class RegisterUserCommandHandler
         $this->userRepository->save($user);
 
         $domainEvents = $user->pullDomainEvents();
-        $this->transactionManager->afterCommit(
-            fn () => $this->eventDispatcher->dispatchEvents($domainEvents)
-        );
+        $this->eventDispatcher->dispatchEvents($domainEvents);
 
         return $user;
     }

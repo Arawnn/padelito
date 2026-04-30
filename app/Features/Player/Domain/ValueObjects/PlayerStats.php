@@ -82,4 +82,21 @@ final readonly class PlayerStats
 
         return $total === 0 ? 0.0 : $this->totalWins->value() / $total;
     }
+
+    public function withMatchResult(bool $won, int $eloChange): self
+    {
+        $newElo = max(100, min(3000, $this->eloRating->value() + $eloChange));
+        $newWins = $won ? $this->totalWins->value() + 1 : $this->totalWins->value();
+        $newLosses = $won ? $this->totalLosses->value() : $this->totalLosses->value() + 1;
+        $newStreak = $won ? $this->currentStreak->value() + 1 : 0;
+        $newBest = max($this->bestStreak->value(), $newStreak);
+
+        return self::of(
+            totalWins: TotalWins::fromInt($newWins),
+            totalLosses: TotalLosses::fromInt($newLosses),
+            eloRating: EloRating::fromInt($newElo),
+            currentStreak: CurrentStreak::fromInt($newStreak),
+            bestStreak: BestStreak::fromInt($newBest),
+        );
+    }
 }

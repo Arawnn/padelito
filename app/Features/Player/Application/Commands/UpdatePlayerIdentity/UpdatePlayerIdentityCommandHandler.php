@@ -11,7 +11,6 @@ use App\Features\Player\Domain\ValueObjects\Bio;
 use App\Features\Player\Domain\ValueObjects\DisplayName;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\PlayerIdentity;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 
 final readonly class UpdatePlayerIdentityCommandHandler
@@ -19,7 +18,6 @@ final readonly class UpdatePlayerIdentityCommandHandler
     public function __construct(
         private PlayerRepositoryInterface $playerRepository,
         private EventDispatcherInterface $eventDispatcher,
-        private TransactionManagerInterface $transactionManager,
     ) {}
 
     public function __invoke(UpdatePlayerIdentityCommand $command): Player
@@ -55,7 +53,7 @@ final readonly class UpdatePlayerIdentityCommandHandler
 
         $this->playerRepository->save($player);
         $events = $player->pullDomainEvents();
-        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($events));
+        $this->eventDispatcher->dispatchEvents($events);
 
         return $player;
     }

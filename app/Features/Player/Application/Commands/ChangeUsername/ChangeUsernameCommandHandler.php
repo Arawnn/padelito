@@ -10,7 +10,6 @@ use App\Features\Player\Domain\Exceptions\UsernameAlreadyTakenException;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\Username;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 
 final readonly class ChangeUsernameCommandHandler
@@ -18,7 +17,6 @@ final readonly class ChangeUsernameCommandHandler
     public function __construct(
         private PlayerRepositoryInterface $playerRepository,
         private EventDispatcherInterface $eventDispatcher,
-        private TransactionManagerInterface $transactionManager,
     ) {}
 
     public function __invoke(ChangeUsernameCommand $command): Player
@@ -43,7 +41,7 @@ final readonly class ChangeUsernameCommandHandler
 
         $this->playerRepository->save($player);
         $events = $player->pullDomainEvents();
-        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($events));
+        $this->eventDispatcher->dispatchEvents($events);
 
         return $player;
     }

@@ -9,7 +9,6 @@ use App\Features\Player\Application\Commands\ChangeUsername\ChangeUsernameComman
 use App\Features\Player\Domain\Events\PlayerUsernameChanged;
 use App\Features\Player\Domain\Exceptions\PlayerProfileNotFoundException;
 use App\Features\Player\Domain\Exceptions\UsernameAlreadyTakenException;
-use Tests\Shared\Mother\Fake\ImmediateTransactionManager;
 use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\PlayerMother;
@@ -138,7 +137,6 @@ final class ChangeUsernameCommandHandlerTest extends TestCase
         return new ChangeUsernameCommandHandler(
             playerRepository: $this->repository,
             eventDispatcher: $this->eventDispatcher,
-            transactionManager: new ImmediateTransactionManager,
         );
     }
 }

@@ -12,9 +12,13 @@ final class FakeAvatarProvisioner implements AvatarProvisionerInterface
 {
     private bool $shouldFail = false;
 
+    private bool $returnsNull = false;
+
     private string $fakeUrl = 'http://localhost/storage/avatars/test.jpg';
 
     public ?string $lastDeletedUrl = null;
+
+    public ?string $lastProvisionedDisplayName = null;
 
     public static function thatSucceeds(string $url = 'http://localhost/storage/avatars/test.jpg'): self
     {
@@ -32,8 +36,22 @@ final class FakeAvatarProvisioner implements AvatarProvisionerInterface
         return $instance;
     }
 
-    public function provision(string $userId, string $displayName, ?AvatarInput $avatar): ?string
+    public static function thatReturnsNull(): self
     {
+        $instance = new self;
+        $instance->returnsNull = true;
+
+        return $instance;
+    }
+
+    public function provision(string $userId, ?string $displayName, ?AvatarInput $avatar): ?string
+    {
+        $this->lastProvisionedDisplayName = $displayName;
+
+        if ($this->returnsNull) {
+            return null;
+        }
+
         if ($this->shouldFail) {
             throw InvalidAvatarUrlException::fromViolations(['Avatar provisioning failed']);
         }

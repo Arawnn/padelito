@@ -19,12 +19,4 @@ final class LaravalTransactionManager implements TransactionManagerInterface
     {
         return DB::transaction($fn);
     }
-
-    /**
-     * @param  callable(void): void  $fn
-     */
-    public function afterCommit(callable $fn): void
-    {
-        DB::afterCommit($fn);
-    }
 }

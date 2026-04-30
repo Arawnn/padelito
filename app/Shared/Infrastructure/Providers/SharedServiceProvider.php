@@ -14,7 +14,7 @@ use App\Shared\Domain\Contracts\MailerInterface;
 use App\Shared\Domain\Contracts\UuidGeneratorInterface;
 use App\Shared\Infrastructure\Bus\LaravelCommandBus;
 use App\Shared\Infrastructure\Bus\LaravelQueryBus;
-use App\Shared\Infrastructure\Events\LaravelEventDispatcher;
+use App\Shared\Infrastructure\Events\DomainEventSubscriberDispatcher;
 use App\Shared\Infrastructure\Helpers\UuidGenerator;
 use App\Shared\Infrastructure\Http\SafeHttpImageFetcher;
 use App\Shared\Infrastructure\Services\LaravelMailer;
@@ -29,7 +29,9 @@ final class SharedServiceProvider extends ServiceProvider
     {
         $this->app->bind(UuidGeneratorInterface::class, UuidGenerator::class);
         $this->app->bind(TransactionManagerInterface::class, LaravalTransactionManager::class);
-        $this->app->bind(EventDispatcherInterface::class, LaravelEventDispatcher::class);
+        $this->app->bind(EventDispatcherInterface::class, function ($app): DomainEventSubscriberDispatcher {
+            return new DomainEventSubscriberDispatcher($app->tagged('domain_event_subscribers'));
+        });
         $this->app->bind(CommandBusInterface::class, LaravelCommandBus::class);
         $this->app->bind(QueryBusInterface::class, LaravelQueryBus::class);
         $this->app->bind(MailerInterface::class, LaravelMailer::class);

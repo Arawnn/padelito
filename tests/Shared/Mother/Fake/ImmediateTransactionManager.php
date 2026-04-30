@@ -8,32 +8,30 @@ use App\Shared\Application\Transaction\TransactionManagerInterface;
 
 final class ImmediateTransactionManager implements TransactionManagerInterface
 {
-    private ?\Closure $afterCommitCallback = null;
-
     private bool $inTransaction = false;
+
+    private int $runs = 0;
 
     public function run(callable $fn): mixed
     {
+        $wasInTransaction = $this->inTransaction;
         $this->inTransaction = true;
-        $result = $fn();
-        $this->inTransaction = false;
+        $this->runs++;
 
-        if ($this->afterCommitCallback !== null) {
-            ($this->afterCommitCallback)();
-            $this->afterCommitCallback = null;
+        try {
+            return $fn();
+        } finally {
+            $this->inTransaction = $wasInTransaction;
         }
-
-        return $result;
     }
 
-    public function afterCommit(callable $fn): void
+    public function inTransaction(): bool
     {
-        if ($this->inTransaction) {
-            // Defer until run() completes (like a real DB transaction commit hook).
-            $this->afterCommitCallback = \Closure::fromCallable($fn);
-        } else {
-            // No active transaction: fire immediately (mirrors Laravel DB::afterCommit).
-            $fn();
-        }
+        return $this->inTransaction;
+    }
+
+    public function runs(): int
+    {
+        return $this->runs;
     }
 }

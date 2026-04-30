@@ -14,7 +14,6 @@ use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\Location;
 use App\Features\Player\Domain\ValueObjects\PlayerPreferences;
 use App\Features\Player\Domain\ValueObjects\PreferredPosition;
-use App\Shared\Application\Transaction\TransactionManagerInterface;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 
 final readonly class UpdatePlayerPreferencesCommandHandler
@@ -22,7 +21,6 @@ final readonly class UpdatePlayerPreferencesCommandHandler
     public function __construct(
         private PlayerRepositoryInterface $playerRepository,
         private EventDispatcherInterface $eventDispatcher,
-        private TransactionManagerInterface $transactionManager,
     ) {}
 
     public function __invoke(UpdatePlayerPreferencesCommand $command): Player
@@ -69,7 +67,7 @@ final readonly class UpdatePlayerPreferencesCommandHandler
 
         $this->playerRepository->save($player);
         $events = $player->pullDomainEvents();
-        $this->transactionManager->afterCommit(fn () => $this->eventDispatcher->dispatchEvents($events));
+        $this->eventDispatcher->dispatchEvents($events);
 
         return $player;
     }
