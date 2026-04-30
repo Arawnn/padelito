@@ -66,6 +66,7 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@test:lint",
+            "@php scripts/ensure-test-database.php",
             "@php artisan test"
         ],
         "post-autoload-dump": [
