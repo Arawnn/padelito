@@ -1,48 +1,5 @@
 name: padelito-backend
 
-x-laravel-env: &laravel-env
-  APP_NAME: ${APP_NAME:-Padelito}
-  APP_ENV: ${APP_ENV:-local}
-  APP_KEY: ${APP_KEY:-}
-  APP_DEBUG: ${APP_DEBUG:-true}
-  APP_URL: ${APP_URL:-http://localhost:8001}
-  FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
-  LOG_CHANNEL: ${LOG_CHANNEL:-stack}
-  LOG_STACK: ${LOG_STACK:-stderr}
-  LOG_LEVEL: ${LOG_LEVEL:-debug}
-  DB_CONNECTION: ${DB_CONNECTION:-pgsql}
-  DB_HOST: ${DB_HOST:-postgres}
-  DB_PORT: ${DB_PORT:-5432}
-  DB_DATABASE: ${DB_DATABASE:-padelito}
-  DB_USERNAME: ${DB_USERNAME:-padelito}
-  DB_PASSWORD: ${DB_PASSWORD:-change-me-local}
-  DB_SSLMODE: ${DB_SSLMODE:-disable}
-  DB_SEARCH_PATH: ${DB_SEARCH_PATH:-public}
-  REDIS_CLIENT: ${REDIS_CLIENT:-phpredis}
-  REDIS_HOST: ${REDIS_HOST:-redis}
-  REDIS_PORT: ${REDIS_PORT:-6379}
-  REDIS_PASSWORD: ${REDIS_PASSWORD:-null}
-  CACHE_STORE: ${CACHE_STORE:-redis}
-  SESSION_DRIVER: ${SESSION_DRIVER:-redis}
-  QUEUE_CONNECTION: ${QUEUE_CONNECTION:-redis}
-  MAIL_MAILER: ${MAIL_MAILER:-smtp}
-  MAIL_HOST: ${MAIL_HOST:-mailpit}
-  MAIL_PORT: ${MAIL_PORT:-1025}
-  MAIL_USERNAME: ${MAIL_USERNAME:-null}
-  MAIL_PASSWORD: ${MAIL_PASSWORD:-null}
-  MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-hello@padelito.local}
-  MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Padelito}
-  FILESYSTEM_DISK: ${FILESYSTEM_DISK:-s3}
-  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-padelito}
-  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-change-me-local}
-  AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
-  AWS_BUCKET: ${AWS_BUCKET:-padelito}
-  AWS_ENDPOINT: ${AWS_ENDPOINT:-http://minio:9000}
-  AWS_URL: ${AWS_URL:-http://localhost:9000/padelito}
-  AWS_USE_PATH_STYLE_ENDPOINT: ${AWS_USE_PATH_STYLE_ENDPOINT:-true}
-  SENTRY_LARAVEL_DSN: ${SENTRY_LARAVEL_DSN:-}
-  SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE:-1.0}
-
 x-laravel-service: &laravel-service
   image: padelito-backend:local
   build:
@@ -52,9 +9,7 @@ x-laravel-service: &laravel-service
       UID: ${DOCKER_UID:-1000}
       GID: ${DOCKER_GID:-1000}
   env_file:
-    - path: ./.env.docker
-      required: false
-  environment: *laravel-env
+    - ./.env
   volumes:
     - ./:/var/www/html
   networks:
