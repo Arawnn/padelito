@@ -58,4 +58,9 @@ jobs:
         run: php artisan key:generate
 
       - name: Tests
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_USERNAME: padelito
+          DB_PASSWORD: change-me-local
         run: ./vendor/bin/phpunit
