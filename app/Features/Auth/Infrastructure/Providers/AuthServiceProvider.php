@@ -12,6 +12,8 @@ use App\Features\Auth\Application\Commands\SendPasswordResetEmail\SendPasswordRe
 use App\Features\Auth\Application\Commands\SendPasswordResetEmail\SendPasswordResetEmailCommandHandler;
 use App\Features\Auth\Application\Commands\UpdateUserPassword\UpdateUserPasswordCommand;
 use App\Features\Auth\Application\Commands\UpdateUserPassword\UpdateUserPasswordCommandHandler;
+use App\Features\Auth\Application\Queries\GetCurrentUser\GetCurrentUserQuery;
+use App\Features\Auth\Application\Queries\GetCurrentUser\GetCurrentUserQueryHandler;
 use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQuery;
 use App\Features\Auth\Application\Queries\GetUserByEmail\GetUserByEmailQueryHandler;
 use App\Features\Auth\Domain\Contracts\PasswordHasherInterface;
@@ -49,6 +51,7 @@ final class AuthServiceProvider extends ServiceProvider
         $map->register(UpdateUserPasswordCommand::class, UpdateUserPasswordCommandHandler::class);
         $map->register(SendPasswordResetEmailCommand::class, SendPasswordResetEmailCommandHandler::class);
         $map->register(ConfirmPasswordResetCommand::class, ConfirmPasswordResetCommandHandler::class);
+        $map->register(GetCurrentUserQuery::class, GetCurrentUserQueryHandler::class);
         $map->register(GetUserByEmailQuery::class, GetUserByEmailQueryHandler::class);
     }
 }
