@@ -16,6 +16,7 @@ final readonly class RespondToMatchInvitationController
     public function __invoke(RespondToMatchInvitationRequest $request, string $id, string $invId): JsonResponse
     {
         $this->commandBus->dispatch(new RespondToMatchInvitationCommand(
+            matchId: $id,
             invitationId: $invId,
             responderId: $request->user()->id,
             accept: (bool) $request->input('accept'),

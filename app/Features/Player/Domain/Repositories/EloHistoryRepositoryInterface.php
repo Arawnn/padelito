@@ -13,4 +13,10 @@ interface EloHistoryRepositoryInterface
 
     /** @return list<EloHistoryEntry> */
     public function findByMatchId(string $matchId): array;
+
+    /**
+     * @param  list<string>  $matchIds
+     * @return list<EloHistoryEntry>
+     */
+    public function findByMatchIds(array $matchIds): array;
 }

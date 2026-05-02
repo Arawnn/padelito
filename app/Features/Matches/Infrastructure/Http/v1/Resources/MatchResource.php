@@ -4,42 +4,30 @@ declare(strict_types=1);
 
 namespace App\Features\Matches\Infrastructure\Http\v1\Resources;
 
-use App\Features\Matches\Infrastructure\Http\v1\ViewModels\MatchView;
+use App\Features\Matches\Application\ReadModels\MatchCard;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin MatchView */
+/** @mixin MatchCard */
 final class MatchResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $match = $this->resource->match;
-
         return [
-            'id' => $match->id()->value(),
-            'match_type' => $match->type()->value()->value,
-            'match_format' => $match->format()->value()->value,
-            'status' => $match->status()->value()->value,
-            'court_name' => $match->courtName()?->value(),
-            'match_date' => $match->matchDate()?->format('Y-m-d H:i:s'),
-            'notes' => $match->notes()?->value(),
-            'created_by' => $match->createdBy()->value(),
-            'team_a' => [
-                'player1_id' => $match->teamAPlayer1Id()->value(),
-                'player2_id' => $match->teamAPlayer2Id()?->value(),
-            ],
-            'team_b' => [
-                'player1_id' => $match->teamBPlayer1Id()?->value(),
-                'player2_id' => $match->teamBPlayer2Id()?->value(),
-            ],
-            'sets_to_win' => $match->setsToWin()->value(),
-            'score' => [
-                'team_a' => $match->teamAScore()?->value(),
-                'team_b' => $match->teamBScore()?->value(),
-                'sets_detail' => $match->setsDetail()?->sets(),
-            ],
+            'id' => $this->resource->id,
+            'match_type' => $this->resource->matchType,
+            'match_format' => $this->resource->matchFormat,
+            'status' => $this->resource->status,
+            'court_name' => $this->resource->courtName,
+            'match_date' => $this->resource->matchDate?->format('Y-m-d H:i:s'),
+            'notes' => $this->resource->notes,
+            'created_by' => $this->resource->createdBy,
+            'team_a' => $this->resource->teamA,
+            'team_b' => $this->resource->teamB,
+            'sets_to_win' => $this->resource->setsToWin,
+            'score' => $this->resource->score,
             'elo' => $this->resource->elo?->toArray(),
-            'confirmed_player_ids' => array_map(fn ($id) => $id->value(), $match->confirmedPlayerIds()),
+            'confirmed_player_ids' => $this->resource->confirmedPlayerIds,
         ];
     }
 }

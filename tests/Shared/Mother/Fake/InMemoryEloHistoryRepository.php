@@ -47,6 +47,11 @@ final class InMemoryEloHistoryRepository implements EloHistoryRepositoryInterfac
 
     public function findByMatchId(string $matchId): array
     {
+        return $this->findByMatchIds([$matchId]);
+    }
+
+    public function findByMatchIds(array $matchIds): array
+    {
         return array_values(array_map(
             fn (array $record): EloHistoryEntry => EloHistoryEntry::from(
                 playerId: $record['playerId'],
@@ -57,7 +62,7 @@ final class InMemoryEloHistoryRepository implements EloHistoryRepositoryInterfac
                 eloAfter: $record['eloAfter'],
                 eloChange: $record['eloChange'],
             ),
-            array_filter($this->records, fn (array $record): bool => $record['matchId'] === $matchId),
+            array_filter($this->records, fn (array $record): bool => in_array($record['matchId'], $matchIds, true)),
         ));
     }
 }

@@ -10,9 +10,11 @@ use App\Features\Matches\Domain\Events\MatchCreated;
 use App\Features\Matches\Domain\Events\MatchPlayerConfirmed;
 use App\Features\Matches\Domain\Events\MatchValidated;
 use App\Features\Matches\Domain\Exceptions\CannotSwitchToSinglesWithMultiplePlayersException;
+use App\Features\Matches\Domain\Exceptions\DuplicatePlayerInMatchException;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
 use App\Features\Matches\Domain\Exceptions\MatchNotReadyForConfirmationException;
+use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
 use App\Features\Matches\Domain\Exceptions\PlayerAlreadyConfirmedException;
 use App\Features\Matches\Domain\Exceptions\PlayerNotParticipantException;
 use App\Features\Matches\Domain\ValueObjects\CourtName;
@@ -163,14 +165,46 @@ final class PadelMatch extends AggregateRoot
     public function isTeamFull(Team $team): bool
     {
         if ($team->isA()) {
+            if ($this->configuration->format()->isSingles()) {
+                return true;
+            }
+
             return $this->composition->partner() !== null;
+        }
+
+        if ($this->configuration->format()->isSingles()) {
+            return $this->composition->opponent1() !== null;
         }
 
         return $this->composition->opponent1() !== null && $this->composition->opponent2() !== null;
     }
 
+    public function canAcceptInvitation(PlayerId $playerId, Team $team): bool
+    {
+        return ! $this->status->isValidated()
+            && ! $this->status->isCancelled()
+            && ! $this->isParticipant($playerId)
+            && ! $this->isTeamFull($team);
+    }
+
     public function assignPlayer(PlayerId $playerId, Team $team): void
     {
+        if ($this->status->isValidated()) {
+            throw MatchAlreadyValidatedException::create();
+        }
+
+        if ($this->status->isCancelled()) {
+            throw MatchAlreadyCancelledException::create();
+        }
+
+        if ($this->isParticipant($playerId)) {
+            throw DuplicatePlayerInMatchException::create();
+        }
+
+        if ($this->isTeamFull($team)) {
+            throw MatchTeamFullException::create();
+        }
+
         if ($team->isA()) {
             $this->composition = $this->composition->withPartner($playerId);
         } elseif ($this->composition->opponent1() === null) {
@@ -300,7 +334,7 @@ final class PadelMatch extends AggregateRoot
 
     public function updateFormat(MatchFormat $format): void
     {
-        if ($format->isSingles() && $this->composition->participantCount() >= 3) {
+        if ($format->isSingles() && ($this->composition->partner() !== null || $this->composition->opponent2() !== null)) {
             throw CannotSwitchToSinglesWithMultiplePlayersException::create();
         }
 

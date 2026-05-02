@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Matches\Application\Commands\InvitePlayerToMatch;
 
+use App\Features\Matches\Application\Contracts\PlayerRegistryInterface;
 use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Exceptions\DuplicatePlayerInMatchException;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
@@ -18,8 +19,6 @@ use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
-use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
-use App\Features\Player\Domain\ValueObjects\Id;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 
 final readonly class InvitePlayerToMatchCommandHandler
@@ -27,7 +26,7 @@ final readonly class InvitePlayerToMatchCommandHandler
     public function __construct(
         private MatchRepositoryInterface $matchRepository,
         private MatchInvitationRepositoryInterface $invitationRepository,
-        private PlayerRepositoryInterface $playerRepository,
+        private PlayerRegistryInterface $playerRegistry,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 
@@ -55,7 +54,7 @@ final readonly class InvitePlayerToMatchCommandHandler
             throw MatchAlreadyCancelledException::create();
         }
 
-        if (! $this->playerRepository->findById(Id::fromString($command->inviteeId))) {
+        if (! $this->playerRegistry->exists($inviteeId)) {
             throw PlayerNotRegisteredInAppException::forPlayer($command->inviteeId);
         }
 
@@ -70,7 +69,7 @@ final readonly class InvitePlayerToMatchCommandHandler
             throw DuplicatePlayerInMatchException::create();
         }
 
-        if ($type->isPartner() && $match->isTeamFull($type->toTeam())) {
+        if ($match->isTeamFull($type->toTeam())) {
             throw MatchTeamFullException::create();
         }
 

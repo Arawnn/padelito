@@ -39,8 +39,17 @@ final class EloquentEloHistoryRepository implements EloHistoryRepositoryInterfac
 
     public function findByMatchId(string $matchId): array
     {
+        return $this->findByMatchIds([$matchId]);
+    }
+
+    public function findByMatchIds(array $matchIds): array
+    {
+        if ($matchIds === []) {
+            return [];
+        }
+
         return EloHistory::query()
-            ->where('match_id', $matchId)
+            ->whereIn('match_id', array_values(array_unique($matchIds)))
             ->get()
             ->map(fn (EloHistory $entry): EloHistoryEntry => EloHistoryEntry::from(
                 playerId: $entry->player_id,

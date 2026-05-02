@@ -85,6 +85,11 @@ final class RegisterEndpointTest extends FeatureTestCase
                 return null;
             }
 
+            public function findByIds(array $_ids): array
+            {
+                return [];
+            }
+
             public function findByUsername(Username $_username): ?Player
             {
                 return null;

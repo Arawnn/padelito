@@ -1638,6 +1638,13 @@ CREATE INDEX cache_locks_expiration_index ON public.cache_locks USING btree (exp
 
 
 --
+-- Name: elo_history_match_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX elo_history_match_id_index ON public.elo_history USING btree (match_id);
+
+
+--
 -- Name: elo_history_player_id_recorded_at_index; Type: INDEX; Schema: public; Owner: -
 --
 

@@ -9,7 +9,9 @@ use App\Features\Matches\Application\Commands\RespondToMatchInvitation\RespondTo
 use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Events\MatchInvitationAccepted;
 use App\Features\Matches\Domain\Events\MatchInvitationDeclined;
+use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
+use App\Features\Matches\Domain\Exceptions\MatchInvitationNotFoundException;
 use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
 use App\Features\Matches\Domain\ValueObjects\InvitationStatus;
@@ -65,6 +67,7 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
         $this->invitationRepository->save($this->pendingInvitation());
 
         $this->makeHandler()(new RespondToMatchInvitationCommand(
+            matchId: self::MATCH_ID,
             invitationId: self::INVITATION_ID,
             responderId: self::INVITEE_ID,
             accept: true,
@@ -83,6 +86,7 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
         $this->invitationRepository->save($this->pendingInvitation());
 
         $this->makeHandler()(new RespondToMatchInvitationCommand(
+            matchId: self::MATCH_ID,
             invitationId: self::INVITATION_ID,
             responderId: self::INVITEE_ID,
             accept: false,
@@ -103,6 +107,7 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
         $this->invitationRepository->save($this->pendingInvitation());
 
         $this->makeHandler()(new RespondToMatchInvitationCommand(
+            matchId: self::MATCH_ID,
             invitationId: self::INVITATION_ID,
             responderId: '99999999-9999-9999-9999-999999999999',
             accept: true,
@@ -125,6 +130,7 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
         ));
 
         $this->makeHandler()(new RespondToMatchInvitationCommand(
+            matchId: self::MATCH_ID,
             invitationId: self::INVITATION_ID,
             responderId: self::INVITEE_ID,
             accept: false,
@@ -146,6 +152,7 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
         ));
 
         $this->makeHandler()(new RespondToMatchInvitationCommand(
+            matchId: self::MATCH_ID,
             invitationId: self::INVITATION_ID,
             responderId: self::INVITEE_ID,
             accept: true,
@@ -175,6 +182,7 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
 
         $this->expectException(MatchTeamFullException::class);
         $this->makeHandler()(new RespondToMatchInvitationCommand(
+            matchId: self::MATCH_ID,
             invitationId: self::INVITATION_ID,
             responderId: self::INVITEE_ID,
             accept: true,
@@ -191,6 +199,7 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
 
         $handler = $this->makeHandler();
         $handler(new RespondToMatchInvitationCommand(
+            matchId: self::MATCH_ID,
             invitationId: self::INVITATION_ID,
             responderId: self::INVITEE_ID,
             accept: true,
@@ -198,6 +207,7 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
 
         $this->expectException(MatchTeamFullException::class);
         $handler(new RespondToMatchInvitationCommand(
+            matchId: self::MATCH_ID,
             invitationId: self::SECOND_INVITATION_ID,
             responderId: self::SECOND_INVITEE_ID,
             accept: true,
@@ -216,6 +226,7 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
 
         $this->expectException(MatchAlreadyValidatedException::class);
         $this->makeHandler()(new RespondToMatchInvitationCommand(
+            matchId: self::MATCH_ID,
             invitationId: self::INVITATION_ID,
             responderId: self::INVITEE_ID,
             accept: true,
@@ -234,9 +245,42 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
 
         $this->expectException(MatchAlreadyValidatedException::class);
         $this->makeHandler()(new RespondToMatchInvitationCommand(
+            matchId: self::MATCH_ID,
             invitationId: self::INVITATION_ID,
             responderId: self::INVITEE_ID,
             accept: false,
+        ));
+    }
+
+    public function test_cannot_respond_to_invitation_through_a_different_match_route(): void
+    {
+        $this->invitationRepository->save($this->pendingInvitation());
+
+        $this->expectException(MatchInvitationNotFoundException::class);
+        $this->makeHandler()(new RespondToMatchInvitationCommand(
+            matchId: '99999999-9999-9999-9999-999999999999',
+            invitationId: self::INVITATION_ID,
+            responderId: self::INVITEE_ID,
+            accept: true,
+        ));
+    }
+
+    public function test_cannot_respond_to_invitation_when_match_is_cancelled(): void
+    {
+        $cancelledMatch = MatchMother::create()
+            ->withId(self::MATCH_ID)
+            ->withCreator(self::CREATOR_ID)
+            ->withStatus('cancelled')
+            ->build();
+        $this->matchRepository->save($cancelledMatch);
+        $this->invitationRepository->save($this->pendingInvitation());
+
+        $this->expectException(MatchAlreadyCancelledException::class);
+        $this->makeHandler()(new RespondToMatchInvitationCommand(
+            matchId: self::MATCH_ID,
+            invitationId: self::INVITATION_ID,
+            responderId: self::INVITEE_ID,
+            accept: true,
         ));
     }
 

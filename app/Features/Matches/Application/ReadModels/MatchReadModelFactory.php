@@ -2,34 +2,39 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Matches\Infrastructure\Http\v1\ViewModels;
+namespace App\Features\Matches\Application\ReadModels;
 
 use App\Features\Matches\Domain\Entities\PadelMatch;
+use App\Features\Player\Application\Contracts\MatchEloSummaryReader;
 use App\Features\Player\Application\Dto\MatchEloInput;
-use App\Features\Player\Application\Services\MatchEloSummaryProvider;
 
-final readonly class MatchViewFactory
+final readonly class MatchReadModelFactory
 {
     public function __construct(
-        private MatchEloSummaryProvider $eloSummaryProvider,
+        private MatchEloSummaryReader $matchEloSummaryReader,
     ) {}
 
-    public function fromMatch(PadelMatch $match, ?string $currentUserId): MatchView
+    public function detailsFromMatch(PadelMatch $match, ?string $currentUserId): MatchDetails
     {
-        return new MatchView(
-            match: $match,
-            elo: $this->eloSummaryProvider->forMatch($this->toEloInput($match), $currentUserId),
+        return MatchDetails::fromMatch(
+            $match,
+            $this->matchEloSummaryReader->forMatch($this->toEloInput($match), $currentUserId),
         );
     }
 
     /**
      * @param  list<PadelMatch>  $matches
-     * @return list<MatchView>
+     * @return list<MatchCard>
      */
-    public function fromMatches(array $matches, ?string $currentUserId): array
+    public function cardsFromMatches(array $matches, ?string $currentUserId): array
     {
+        $eloByMatchId = $this->matchEloSummaryReader->summariesForMatches(
+            array_map(fn (PadelMatch $match): MatchEloInput => $this->toEloInput($match), $matches),
+            $currentUserId,
+        );
+
         return array_map(
-            fn (PadelMatch $match): MatchView => $this->fromMatch($match, $currentUserId),
+            fn (PadelMatch $match): MatchCard => MatchCard::fromMatch($match, $eloByMatchId[$match->id()->value()] ?? null),
             $matches,
         );
     }

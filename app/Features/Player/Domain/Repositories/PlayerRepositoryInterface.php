@@ -12,6 +12,12 @@ interface PlayerRepositoryInterface
 {
     public function findById(Id $id): ?Player;
 
+    /**
+     * @param  list<Id>  $ids
+     * @return array<string, Player>
+     */
+    public function findByIds(array $ids): array;
+
     public function findByUsername(Username $username): ?Player;
 
     public function save(Player $profile): void;

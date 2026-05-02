@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Player\Application\Services;
 
+use App\Features\Player\Application\Contracts\MatchEloSummaryReader;
 use App\Features\Player\Application\Dto\MatchEloInput;
 use App\Features\Player\Application\Dto\MatchEloSummary;
 use App\Features\Player\Domain\Entities\Player;
@@ -13,7 +14,7 @@ use App\Features\Player\Domain\Services\EloCalculationService;
 use App\Features\Player\Domain\ValueObjects\EloHistoryEntry;
 use App\Features\Player\Domain\ValueObjects\Id;
 
-final readonly class MatchEloSummaryProvider
+final readonly class MatchEloSummaryProvider implements MatchEloSummaryReader
 {
     public function __construct(
         private PlayerRepositoryInterface $playerRepository,
@@ -23,20 +24,36 @@ final readonly class MatchEloSummaryProvider
 
     public function forMatch(MatchEloInput $input, ?string $currentUserId): ?MatchEloSummary
     {
-        if (! $input->isRanked) {
-            return null;
-        }
-
-        if ($input->isValidated) {
-            return $this->confirmedSummary($input, $currentUserId);
-        }
-
-        return $this->projectedSummary($input, $currentUserId);
+        return $this->summariesForMatches([$input], $currentUserId)[$input->matchId] ?? null;
     }
 
-    private function confirmedSummary(MatchEloInput $input, ?string $currentUserId): ?MatchEloSummary
+    public function summariesForMatches(array $inputs, ?string $currentUserId): array
     {
-        $entries = $this->eloHistoryRepository->findByMatchId($input->matchId);
+        $rankedInputs = array_values(array_filter($inputs, fn (MatchEloInput $input): bool => $input->isRanked));
+        if ($rankedInputs === []) {
+            return [];
+        }
+
+        $entriesByMatchId = $this->entriesByMatchId($rankedInputs);
+        $players = $this->loadPlayers($this->projectedPlayerIds($rankedInputs));
+        $summaries = [];
+
+        foreach ($rankedInputs as $input) {
+            $summary = $input->isValidated
+                ? $this->confirmedSummary($input, $currentUserId, $entriesByMatchId[$input->matchId] ?? [])
+                : $this->projectedSummary($input, $currentUserId, $players);
+
+            if ($summary !== null) {
+                $summaries[$input->matchId] = $summary;
+            }
+        }
+
+        return $summaries;
+    }
+
+    /** @param list<EloHistoryEntry> $entries */
+    private function confirmedSummary(MatchEloInput $input, ?string $currentUserId, array $entries): ?MatchEloSummary
+    {
         if ($entries === []) {
             return null;
         }
@@ -60,7 +77,8 @@ final readonly class MatchEloSummaryProvider
         );
     }
 
-    private function projectedSummary(MatchEloInput $input, ?string $currentUserId): ?MatchEloSummary
+    /** @param array<string, Player> $players */
+    private function projectedSummary(MatchEloInput $input, ?string $currentUserId, array $players): ?MatchEloSummary
     {
         if ($input->teamAScore === null || $input->teamBScore === null) {
             return null;
@@ -70,9 +88,10 @@ final readonly class MatchEloSummaryProvider
             return null;
         }
 
-        $players = $this->loadPlayers([...$input->teamAPlayerIds, ...$input->teamBPlayerIds]);
-        if (count($players) !== count([...$input->teamAPlayerIds, ...$input->teamBPlayerIds])) {
-            return null;
+        foreach ([...$input->teamAPlayerIds, ...$input->teamBPlayerIds] as $playerId) {
+            if (! isset($players[$playerId])) {
+                return null;
+            }
         }
 
         $teamAElos = array_map(fn (string $id): int => $players[$id]->stats()->eloRating()->value(), $input->teamAPlayerIds);
@@ -103,16 +122,49 @@ final readonly class MatchEloSummaryProvider
      */
     private function loadPlayers(array $playerIds): array
     {
-        $players = [];
-
-        foreach ($playerIds as $playerId) {
-            $player = $this->playerRepository->findById(Id::fromString($playerId));
-            if ($player !== null) {
-                $players[$playerId] = $player;
-            }
+        $playerIds = array_values(array_unique($playerIds));
+        if ($playerIds === []) {
+            return [];
         }
 
-        return $players;
+        return $this->playerRepository->findByIds(array_map(fn (string $playerId): Id => Id::fromString($playerId), $playerIds));
+    }
+
+    /**
+     * @param  list<MatchEloInput>  $inputs
+     * @return array<string, list<EloHistoryEntry>>
+     */
+    private function entriesByMatchId(array $inputs): array
+    {
+        $matchIds = array_values(array_unique(array_map(
+            fn (MatchEloInput $input): string => $input->matchId,
+            array_filter($inputs, fn (MatchEloInput $input): bool => $input->isValidated),
+        )));
+
+        $entriesByMatchId = [];
+        foreach ($this->eloHistoryRepository->findByMatchIds($matchIds) as $entry) {
+            $entriesByMatchId[$entry->matchId][] = $entry;
+        }
+
+        return $entriesByMatchId;
+    }
+
+    /**
+     * @param  list<MatchEloInput>  $inputs
+     * @return list<string>
+     */
+    private function projectedPlayerIds(array $inputs): array
+    {
+        $playerIds = [];
+        foreach ($inputs as $input) {
+            if ($input->isValidated) {
+                continue;
+            }
+
+            $playerIds = [...$playerIds, ...$input->teamAPlayerIds, ...$input->teamBPlayerIds];
+        }
+
+        return array_values(array_unique($playerIds));
     }
 
     /** @param list<EloHistoryEntry> $entries */

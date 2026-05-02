@@ -31,6 +31,10 @@ final readonly class UpdatePlayerStatsWhenMatchValidated implements DomainEventS
 
     public function __invoke(MatchValidated $event): void
     {
+        if ($event->ranked && $this->eloHistoryRepository->findByMatchId($event->matchId) !== []) {
+            return;
+        }
+
         $players = $this->loadPlayers($event);
 
         [$teamAChange, $teamBChange] = $event->ranked

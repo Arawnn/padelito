@@ -179,11 +179,13 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
 
         $respondHandler = $this->makeRespondHandler();
         $respondHandler(new RespondToMatchInvitationCommand(
+            matchId: $match->id()->value(),
             invitationId: $invitation->id()->value(),
             responderId: self::INVITEE_ID,
             accept: true,
         ));
         $respondHandler(new RespondToMatchInvitationCommand(
+            matchId: $match->id()->value(),
             invitationId: $invitation->id()->value(),
             responderId: self::INVITEE_ID,
             accept: false,
@@ -215,7 +217,7 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
         return new InvitePlayerToMatchCommandHandler(
             matchRepository: $this->matchRepository,
             invitationRepository: $this->invitationRepository,
-            playerRepository: $this->playerRepository,
+            playerRegistry: $this->playerRepository,
             eventDispatcher: new SpyEventDispatcher,
         );
     }

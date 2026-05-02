@@ -89,7 +89,7 @@ final class CreateMatchCommandHandlerTest extends TestCase
     {
         return new CreateMatchCommandHandler(
             matchRepository: $this->matchRepository,
-            playerRepository: $this->playerRepository,
+            playerRegistry: $this->playerRepository,
             eventDispatcher: $this->eventDispatcher,
         );
     }

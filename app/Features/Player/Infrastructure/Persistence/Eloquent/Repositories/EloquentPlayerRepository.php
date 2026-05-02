@@ -24,6 +24,19 @@ final class EloquentPlayerRepository implements PlayerRepositoryInterface
         return $model ? $this->mapper->toDomain($model) : null;
     }
 
+    public function findByIds(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        return EloquentPlayer::query()
+            ->whereIn('id', array_values(array_unique(array_map(fn (Id $id): string => $id->value(), $ids))))
+            ->get()
+            ->mapWithKeys(fn (EloquentPlayer $model): array => [$model->id => $this->mapper->toDomain($model)])
+            ->all();
+    }
+
     public function findByUsername(Username $username): ?Player
     {
         $model = EloquentPlayer::where('username', $username->value())->first();

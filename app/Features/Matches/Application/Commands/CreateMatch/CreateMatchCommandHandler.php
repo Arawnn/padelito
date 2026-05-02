@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Matches\Application\Commands\CreateMatch;
 
+use App\Features\Matches\Application\Contracts\PlayerRegistryInterface;
 use App\Features\Matches\Domain\Entities\PadelMatch;
 use App\Features\Matches\Domain\Enums\MatchFormatEnum;
 use App\Features\Matches\Domain\Enums\MatchTypeEnum;
@@ -16,8 +17,6 @@ use App\Features\Matches\Domain\ValueObjects\MatchType;
 use App\Features\Matches\Domain\ValueObjects\Notes;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Features\Matches\Domain\ValueObjects\SetsToWin;
-use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
-use App\Features\Player\Domain\ValueObjects\Id;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
 use DateTimeImmutable;
 
@@ -25,7 +24,7 @@ final readonly class CreateMatchCommandHandler
 {
     public function __construct(
         private MatchRepositoryInterface $matchRepository,
-        private PlayerRepositoryInterface $playerRepository,
+        private PlayerRegistryInterface $playerRegistry,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 
@@ -33,7 +32,7 @@ final readonly class CreateMatchCommandHandler
     {
         $creatorId = PlayerId::fromString($command->creatorId);
 
-        if (! $this->playerRepository->findById(Id::fromString($command->creatorId))) {
+        if (! $this->playerRegistry->exists($creatorId)) {
             throw PlayerNotRegisteredInAppException::forPlayer($command->creatorId);
         }
 

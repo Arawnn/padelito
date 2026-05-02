@@ -8,5 +8,6 @@ final readonly class GetMatchQuery
 {
     public function __construct(
         public string $matchId,
+        public ?string $currentUserId = null,
     ) {}
 }

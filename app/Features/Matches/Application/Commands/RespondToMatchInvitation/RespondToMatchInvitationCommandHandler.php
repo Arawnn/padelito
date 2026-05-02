@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Matches\Application\Commands\RespondToMatchInvitation;
 
 use App\Features\Matches\Domain\Events\MatchConfirmationsReset;
+use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
 use App\Features\Matches\Domain\Exceptions\MatchInvitationNotFoundException;
 use App\Features\Matches\Domain\Exceptions\MatchNotFoundException;
@@ -12,6 +13,7 @@ use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
 use App\Features\Matches\Domain\Repositories\MatchInvitationRepositoryInterface;
 use App\Features\Matches\Domain\Repositories\MatchRepositoryInterface;
+use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Shared\Domain\Contracts\EventDispatcherInterface;
@@ -28,6 +30,7 @@ final readonly class RespondToMatchInvitationCommandHandler
     public function __invoke(RespondToMatchInvitationCommand $command): void
     {
         $invitationId = MatchInvitationId::fromString($command->invitationId);
+        $matchId = MatchId::fromString($command->matchId);
         $responderId = PlayerId::fromString($command->responderId);
 
         $invitation = $this->invitationRepository->findById($invitationId);
@@ -35,17 +38,25 @@ final readonly class RespondToMatchInvitationCommandHandler
             throw MatchInvitationNotFoundException::create();
         }
 
+        if ($invitation->matchId()->value() !== $matchId->value()) {
+            throw MatchInvitationNotFoundException::create();
+        }
+
         if (! $invitation->inviteeId()->equals($responderId)) {
             throw UnauthorizedMatchOperationException::create();
         }
 
-        $match = $this->matchRepository->findById($invitation->matchId());
+        $match = $this->matchRepository->findById($matchId);
         if ($match === null) {
             throw MatchNotFoundException::create();
         }
 
         if ($match->status()->isValidated()) {
             throw MatchAlreadyValidatedException::create();
+        }
+
+        if ($match->status()->isCancelled()) {
+            throw MatchAlreadyCancelledException::create();
         }
 
         $events = new DomainEventCollection;
