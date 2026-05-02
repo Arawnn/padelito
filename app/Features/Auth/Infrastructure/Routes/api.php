@@ -1,6 +1,7 @@
 <?php
 
 use App\Features\Auth\Infrastructure\Http\v1\Controllers\ConfirmPasswordResetController;
+use App\Features\Auth\Infrastructure\Http\v1\Controllers\CurrentUserController;
 use App\Features\Auth\Infrastructure\Http\v1\Controllers\LoginController;
 use App\Features\Auth\Infrastructure\Http\v1\Controllers\LogoutController;
 use App\Features\Auth\Infrastructure\Http\v1\Controllers\ResetPasswordController;
@@ -13,5 +14,6 @@ Route::middleware(['api'])->prefix('api/v1')->group(function () {
 });
 
 Route::middleware(['api', 'auth:sanctum'])->prefix('api/v1')->group(function () {
+    Route::get('me', CurrentUserController::class)->name('me');
     Route::post('logout', LogoutController::class)->name('logout');
 });
