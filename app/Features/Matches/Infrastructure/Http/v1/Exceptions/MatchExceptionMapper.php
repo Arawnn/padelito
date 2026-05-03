@@ -6,6 +6,8 @@ namespace App\Features\Matches\Infrastructure\Http\v1\Exceptions;
 
 use App\Features\Matches\Domain\Exceptions\CannotSwitchToSinglesWithMultiplePlayersException;
 use App\Features\Matches\Domain\Exceptions\DuplicatePlayerInMatchException;
+use App\Features\Matches\Domain\Exceptions\InvalidCourtNameException;
+use App\Features\Matches\Domain\Exceptions\InvalidSetsDetailException;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
 use App\Features\Matches\Domain\Exceptions\MatchInvitationAlreadyRespondedException;
@@ -39,6 +41,8 @@ final class MatchExceptionMapper implements DomainExceptionRendererInterface
         PlayerNotParticipantException::class => Response::HTTP_FORBIDDEN,
         MatchNotReadyForConfirmationException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         CannotSwitchToSinglesWithMultiplePlayersException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+        InvalidSetsDetailException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+        InvalidCourtNameException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
     ];
 
     private const CLIENT_MESSAGES = [
@@ -55,6 +59,8 @@ final class MatchExceptionMapper implements DomainExceptionRendererInterface
         'PLAYER_NOT_PARTICIPANT' => 'You are not a participant in this match.',
         'MATCH_NOT_READY_FOR_CONFIRMATION' => 'The match is not ready for confirmation yet.',
         'CANNOT_SWITCH_TO_SINGLES_WITH_MULTIPLE_PLAYERS' => 'Cannot switch to singles format with multiple players already assigned.',
+        'INVALID_SETS_DETAIL' => 'The sets detail is invalid.',
+        'INVALID_COURT_NAME' => 'The court name is invalid.',
     ];
 
     public function handles(DomainExceptionInterface $e): bool
