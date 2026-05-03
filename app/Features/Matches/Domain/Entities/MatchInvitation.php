@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Matches\Domain\Entities;
 
 use App\Features\Matches\Domain\Events\MatchInvitationAccepted;
+use App\Features\Matches\Domain\Events\MatchInvitationCancelled;
 use App\Features\Matches\Domain\Events\MatchInvitationDeclined;
 use App\Features\Matches\Domain\Events\PlayerInvitedToMatch;
 use App\Features\Matches\Domain\ValueObjects\InvitationStatus;
@@ -98,6 +99,21 @@ final class MatchInvitation extends AggregateRoot
         $this->status = InvitationStatus::declined();
         $this->respondedAt = new DateTimeImmutable;
         $this->recordDomainEvent(new MatchInvitationDeclined(
+            matchId: $this->matchId->value(),
+            playerId: $this->inviteeId->value(),
+            invitationId: $this->id->value(),
+        ));
+    }
+
+    public function cancel(): void
+    {
+        if ($this->status->isDeclined() || $this->status->isCancelled()) {
+            return;
+        }
+
+        $this->status = InvitationStatus::cancelled();
+        $this->respondedAt = new DateTimeImmutable;
+        $this->recordDomainEvent(new MatchInvitationCancelled(
             matchId: $this->matchId->value(),
             playerId: $this->inviteeId->value(),
             invitationId: $this->id->value(),

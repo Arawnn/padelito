@@ -19,4 +19,7 @@ interface MatchInvitationRepositoryInterface
 
     /** @return list<MatchInvitation> */
     public function findPendingByInvitee(PlayerId $inviteeId): array;
+
+    /** @return list<MatchInvitation> */
+    public function findCancellableByMatchId(MatchId $matchId): array;
 }

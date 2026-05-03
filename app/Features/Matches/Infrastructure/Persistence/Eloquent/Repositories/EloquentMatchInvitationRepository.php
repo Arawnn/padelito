@@ -50,4 +50,15 @@ final class EloquentMatchInvitationRepository implements MatchInvitationReposito
             ->map(fn (EloquentMatchInvitation $m) => $this->mapper->invitationToDomain($m))
             ->all();
     }
+
+    /** @return list<MatchInvitation> */
+    public function findCancellableByMatchId(MatchId $matchId): array
+    {
+        return EloquentMatchInvitation::where('match_id', $matchId->value())
+            ->whereIn('status', ['pending', 'accepted'])
+            ->orderByDesc('invited_at')
+            ->get()
+            ->map(fn (EloquentMatchInvitation $m) => $this->mapper->invitationToDomain($m))
+            ->all();
+    }
 }

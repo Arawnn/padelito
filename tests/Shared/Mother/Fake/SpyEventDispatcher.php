@@ -45,4 +45,9 @@ final class SpyEventDispatcher implements EventDispatcherInterface
 
         return null;
     }
+
+    public function count(string $eventClass): int
+    {
+        return count(array_filter($this->dispatched, fn (DomainEvent $event) => $event instanceof $eventClass));
+    }
 }

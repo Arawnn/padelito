@@ -17,6 +17,7 @@ use App\Features\Matches\Application\Commands\RespondToMatchInvitation\RespondTo
 use App\Features\Matches\Application\Commands\UpdateMatch\UpdateMatchCommand;
 use App\Features\Matches\Application\Commands\UpdateMatch\UpdateMatchCommandHandler;
 use App\Features\Matches\Application\Contracts\PlayerRegistryInterface;
+use App\Features\Matches\Application\Events\CancelActiveInvitationsWhenMatchCancelled;
 use App\Features\Matches\Application\Queries\GetMatch\GetMatchQuery;
 use App\Features\Matches\Application\Queries\GetMatch\GetMatchQueryHandler;
 use App\Features\Matches\Application\Queries\GetMyMatches\GetMyMatchesQuery;
@@ -42,6 +43,7 @@ final class MatchServiceProvider extends ServiceProvider
 
         $this->app->bind(MatchExceptionMapper::class);
         $this->app->tag([MatchExceptionMapper::class], 'domain_exception_renderers');
+        $this->app->tag([CancelActiveInvitationsWhenMatchCancelled::class], 'domain_event_subscribers');
     }
 
     public function boot(): void

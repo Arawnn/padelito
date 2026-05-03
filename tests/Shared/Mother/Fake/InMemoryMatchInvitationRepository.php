@@ -43,4 +43,10 @@ final class InMemoryMatchInvitationRepository implements MatchInvitationReposito
     {
         return array_values(array_filter($this->store, fn (MatchInvitation $i) => $i->inviteeId()->value() === $inviteeId->value() && $i->status()->isPending()));
     }
+
+    /** @return list<MatchInvitation> */
+    public function findCancellableByMatchId(MatchId $matchId): array
+    {
+        return array_values(array_filter($this->store, fn (MatchInvitation $i) => $i->matchId()->value() === $matchId->value() && ($i->status()->isPending() || $i->status()->isAccepted())));
+    }
 }

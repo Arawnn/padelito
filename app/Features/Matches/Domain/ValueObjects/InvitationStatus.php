@@ -30,6 +30,11 @@ final readonly class InvitationStatus
         return new self(InvitationStatusEnum::DECLINED);
     }
 
+    public static function cancelled(): self
+    {
+        return new self(InvitationStatusEnum::CANCELLED);
+    }
+
     public function value(): InvitationStatusEnum
     {
         return $this->value;
@@ -48,5 +53,10 @@ final readonly class InvitationStatus
     public function isDeclined(): bool
     {
         return $this->value === InvitationStatusEnum::DECLINED;
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->value === InvitationStatusEnum::CANCELLED;
     }
 }
