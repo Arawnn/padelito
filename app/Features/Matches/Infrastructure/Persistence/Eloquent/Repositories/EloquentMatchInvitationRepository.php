@@ -6,6 +6,7 @@ namespace App\Features\Matches\Infrastructure\Persistence\Eloquent\Repositories;
 
 use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Repositories\MatchInvitationRepositoryInterface;
+use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
@@ -25,10 +26,11 @@ final class EloquentMatchInvitationRepository implements MatchInvitationReposito
         return $model ? $this->mapper->invitationToDomain($model) : null;
     }
 
-    public function findByMatchAndInvitee(MatchId $matchId, PlayerId $inviteeId): ?MatchInvitation
+    public function findByMatchInviteeAndType(MatchId $matchId, PlayerId $inviteeId, InvitationType $type): ?MatchInvitation
     {
         $model = EloquentMatchInvitation::where('match_id', $matchId->value())
             ->where('invitee_id', $inviteeId->value())
+            ->where('type', $type->value()->value)
             ->first();
 
         return $model ? $this->mapper->invitationToDomain($model) : null;

@@ -6,6 +6,7 @@ namespace Tests\Shared\Mother\Fake;
 
 use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Repositories\MatchInvitationRepositoryInterface;
+use App\Features\Matches\Domain\ValueObjects\InvitationType;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
 use App\Features\Matches\Domain\ValueObjects\MatchInvitationId;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
@@ -20,11 +21,12 @@ final class InMemoryMatchInvitationRepository implements MatchInvitationReposito
         return $this->store[$id->value()] ?? null;
     }
 
-    public function findByMatchAndInvitee(MatchId $matchId, PlayerId $inviteeId): ?MatchInvitation
+    public function findByMatchInviteeAndType(MatchId $matchId, PlayerId $inviteeId, InvitationType $type): ?MatchInvitation
     {
         foreach ($this->store as $invitation) {
             if ($invitation->matchId()->value() === $matchId->value()
                 && $invitation->inviteeId()->value() === $inviteeId->value()
+                && $invitation->type()->value() === $type->value()
             ) {
                 return $invitation;
             }

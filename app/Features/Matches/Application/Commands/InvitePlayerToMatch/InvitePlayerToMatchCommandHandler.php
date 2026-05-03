@@ -64,7 +64,7 @@ final readonly class InvitePlayerToMatchCommandHandler
             }
         }
 
-        $existing = $this->invitationRepository->findByMatchAndInvitee($matchId, $inviteeId);
+        $existing = $this->invitationRepository->findByMatchInviteeAndType($matchId, $inviteeId, $type);
         if ($existing !== null && $existing->status()->isPending()) {
             throw DuplicatePlayerInMatchException::create();
         }

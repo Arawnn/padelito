@@ -146,6 +146,55 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
         $this->assertTrue($second->type()->isPartner());
     }
 
+    public function test_cannot_create_duplicate_pending_invitation_for_same_player_and_type(): void
+    {
+        $this->expectException(DuplicatePlayerInMatchException::class);
+
+        $match = MatchMother::create()->withCreator(self::CREATOR_ID)->build();
+        $this->matchRepository->save($match);
+
+        $handler = $this->makeHandler();
+        $handler(new InvitePlayerToMatchCommand(
+            matchId: $match->id()->value(),
+            inviterId: self::CREATOR_ID,
+            inviteeId: self::INVITEE_ID,
+            type: 'partner',
+        ));
+
+        $handler(new InvitePlayerToMatchCommand(
+            matchId: $match->id()->value(),
+            inviterId: self::CREATOR_ID,
+            inviteeId: self::INVITEE_ID,
+            type: 'partner',
+        ));
+    }
+
+    public function test_it_allows_pending_invitations_for_same_player_with_different_types(): void
+    {
+        $match = MatchMother::create()->withCreator(self::CREATOR_ID)->build();
+        $this->matchRepository->save($match);
+
+        $handler = $this->makeHandler();
+        $partnerInvitation = $handler(new InvitePlayerToMatchCommand(
+            matchId: $match->id()->value(),
+            inviterId: self::CREATOR_ID,
+            inviteeId: self::INVITEE_ID,
+            type: 'partner',
+        ));
+
+        $opponentInvitation = $handler(new InvitePlayerToMatchCommand(
+            matchId: $match->id()->value(),
+            inviterId: self::CREATOR_ID,
+            inviteeId: self::INVITEE_ID,
+            type: 'opponent',
+        ));
+
+        $this->assertTrue($partnerInvitation->type()->isPartner());
+        $this->assertTrue($opponentInvitation->type()->isOpponent());
+        $this->assertTrue($partnerInvitation->status()->isPending());
+        $this->assertTrue($opponentInvitation->status()->isPending());
+    }
+
     public function test_cannot_invite_partner_when_partner_slot_is_already_filled(): void
     {
         $this->expectException(MatchTeamFullException::class);
