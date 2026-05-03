@@ -16,15 +16,15 @@ class UpdateMatchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'match_type' => ['sometimes', 'nullable', Rule::in(array_column(MatchTypeEnum::cases(), 'value'))],
-            'match_format' => ['sometimes', 'nullable', Rule::in(array_column(MatchFormatEnum::cases(), 'value'))],
+            'match_type' => ['sometimes', Rule::in(array_column(MatchTypeEnum::cases(), 'value'))],
+            'match_format' => ['sometimes', Rule::in(array_column(MatchFormatEnum::cases(), 'value'))],
             'court_name' => ['sometimes', 'nullable', 'string', 'max:100'],
             'match_date' => ['sometimes', 'nullable', 'date'],
             'notes' => ['sometimes', 'nullable', 'string', 'max:1000'],
             'sets_detail' => ['sometimes', 'nullable', 'array'],
             'sets_detail.*.a' => ['required_with:sets_detail', 'integer', 'min:0'],
             'sets_detail.*.b' => ['required_with:sets_detail', 'integer', 'min:0'],
-            'sets_to_win' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:3'],
+            'sets_to_win' => ['sometimes', 'integer', 'min:1', 'max:3'],
         ];
     }
 

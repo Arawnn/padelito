@@ -77,31 +77,31 @@ final readonly class UpdateMatchCommandHandler
 
     private function applyUpdates(PadelMatch $match, UpdateMatchCommand $command): void
     {
-        if ($command->courtName !== null) {
-            $match->updateCourtName(CourtName::fromString($command->courtName));
+        if ($command->has('courtName')) {
+            $match->updateCourtName($command->courtName !== null ? CourtName::fromString($command->courtName) : null);
         }
 
-        if ($command->matchDate !== null) {
-            $match->updateMatchDate(new DateTimeImmutable($command->matchDate));
+        if ($command->has('matchDate')) {
+            $match->updateMatchDate($command->matchDate !== null ? new DateTimeImmutable($command->matchDate) : null);
         }
 
-        if ($command->notes !== null) {
-            $match->updateNotes(Notes::fromString($command->notes));
+        if ($command->has('notes')) {
+            $match->updateNotes($command->notes !== null ? Notes::fromString($command->notes) : null);
         }
 
-        if ($command->matchFormat !== null) {
+        if ($command->has('matchFormat') && $command->matchFormat !== null) {
             $match->updateFormat(MatchFormat::fromEnum(MatchFormatEnum::from($command->matchFormat)));
         }
 
-        if ($command->matchType !== null) {
+        if ($command->has('matchType') && $command->matchType !== null) {
             $match->updateType(MatchType::fromEnum(MatchTypeEnum::from($command->matchType)));
         }
 
-        if ($command->setsDetail !== null) {
-            $match->updateSetsDetail(SetsDetail::fromArray($command->setsDetail));
+        if ($command->has('setsDetail')) {
+            $match->updateSetsDetail($command->setsDetail !== null ? SetsDetail::fromArray($command->setsDetail) : null);
         }
 
-        if ($command->setsToWin !== null) {
+        if ($command->has('setsToWin') && $command->setsToWin !== null) {
             $match->updateSetsToWin(SetsToWin::fromInt($command->setsToWin));
         }
     }

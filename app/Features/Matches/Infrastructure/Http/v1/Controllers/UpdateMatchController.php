@@ -20,19 +20,48 @@ final readonly class UpdateMatchController
 
     public function __invoke(UpdateMatchRequest $request, string $id): JsonResponse
     {
+        $validated = $request->validated();
+
         $match = $this->commandBus->dispatch(new UpdateMatchCommand(
             matchId: $id,
             requesterId: $request->user()->id,
-            courtName: $request->input('court_name'),
-            matchDate: $request->input('match_date'),
-            notes: $request->input('notes'),
-            matchFormat: $request->input('match_format'),
-            matchType: $request->input('match_type'),
-            setsDetail: $request->input('sets_detail'),
-            setsToWin: $request->input('sets_to_win') !== null ? (int) $request->input('sets_to_win') : null,
+            courtName: $validated['court_name'] ?? null,
+            matchDate: $validated['match_date'] ?? null,
+            notes: $validated['notes'] ?? null,
+            matchFormat: $validated['match_format'] ?? null,
+            matchType: $validated['match_type'] ?? null,
+            setsDetail: $validated['sets_detail'] ?? null,
+            setsToWin: array_key_exists('sets_to_win', $validated) ? (int) $validated['sets_to_win'] : null,
+            fields: $this->providedFields($validated),
         ));
         $view = $this->matchReadModelFactory->detailsFromMatch($match, $request->user()->id);
 
         return (new MatchResource($view))->response()->setStatusCode(200);
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     * @return list<string>
+     */
+    private function providedFields(array $validated): array
+    {
+        $fields = [];
+        $map = [
+            'court_name' => 'courtName',
+            'match_date' => 'matchDate',
+            'notes' => 'notes',
+            'match_format' => 'matchFormat',
+            'match_type' => 'matchType',
+            'sets_detail' => 'setsDetail',
+            'sets_to_win' => 'setsToWin',
+        ];
+
+        foreach ($map as $requestField => $commandField) {
+            if (array_key_exists($requestField, $validated)) {
+                $fields[] = $commandField;
+            }
+        }
+
+        return $fields;
     }
 }

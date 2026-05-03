@@ -121,6 +121,39 @@ final class MatchEndpointsTest extends FeatureTestCase
             ->assertJsonPath('data.court_name', 'Updated Court');
     }
 
+    public function test_creator_can_clear_nullable_match_fields(): void
+    {
+        Sanctum::actingAs($this->creator);
+
+        $matchId = $this->postJson('/api/v1/matches', [
+            'match_type' => 'friendly',
+            'match_format' => 'doubles',
+            'court_name' => 'Court A',
+            'notes' => 'Bring balls',
+        ])->json('data.id');
+
+        $this->patchJson("/api/v1/matches/{$matchId}", ['court_name' => null, 'notes' => null])
+            ->assertStatus(200)
+            ->assertJsonPath('data.court_name', null)
+            ->assertJsonPath('data.notes', null);
+
+        $this->assertDatabaseHas('matches', ['id' => $matchId, 'court_name' => null, 'notes' => null]);
+    }
+
+    public function test_update_rejects_null_for_non_nullable_match_fields(): void
+    {
+        Sanctum::actingAs($this->creator);
+
+        $matchId = $this->postJson('/api/v1/matches', ['match_type' => 'friendly', 'match_format' => 'doubles'])
+            ->json('data.id');
+
+        $this->patchJson("/api/v1/matches/{$matchId}", [
+            'match_type' => null,
+            'match_format' => null,
+            'sets_to_win' => null,
+        ])->assertStatus(422);
+    }
+
     // ─── GetMyMatches ─────────────────────────────────────────────────────────
 
     public function test_player_can_list_their_matches(): void
