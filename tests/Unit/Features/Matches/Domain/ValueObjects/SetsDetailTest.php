@@ -90,4 +90,107 @@ final class SetsDetailTest extends TestCase
 
         $this->assertEquals(2, $sets->setCount());
     }
+
+    public function test_it_accepts_valid_classic_set_scores(): void
+    {
+        $sets = SetsDetail::fromArray([
+            ['a' => 6, 'b' => 0],
+            ['a' => 4, 'b' => 6],
+            ['a' => 7, 'b' => 5],
+            ['a' => 6, 'b' => 7],
+        ]);
+
+        $this->assertEquals(4, $sets->setCount());
+    }
+
+    public function test_it_rejects_tied_set_scores(): void
+    {
+        $this->expectException(InvalidSetsDetailException::class);
+
+        SetsDetail::fromArray([['a' => 6, 'b' => 6]]);
+    }
+
+    public function test_it_rejects_unrealistic_classic_set_scores(): void
+    {
+        $this->expectException(InvalidSetsDetailException::class);
+
+        SetsDetail::fromArray([['a' => 8, 'b' => 6]]);
+    }
+
+    public function test_it_accepts_super_tie_break_as_last_set(): void
+    {
+        $sets = SetsDetail::fromArray([
+            ['a' => 6, 'b' => 4],
+            ['a' => 3, 'b' => 6],
+            ['a' => 10, 'b' => 8],
+        ]);
+
+        $this->assertTrue($sets->hasWinner(2));
+        $this->assertEquals(2, $sets->teamASetsWon());
+        $this->assertEquals(1, $sets->teamBSetsWon());
+    }
+
+    public function test_it_accepts_extended_super_tie_break_as_last_set(): void
+    {
+        $sets = SetsDetail::fromArray([
+            ['a' => 6, 'b' => 4],
+            ['a' => 3, 'b' => 6],
+            ['a' => 11, 'b' => 13],
+        ]);
+
+        $this->assertTrue($sets->hasWinner(2));
+    }
+
+    public function test_it_rejects_super_tie_break_before_last_set(): void
+    {
+        $this->expectException(InvalidSetsDetailException::class);
+
+        SetsDetail::fromArray([
+            ['a' => 10, 'b' => 8],
+            ['a' => 6, 'b' => 4],
+        ]);
+    }
+
+    public function test_it_rejects_unfinished_super_tie_break(): void
+    {
+        $this->expectException(InvalidSetsDetailException::class);
+
+        SetsDetail::fromArray([
+            ['a' => 6, 'b' => 4],
+            ['a' => 3, 'b' => 6],
+            ['a' => 10, 'b' => 9],
+        ]);
+    }
+
+    public function test_has_winner_rejects_sets_played_after_match_was_won(): void
+    {
+        $sets = SetsDetail::fromArray([
+            ['a' => 6, 'b' => 4],
+            ['a' => 6, 'b' => 3],
+            ['a' => 4, 'b' => 6],
+        ]);
+
+        $this->assertFalse($sets->hasWinner(2));
+    }
+
+    public function test_has_winner_rejects_super_tie_break_when_it_is_not_deciding_set(): void
+    {
+        $sets = SetsDetail::fromArray([
+            ['a' => 6, 'b' => 4],
+            ['a' => 10, 'b' => 8],
+        ]);
+
+        $this->assertFalse($sets->hasWinner(2));
+    }
+
+    public function test_has_winner_rejects_too_many_sets_for_configured_format(): void
+    {
+        $sets = SetsDetail::fromArray([
+            ['a' => 6, 'b' => 4],
+            ['a' => 3, 'b' => 6],
+            ['a' => 6, 'b' => 4],
+        ]);
+
+        $this->assertFalse($sets->hasWinner(1));
+    }
 }

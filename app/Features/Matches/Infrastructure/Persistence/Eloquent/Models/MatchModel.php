@@ -44,6 +44,7 @@ class MatchModel extends Model
         'team_b_player1_id',
         'team_b_player2_id',
         'sets_detail',
+        'sets_to_win',
         'team_a_score',
         'team_b_score',
         'notes',
@@ -54,6 +55,7 @@ class MatchModel extends Model
     {
         return [
             'sets_detail' => 'array',
+            'sets_to_win' => 'integer',
             'team_a_score' => 'integer',
             'team_b_score' => 'integer',
         ];

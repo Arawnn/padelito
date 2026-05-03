@@ -44,7 +44,31 @@ final readonly class SetsDetail
 
     public function hasWinner(int $setsToWin): bool
     {
-        return $this->teamASetsWon() >= $setsToWin || $this->teamBSetsWon() >= $setsToWin;
+        if ($setsToWin < 1 || $setsToWin > 3 || count($this->sets) > (2 * $setsToWin - 1)) {
+            return false;
+        }
+
+        $teamASetsWon = 0;
+        $teamBSetsWon = 0;
+
+        foreach ($this->sets as $set) {
+            if ($teamASetsWon === $setsToWin || $teamBSetsWon === $setsToWin) {
+                return false;
+            }
+
+            if (self::isSuperTieBreakSet($set) && ($teamASetsWon !== $setsToWin - 1 || $teamBSetsWon !== $setsToWin - 1)) {
+                return false;
+            }
+
+            if ($set['a'] > $set['b']) {
+                $teamASetsWon++;
+            } else {
+                $teamBSetsWon++;
+            }
+        }
+
+        return ($teamASetsWon === $setsToWin && $teamBSetsWon < $setsToWin)
+            || ($teamBSetsWon === $setsToWin && $teamASetsWon < $setsToWin);
     }
 
     /** @param list<array{a: int, b: int}> $sets */
@@ -75,11 +99,51 @@ final readonly class SetsDetail
 
             if ($set['a'] < 0 || $set['b'] < 0) {
                 $violations[] = "Set {$i} scores cannot be negative";
+
+                continue;
+            }
+
+            if (! self::isClassicSet($set) && ! self::isValidSuperTieBreakSet($set, $i, count($sets))) {
+                $violations[] = "Set {$i} has an unrealistic padel score";
             }
         }
 
         if (! empty($violations)) {
             throw InvalidSetsDetailException::fromViolations($violations);
         }
+    }
+
+    /** @param array{a: int, b: int} $set */
+    private static function isClassicSet(array $set): bool
+    {
+        $winnerScore = max($set['a'], $set['b']);
+        $loserScore = min($set['a'], $set['b']);
+
+        return ($winnerScore === 6 && $loserScore <= 4)
+            || ($winnerScore === 7 && ($loserScore === 5 || $loserScore === 6));
+    }
+
+    /** @param array{a: int, b: int} $set */
+    private static function isValidSuperTieBreakSet(array $set, int $index, int $setCount): bool
+    {
+        if ($index !== $setCount - 1) {
+            return false;
+        }
+
+        if (! self::isSuperTieBreakSet($set)) {
+            return false;
+        }
+
+        $winnerScore = max($set['a'], $set['b']);
+        $loserScore = min($set['a'], $set['b']);
+
+        return $winnerScore === 10 ? $loserScore <= 8 : $loserScore === $winnerScore - 2;
+    }
+
+    /** @param array{a: int, b: int} $set */
+    private static function isSuperTieBreakSet(array $set): bool
+    {
+        return max($set['a'], $set['b']) >= 10
+            && abs($set['a'] - $set['b']) >= 2;
     }
 }
