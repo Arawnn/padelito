@@ -20,6 +20,7 @@ use App\Features\Player\Application\Commands\UploadPlayerAvatar\UploadPlayerAvat
 use App\Features\Player\Application\Commands\UploadPlayerAvatar\UploadPlayerAvatarCommandHandler;
 use App\Features\Player\Application\Contracts\AvatarProvisionerInterface;
 use App\Features\Player\Application\Contracts\MatchEloSummaryReader;
+use App\Features\Player\Application\Contracts\PlayerExistenceReader;
 use App\Features\Player\Application\Events\UpdatePlayerStats\UpdatePlayerStatsWhenMatchValidated;
 use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQuery;
 use App\Features\Player\Application\Queries\GetPlayerProfile\GetPlayerProfileQueryHandler;
@@ -32,6 +33,7 @@ use App\Features\Player\Infrastructure\Http\v1\Exceptions\PlayerExceptionMapper;
 use App\Features\Player\Infrastructure\Persistence\Eloquent\Repositories\EloquentEloHistoryRepository;
 use App\Features\Player\Infrastructure\Persistence\Eloquent\Repositories\EloquentPlayerRepository;
 use App\Features\Player\Infrastructure\Services\DefaultAvatarProvisioner;
+use App\Features\Player\Infrastructure\Services\EloquentPlayerExistenceReader;
 use App\Shared\Application\Bus\HandlerMap;
 use Illuminate\Support\ServiceProvider;
 
@@ -42,6 +44,7 @@ final class PlayerServiceProvider extends ServiceProvider
         $this->app->bind(PlayerRepositoryInterface::class, EloquentPlayerRepository::class);
         $this->app->bind(EloHistoryRepositoryInterface::class, EloquentEloHistoryRepository::class);
         $this->app->bind(MatchEloSummaryReader::class, MatchEloSummaryProvider::class);
+        $this->app->bind(PlayerExistenceReader::class, EloquentPlayerExistenceReader::class);
         $this->app->bind(AvatarProvisionerInterface::class, DefaultAvatarProvisioner::class);
 
         $this->app->bind(PlayerExceptionMapper::class);

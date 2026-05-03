@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Matches\Application\ReadModels;
+namespace App\Features\Matches\Application\QueryResults;
 
 use App\Features\Matches\Domain\Entities\PadelMatch;
-use App\Features\Player\Application\Dto\MatchEloSummary;
 use DateTimeImmutable;
 
 readonly class MatchCard
@@ -29,11 +28,11 @@ readonly class MatchCard
         public array $teamB,
         public int $setsToWin,
         public array $score,
-        public ?MatchEloSummary $elo,
+        public ?EloImpact $eloImpact,
         public array $confirmedPlayerIds,
     ) {}
 
-    public static function fromMatch(PadelMatch $match, ?MatchEloSummary $elo): static
+    public static function fromMatch(PadelMatch $match, ?EloImpact $eloImpact): static
     {
         return new static(
             id: $match->id()->value(),
@@ -58,7 +57,7 @@ readonly class MatchCard
                 'team_b' => $match->teamBScore()?->value(),
                 'sets_detail' => $match->setsDetail()?->sets(),
             ],
-            elo: $elo,
+            eloImpact: $eloImpact,
             confirmedPlayerIds: array_map(fn ($id): string => $id->value(), $match->confirmedPlayerIds()),
         );
     }

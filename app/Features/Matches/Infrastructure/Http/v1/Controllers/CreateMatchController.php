@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Matches\Infrastructure\Http\v1\Controllers;
 
 use App\Features\Matches\Application\Commands\CreateMatch\CreateMatchCommand;
-use App\Features\Matches\Application\ReadModels\MatchReadModelFactory;
+use App\Features\Matches\Application\QueryResults\MatchQueryResultFactory;
 use App\Features\Matches\Infrastructure\Http\v1\Requests\CreateMatchRequest;
 use App\Features\Matches\Infrastructure\Http\v1\Resources\MatchResource;
 use App\Shared\Application\Bus\CommandBusInterface;
@@ -15,7 +15,7 @@ final readonly class CreateMatchController
 {
     public function __construct(
         private CommandBusInterface $commandBus,
-        private MatchReadModelFactory $matchReadModelFactory,
+        private MatchQueryResultFactory $matchQueryResultFactory,
     ) {}
 
     public function __invoke(CreateMatchRequest $request): JsonResponse
@@ -29,7 +29,7 @@ final readonly class CreateMatchController
             notes: $request->input('notes'),
             setsToWin: $request->input('sets_to_win') !== null ? (int) $request->input('sets_to_win') : null,
         ));
-        $view = $this->matchReadModelFactory->detailsFromMatch($match, $request->user()->id);
+        $view = $this->matchQueryResultFactory->detailsFromMatch($match, $request->user()->id);
 
         return (new MatchResource($view))->response()->setStatusCode(201);
     }

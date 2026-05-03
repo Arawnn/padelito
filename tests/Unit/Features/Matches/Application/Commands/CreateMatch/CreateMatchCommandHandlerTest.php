@@ -10,9 +10,8 @@ use App\Features\Matches\Domain\Entities\PadelMatch;
 use App\Features\Matches\Domain\Events\MatchCreated;
 use App\Features\Matches\Domain\Exceptions\PlayerNotRegisteredInAppException;
 use Tests\Shared\Mother\Fake\InMemoryMatchRepository;
-use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
+use Tests\Shared\Mother\Fake\InMemoryPlayerRegistry;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
-use Tests\Shared\Mother\PlayerMother;
 use Tests\TestCase;
 
 /**
@@ -26,7 +25,7 @@ final class CreateMatchCommandHandlerTest extends TestCase
 
     private InMemoryMatchRepository $matchRepository;
 
-    private InMemoryPlayerRepository $playerRepository;
+    private InMemoryPlayerRegistry $playerRegistry;
 
     private SpyEventDispatcher $eventDispatcher;
 
@@ -35,12 +34,10 @@ final class CreateMatchCommandHandlerTest extends TestCase
         parent::setUp();
 
         $this->matchRepository = new InMemoryMatchRepository;
-        $this->playerRepository = new InMemoryPlayerRepository;
+        $this->playerRegistry = new InMemoryPlayerRegistry;
         $this->eventDispatcher = new SpyEventDispatcher;
 
-        $this->playerRepository->save(
-            PlayerMother::create()->withId(self::CREATOR_ID)->build()
-        );
+        $this->playerRegistry->register(self::CREATOR_ID);
     }
 
     public function test_it_creates_a_match(): void
@@ -89,7 +86,7 @@ final class CreateMatchCommandHandlerTest extends TestCase
     {
         return new CreateMatchCommandHandler(
             matchRepository: $this->matchRepository,
-            playerRegistry: $this->playerRepository,
+            playerRegistry: $this->playerRegistry,
             eventDispatcher: $this->eventDispatcher,
         );
     }

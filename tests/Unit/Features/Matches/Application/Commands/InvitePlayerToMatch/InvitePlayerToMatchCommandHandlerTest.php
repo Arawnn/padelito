@@ -16,10 +16,9 @@ use App\Features\Matches\Domain\Exceptions\PlayerNotRegisteredInAppException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
 use Tests\Shared\Mother\Fake\InMemoryMatchInvitationRepository;
 use Tests\Shared\Mother\Fake\InMemoryMatchRepository;
-use Tests\Shared\Mother\Fake\InMemoryPlayerRepository;
+use Tests\Shared\Mother\Fake\InMemoryPlayerRegistry;
 use Tests\Shared\Mother\Fake\SpyEventDispatcher;
 use Tests\Shared\Mother\MatchMother;
-use Tests\Shared\Mother\PlayerMother;
 use Tests\TestCase;
 
 /**
@@ -39,7 +38,7 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
 
     private InMemoryMatchInvitationRepository $invitationRepository;
 
-    private InMemoryPlayerRepository $playerRepository;
+    private InMemoryPlayerRegistry $playerRegistry;
 
     protected function setUp(): void
     {
@@ -47,11 +46,11 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
 
         $this->matchRepository = new InMemoryMatchRepository;
         $this->invitationRepository = new InMemoryMatchInvitationRepository;
-        $this->playerRepository = new InMemoryPlayerRepository;
+        $this->playerRegistry = new InMemoryPlayerRegistry;
 
-        $this->playerRepository->save(PlayerMother::create()->withId(self::CREATOR_ID)->build());
-        $this->playerRepository->save(PlayerMother::create()->withId(self::INVITEE_ID)->withUsername('invitee')->build());
-        $this->playerRepository->save(PlayerMother::create()->withId(self::SECOND_INVITEE_ID)->withUsername('invitee_2')->build());
+        $this->playerRegistry->register(self::CREATOR_ID);
+        $this->playerRegistry->register(self::INVITEE_ID);
+        $this->playerRegistry->register(self::SECOND_INVITEE_ID);
     }
 
     public function test_it_creates_an_invitation(): void
@@ -266,7 +265,7 @@ final class InvitePlayerToMatchCommandHandlerTest extends TestCase
         return new InvitePlayerToMatchCommandHandler(
             matchRepository: $this->matchRepository,
             invitationRepository: $this->invitationRepository,
-            playerRegistry: $this->playerRepository,
+            playerRegistry: $this->playerRegistry,
             eventDispatcher: new SpyEventDispatcher,
         );
     }

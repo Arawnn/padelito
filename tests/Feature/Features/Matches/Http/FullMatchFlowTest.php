@@ -191,12 +191,13 @@ final class FullMatchFlowTest extends FeatureTestCase
 
         $this->getJson("/api/v1/matches/{$matchId}")
             ->assertStatus(200)
-            ->assertJsonPath('data.elo.team_a_before', 1500)
-            ->assertJsonPath('data.elo.team_b_before', 1500)
-            ->assertJsonPath('data.elo.team_a_change', 20)
-            ->assertJsonPath('data.elo.team_b_change', -20)
-            ->assertJsonPath('data.elo.current_user_change', 20)
-            ->assertJsonPath('data.elo.source', 'projected');
+            ->assertJsonPath('data.elo_impact.team_a_before', 1500)
+            ->assertJsonPath('data.elo_impact.team_b_before', 1500)
+            ->assertJsonPath('data.elo_impact.team_a_change', 20)
+            ->assertJsonPath('data.elo_impact.team_b_change', -20)
+            ->assertJsonPath('data.elo_impact.current_user_change', 20)
+            ->assertJsonPath('data.elo_impact.source', 'projected')
+            ->assertJsonPath('data.elo_impact.is_final', false);
 
         foreach ([$this->creator, $this->player2, $this->player3, $this->player4] as $user) {
             Sanctum::actingAs($user);
@@ -208,12 +209,13 @@ final class FullMatchFlowTest extends FeatureTestCase
         $this->getJson("/api/v1/matches/{$matchId}")
             ->assertStatus(200)
             ->assertJsonPath('data.status', 'validated')
-            ->assertJsonPath('data.elo.team_a_before', 1500)
-            ->assertJsonPath('data.elo.team_b_before', 1500)
-            ->assertJsonPath('data.elo.team_a_change', 20)
-            ->assertJsonPath('data.elo.team_b_change', -20)
-            ->assertJsonPath('data.elo.current_user_change', -20)
-            ->assertJsonPath('data.elo.source', 'confirmed');
+            ->assertJsonPath('data.elo_impact.team_a_before', 1500)
+            ->assertJsonPath('data.elo_impact.team_b_before', 1500)
+            ->assertJsonPath('data.elo_impact.team_a_change', 20)
+            ->assertJsonPath('data.elo_impact.team_b_change', -20)
+            ->assertJsonPath('data.elo_impact.current_user_change', -20)
+            ->assertJsonPath('data.elo_impact.source', 'confirmed')
+            ->assertJsonPath('data.elo_impact.is_final', true);
     }
 
     private function registerProfile(User $user, string $username): void

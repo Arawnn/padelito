@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Features\Matches\Application\Queries\GetMatch;
 
-use App\Features\Matches\Application\ReadModels\MatchDetails;
-use App\Features\Matches\Application\ReadModels\MatchReadModelFactory;
+use App\Features\Matches\Application\QueryResults\MatchDetails;
+use App\Features\Matches\Application\QueryResults\MatchQueryResultFactory;
 use App\Features\Matches\Domain\Exceptions\MatchNotFoundException;
 use App\Features\Matches\Domain\Repositories\MatchRepositoryInterface;
 use App\Features\Matches\Domain\ValueObjects\MatchId;
@@ -14,7 +14,7 @@ final readonly class GetMatchQueryHandler
 {
     public function __construct(
         private MatchRepositoryInterface $matchRepository,
-        private MatchReadModelFactory $matchReadModelFactory,
+        private MatchQueryResultFactory $matchQueryResultFactory,
     ) {}
 
     public function __invoke(GetMatchQuery $query): MatchDetails
@@ -24,6 +24,6 @@ final readonly class GetMatchQueryHandler
             throw MatchNotFoundException::create();
         }
 
-        return $this->matchReadModelFactory->detailsFromMatch($match, $query->currentUserId);
+        return $this->matchQueryResultFactory->detailsFromMatch($match, $query->currentUserId);
     }
 }

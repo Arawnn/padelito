@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Features\Matches\Application\Queries\GetMyMatches;
 
-use App\Features\Matches\Application\ReadModels\MatchCard;
-use App\Features\Matches\Application\ReadModels\MatchReadModelFactory;
+use App\Features\Matches\Application\QueryResults\MatchCard;
+use App\Features\Matches\Application\QueryResults\MatchQueryResultFactory;
 use App\Features\Matches\Domain\Repositories\MatchRepositoryInterface;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
 
@@ -13,7 +13,7 @@ final readonly class GetMyMatchesQueryHandler
 {
     public function __construct(
         private MatchRepositoryInterface $matchRepository,
-        private MatchReadModelFactory $matchReadModelFactory,
+        private MatchQueryResultFactory $matchQueryResultFactory,
     ) {}
 
     /** @return list<MatchCard> */
@@ -24,6 +24,6 @@ final readonly class GetMyMatchesQueryHandler
             $query->filter,
         );
 
-        return $this->matchReadModelFactory->cardsFromMatches($matches, $query->playerId);
+        return $this->matchQueryResultFactory->cardsFromMatches($matches, $query->playerId);
     }
 }

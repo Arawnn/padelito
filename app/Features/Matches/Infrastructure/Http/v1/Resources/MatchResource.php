@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Matches\Infrastructure\Http\v1\Resources;
 
-use App\Features\Matches\Application\ReadModels\MatchCard;
+use App\Features\Matches\Application\QueryResults\MatchCard;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -26,7 +26,7 @@ final class MatchResource extends JsonResource
             'team_b' => $this->resource->teamB,
             'sets_to_win' => $this->resource->setsToWin,
             'score' => $this->resource->score,
-            'elo' => $this->resource->elo?->toArray(),
+            'elo_impact' => $this->resource->eloImpact?->toArray(),
             'confirmed_player_ids' => $this->resource->confirmedPlayerIds,
         ];
     }

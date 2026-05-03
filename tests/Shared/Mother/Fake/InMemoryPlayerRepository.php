@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Shared\Mother\Fake;
 
-use App\Features\Matches\Application\Contracts\PlayerRegistryInterface;
-use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Features\Player\Domain\Entities\Player;
 use App\Features\Player\Domain\Repositories\PlayerRepositoryInterface;
 use App\Features\Player\Domain\ValueObjects\Id;
 use App\Features\Player\Domain\ValueObjects\Username;
 
-final class InMemoryPlayerRepository implements PlayerRegistryInterface, PlayerRepositoryInterface
+final class InMemoryPlayerRepository implements PlayerRepositoryInterface
 {
     /** @var array<string, Player> */
     private array $store = [];
@@ -32,11 +30,6 @@ final class InMemoryPlayerRepository implements PlayerRegistryInterface, PlayerR
         }
 
         return $players;
-    }
-
-    public function exists(PlayerId $playerId): bool
-    {
-        return isset($this->store[$playerId->value()]);
     }
 
     public function findByUsername(Username $username): ?Player

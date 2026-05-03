@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Matches\Application\ReadModels;
+namespace App\Features\Matches\Application\QueryResults;
 
+use App\Features\Matches\Application\Contracts\MatchEloImpactReader;
+use App\Features\Matches\Application\Dto\MatchEloImpactInput;
 use App\Features\Matches\Domain\Entities\PadelMatch;
-use App\Features\Player\Application\Contracts\MatchEloSummaryReader;
-use App\Features\Player\Application\Dto\MatchEloInput;
 
-final readonly class MatchReadModelFactory
+final readonly class MatchQueryResultFactory
 {
     public function __construct(
-        private MatchEloSummaryReader $matchEloSummaryReader,
+        private MatchEloImpactReader $matchEloImpactReader,
     ) {}
 
     public function detailsFromMatch(PadelMatch $match, ?string $currentUserId): MatchDetails
     {
         return MatchDetails::fromMatch(
             $match,
-            $this->matchEloSummaryReader->forMatch($this->toEloInput($match), $currentUserId),
+            $this->matchEloImpactReader->forMatch($this->toEloImpactInput($match), $currentUserId),
         );
     }
 
@@ -28,22 +28,22 @@ final readonly class MatchReadModelFactory
      */
     public function cardsFromMatches(array $matches, ?string $currentUserId): array
     {
-        $eloByMatchId = $this->matchEloSummaryReader->summariesForMatches(
-            array_map(fn (PadelMatch $match): MatchEloInput => $this->toEloInput($match), $matches),
+        $eloImpactByMatchId = $this->matchEloImpactReader->forMatches(
+            array_map(fn (PadelMatch $match): MatchEloImpactInput => $this->toEloImpactInput($match), $matches),
             $currentUserId,
         );
 
         return array_map(
-            fn (PadelMatch $match): MatchCard => MatchCard::fromMatch($match, $eloByMatchId[$match->id()->value()] ?? null),
+            fn (PadelMatch $match): MatchCard => MatchCard::fromMatch($match, $eloImpactByMatchId[$match->id()->value()] ?? null),
             $matches,
         );
     }
 
-    private function toEloInput(PadelMatch $match): MatchEloInput
+    private function toEloImpactInput(PadelMatch $match): MatchEloImpactInput
     {
         $scores = $match->setsDetail() !== null ? $match->derivedScores() : null;
 
-        return new MatchEloInput(
+        return new MatchEloImpactInput(
             matchId: $match->id()->value(),
             isRanked: $match->type()->isRanked(),
             isValidated: $match->status()->isValidated(),
