@@ -7,6 +7,7 @@ namespace Tests\Unit\Features\Matches\Infrastructure\Http\v1\Exceptions;
 use App\Features\Matches\Domain\Exceptions\InvalidCourtNameException;
 use App\Features\Matches\Domain\Exceptions\InvalidSetsDetailException;
 use App\Features\Matches\Infrastructure\Http\v1\Exceptions\MatchExceptionMapper;
+use App\Shared\Domain\Exceptions\InvalidUuidException;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
@@ -48,6 +49,24 @@ final class MatchExceptionMapperTest extends TestCase
                 'message' => 'The court name is invalid.',
                 'details' => [
                     'violations' => ['Court name must be at most 100 characters long'],
+                ],
+            ],
+        ], $response->getData(true));
+    }
+
+    public function test_it_maps_invalid_uuid_to_unprocessable_entity(): void
+    {
+        $exception = InvalidUuidException::fromViolations(['Invalid UUID: not-a-uuid']);
+
+        $response = (new MatchExceptionMapper)->render($exception);
+
+        $this->assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
+        $this->assertSame([
+            'error' => [
+                'code' => 'INVALID_UUID',
+                'message' => 'The provided identifier is invalid.',
+                'details' => [
+                    'violations' => ['Invalid UUID: not-a-uuid'],
                 ],
             ],
         ], $response->getData(true));

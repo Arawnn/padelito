@@ -20,6 +20,7 @@ use App\Features\Matches\Domain\Exceptions\PlayerNotParticipantException;
 use App\Features\Matches\Domain\Exceptions\PlayerNotRegisteredInAppException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
 use App\Shared\Domain\Exceptions\DomainExceptionInterface;
+use App\Shared\Domain\Exceptions\InvalidUuidException;
 use App\Shared\Infrastructure\Http\Exceptions\ApiExceptionMapper;
 use App\Shared\Infrastructure\Http\Exceptions\DomainExceptionRendererInterface;
 use Illuminate\Http\JsonResponse;
@@ -43,6 +44,7 @@ final class MatchExceptionMapper implements DomainExceptionRendererInterface
         CannotSwitchToSinglesWithMultiplePlayersException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         InvalidSetsDetailException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         InvalidCourtNameException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+        InvalidUuidException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
     ];
 
     private const CLIENT_MESSAGES = [
@@ -61,6 +63,7 @@ final class MatchExceptionMapper implements DomainExceptionRendererInterface
         'CANNOT_SWITCH_TO_SINGLES_WITH_MULTIPLE_PLAYERS' => 'Cannot switch to singles format with multiple players already assigned.',
         'INVALID_SETS_DETAIL' => 'The sets detail is invalid.',
         'INVALID_COURT_NAME' => 'The court name is invalid.',
+        'INVALID_UUID' => 'The provided identifier is invalid.',
     ];
 
     public function handles(DomainExceptionInterface $e): bool
