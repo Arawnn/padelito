@@ -79,6 +79,7 @@ final class RespondToMatchInvitationCommandHandlerTest extends TestCase
 
         $match = $this->matchRepository->findById(MatchId::fromString(self::MATCH_ID));
         $this->assertEquals(self::INVITEE_ID, $match->teamAPlayer2Id()->value());
+        $this->assertTrue($this->matchRepository->wasLockedFor(self::MATCH_ID));
     }
 
     public function test_declining_invitation_does_not_assign_player(): void

@@ -46,7 +46,7 @@ final readonly class RespondToMatchInvitationCommandHandler
             throw UnauthorizedMatchOperationException::create();
         }
 
-        $match = $this->matchRepository->findById($matchId);
+        $match = $this->matchRepository->findByIdWithLock($matchId);
         if ($match === null) {
             throw MatchNotFoundException::create();
         }

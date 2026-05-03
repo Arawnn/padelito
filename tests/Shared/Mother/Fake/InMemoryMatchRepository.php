@@ -17,6 +17,9 @@ final class InMemoryMatchRepository implements MatchRepositoryInterface
     /** @var array<string, list<string>> */
     private array $deletedConfirmations = [];
 
+    /** @var list<string> */
+    private array $lockedMatchIds = [];
+
     public function findById(MatchId $id): ?PadelMatch
     {
         return $this->store[$id->value()] ?? null;
@@ -24,6 +27,8 @@ final class InMemoryMatchRepository implements MatchRepositoryInterface
 
     public function findByIdWithLock(MatchId $id): ?PadelMatch
     {
+        $this->lockedMatchIds[] = $id->value();
+
         return $this->findById($id);
     }
 
@@ -87,5 +92,10 @@ final class InMemoryMatchRepository implements MatchRepositoryInterface
     public function confirmationsWereDeletedFor(string $matchId): bool
     {
         return in_array($matchId, $this->deletedConfirmations, true);
+    }
+
+    public function wasLockedFor(string $matchId): bool
+    {
+        return in_array($matchId, $this->lockedMatchIds, true);
     }
 }
