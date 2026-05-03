@@ -40,7 +40,7 @@ final readonly class MatchMapper
         return PadelMatch::reconstitute(
             id: MatchId::fromString($model->id),
             status: MatchStatus::fromEnum(MatchStatusEnum::from($model->status)),
-            creator: PlayerId::fromString($model->team_a_player1_id),
+            creator: PlayerId::fromString($model->created_by),
             partner: $model->team_a_player2_id ? PlayerId::fromString($model->team_a_player2_id) : null,
             opponent1: $model->team_b_player1_id ? PlayerId::fromString($model->team_b_player1_id) : null,
             opponent2: $model->team_b_player2_id ? PlayerId::fromString($model->team_b_player2_id) : null,
