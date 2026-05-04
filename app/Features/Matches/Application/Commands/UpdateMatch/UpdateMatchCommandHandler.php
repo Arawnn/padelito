@@ -8,8 +8,6 @@ use App\Features\Matches\Domain\Entities\PadelMatch;
 use App\Features\Matches\Domain\Enums\MatchFormatEnum;
 use App\Features\Matches\Domain\Enums\MatchTypeEnum;
 use App\Features\Matches\Domain\Events\MatchConfirmationsReset;
-use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
-use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
 use App\Features\Matches\Domain\Exceptions\MatchNotFoundException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
 use App\Features\Matches\Domain\Repositories\MatchRepositoryInterface;
@@ -45,13 +43,7 @@ final readonly class UpdateMatchCommandHandler
             throw UnauthorizedMatchOperationException::create();
         }
 
-        if ($match->status()->isValidated()) {
-            throw MatchAlreadyValidatedException::create();
-        }
-
-        if ($match->status()->isCancelled()) {
-            throw MatchAlreadyCancelledException::create();
-        }
+        $match->ensureCanUpdate();
 
         $this->applyUpdates($match, $command);
 

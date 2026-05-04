@@ -7,10 +7,7 @@ namespace App\Features\Matches\Application\Commands\InvitePlayerToMatch;
 use App\Features\Matches\Application\Contracts\PlayerRegistryInterface;
 use App\Features\Matches\Domain\Entities\MatchInvitation;
 use App\Features\Matches\Domain\Exceptions\DuplicatePlayerInMatchException;
-use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
-use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
 use App\Features\Matches\Domain\Exceptions\MatchNotFoundException;
-use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
 use App\Features\Matches\Domain\Exceptions\PlayerNotRegisteredInAppException;
 use App\Features\Matches\Domain\Exceptions\UnauthorizedMatchOperationException;
 use App\Features\Matches\Domain\Repositories\MatchInvitationRepositoryInterface;
@@ -46,22 +43,8 @@ final readonly class InvitePlayerToMatchCommandHandler
             throw UnauthorizedMatchOperationException::create();
         }
 
-        if ($match->status()->isValidated()) {
-            throw MatchAlreadyValidatedException::create();
-        }
-
-        if ($match->status()->isCancelled()) {
-            throw MatchAlreadyCancelledException::create();
-        }
-
         if (! $this->playerRegistry->exists($inviteeId)) {
             throw PlayerNotRegisteredInAppException::forPlayer($command->inviteeId);
-        }
-
-        foreach ($match->participantIds() as $participant) {
-            if ($participant->equals($inviteeId)) {
-                throw DuplicatePlayerInMatchException::create();
-            }
         }
 
         $existing = $this->invitationRepository->findByMatchInviteeAndType($matchId, $inviteeId, $type);
@@ -69,9 +52,7 @@ final readonly class InvitePlayerToMatchCommandHandler
             throw DuplicatePlayerInMatchException::create();
         }
 
-        if ($match->isTeamFull($type->toTeam())) {
-            throw MatchTeamFullException::create();
-        }
+        $match->ensureCanInvitePlayer($inviteeId, $type->toTeam());
 
         $invitation = MatchInvitation::invite(
             id: MatchInvitationId::generate(),

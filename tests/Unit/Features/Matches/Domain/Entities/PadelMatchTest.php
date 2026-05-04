@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Features\Matches\Domain\Entities;
 
+use App\Features\Matches\Domain\Enums\MatchFormatEnum;
+use App\Features\Matches\Domain\Enums\MatchTypeEnum;
 use App\Features\Matches\Domain\Events\MatchConfirmationsReset;
 use App\Features\Matches\Domain\Events\MatchValidated;
 use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
@@ -11,8 +13,15 @@ use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
 use App\Features\Matches\Domain\Exceptions\MatchNotReadyForConfirmationException;
 use App\Features\Matches\Domain\Exceptions\PlayerAlreadyConfirmedException;
 use App\Features\Matches\Domain\Exceptions\PlayerNotParticipantException;
+use App\Features\Matches\Domain\ValueObjects\CourtName;
+use App\Features\Matches\Domain\ValueObjects\MatchFormat;
+use App\Features\Matches\Domain\ValueObjects\MatchType;
+use App\Features\Matches\Domain\ValueObjects\Notes;
 use App\Features\Matches\Domain\ValueObjects\PlayerId;
 use App\Features\Matches\Domain\ValueObjects\SetsDetail;
+use App\Features\Matches\Domain\ValueObjects\SetsToWin;
+use App\Features\Matches\Domain\ValueObjects\Team;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Tests\Shared\Mother\MatchMother;
 
@@ -125,6 +134,32 @@ final class PadelMatchTest extends TestCase
         $match->confirm(PlayerId::fromString(self::P1));
     }
 
+    public function test_validated_match_rejects_all_mutations(): void
+    {
+        foreach ($this->matchMutations() as $mutation) {
+            $match = MatchMother::create()
+                ->withFullDoublesLineup(self::P1, self::P2, self::P3, self::P4)
+                ->withSetsDetail($this->twoSetsToZero)
+                ->withStatus('validated')
+                ->build();
+
+            $this->assertMutationThrows(MatchAlreadyValidatedException::class, fn () => $mutation($match));
+        }
+    }
+
+    public function test_cancelled_match_rejects_all_mutations(): void
+    {
+        foreach ($this->matchMutations() as $mutation) {
+            $match = MatchMother::create()
+                ->withFullDoublesLineup(self::P1, self::P2, self::P3, self::P4)
+                ->withSetsDetail($this->twoSetsToZero)
+                ->withStatus('cancelled')
+                ->build();
+
+            $this->assertMutationThrows(MatchAlreadyCancelledException::class, fn () => $mutation($match));
+        }
+    }
+
     public function test_all_confirms_trigger_match_validated_event(): void
     {
         $match = $this->fullDoublesMatchReadyForConfirmation();
@@ -222,5 +257,55 @@ final class PadelMatchTest extends TestCase
 
         $this->assertNotNull($winner);
         $this->assertFalse($winner->isA());
+    }
+
+    /**
+     * @return list<callable(\App\Features\Matches\Domain\Entities\PadelMatch): void>
+     */
+    private function matchMutations(): array
+    {
+        return [
+            function ($match): void {
+                $match->assignPlayer(PlayerId::fromString('00000000-0000-0000-0000-000000000099'), Team::B());
+            },
+            function ($match): void {
+                $match->removePlayer(PlayerId::fromString(self::P2));
+            },
+            function ($match): void {
+                $match->updateCourtName(CourtName::fromString('Court B'));
+            },
+            function ($match): void {
+                $match->updateMatchDate(new DateTimeImmutable('2026-06-01 10:00:00'));
+            },
+            function ($match): void {
+                $match->updateNotes(Notes::fromString('Late edit'));
+            },
+            function ($match): void {
+                $match->updateSetsDetail(SetsDetail::fromArray([['a' => 6, 'b' => 4], ['a' => 6, 'b' => 4]]));
+            },
+            function ($match): void {
+                $match->updateSetsToWin(SetsToWin::fromInt(3));
+            },
+            function ($match): void {
+                $match->updateFormat(MatchFormat::fromEnum(MatchFormatEnum::DOUBLES));
+            },
+            function ($match): void {
+                $match->updateType(MatchType::fromEnum(MatchTypeEnum::FRIENDLY));
+            },
+            function ($match): void {
+                $match->cancel();
+            },
+        ];
+    }
+
+    /** @param callable(): void $mutation */
+    private function assertMutationThrows(string $exceptionClass, callable $mutation): void
+    {
+        try {
+            $mutation();
+            self::fail(sprintf('Expected mutation to throw %s.', $exceptionClass));
+        } catch (\Throwable $e) {
+            self::assertInstanceOf($exceptionClass, $e);
+        }
     }
 }

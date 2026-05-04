@@ -4,19 +4,10 @@ declare(strict_types=1);
 
 namespace App\Features\Matches\Domain\Entities;
 
-use App\Features\Matches\Domain\Events\MatchCancelled;
-use App\Features\Matches\Domain\Events\MatchConfirmationsReset;
 use App\Features\Matches\Domain\Events\MatchCreated;
-use App\Features\Matches\Domain\Events\MatchPlayerConfirmed;
-use App\Features\Matches\Domain\Events\MatchValidated;
-use App\Features\Matches\Domain\Exceptions\CannotSwitchToSinglesWithMultiplePlayersException;
-use App\Features\Matches\Domain\Exceptions\DuplicatePlayerInMatchException;
-use App\Features\Matches\Domain\Exceptions\MatchAlreadyCancelledException;
-use App\Features\Matches\Domain\Exceptions\MatchAlreadyValidatedException;
-use App\Features\Matches\Domain\Exceptions\MatchNotReadyForConfirmationException;
-use App\Features\Matches\Domain\Exceptions\MatchTeamFullException;
-use App\Features\Matches\Domain\Exceptions\PlayerAlreadyConfirmedException;
-use App\Features\Matches\Domain\Exceptions\PlayerNotParticipantException;
+use App\Features\Matches\Domain\States\MatchStateFactory;
+use App\Features\Matches\Domain\States\MatchStateInterface;
+use App\Features\Matches\Domain\States\MatchStatusPendingState;
 use App\Features\Matches\Domain\ValueObjects\CourtName;
 use App\Features\Matches\Domain\ValueObjects\MatchConfiguration;
 use App\Features\Matches\Domain\ValueObjects\MatchFormat;
@@ -33,6 +24,7 @@ use App\Features\Matches\Domain\ValueObjects\SetsToWin;
 use App\Features\Matches\Domain\ValueObjects\Team;
 use App\Features\Matches\Domain\ValueObjects\TeamComposition;
 use App\Shared\Domain\Entities\AggregateRoot;
+use App\Shared\Domain\Events\DomainEvent;
 use DateTimeImmutable;
 
 final class PadelMatch extends AggregateRoot
@@ -40,7 +32,7 @@ final class PadelMatch extends AggregateRoot
     /** @param list<PlayerId> $confirmedPlayerIds */
     private function __construct(
         private readonly MatchId $id,
-        private MatchStatus $status,
+        private MatchStateInterface $state,
         private TeamComposition $composition,
         private MatchConfiguration $configuration,
         private MatchScore $score,
@@ -60,7 +52,7 @@ final class PadelMatch extends AggregateRoot
     ): self {
         $padelMatch = new self(
             id: $id,
-            status: MatchStatus::pending(),
+            state: new MatchStatusPendingState,
             composition: TeamComposition::withCreator($createdBy),
             configuration: MatchConfiguration::from($type, $format),
             score: MatchScore::empty($setsToWin ?? SetsToWin::fromInt(2)),
@@ -94,7 +86,7 @@ final class PadelMatch extends AggregateRoot
     ): self {
         return new self(
             id: $id,
-            status: $status,
+            state: MatchStateFactory::fromStatus($status),
             composition: TeamComposition::reconstitute($creator, $partner, $opponent1, $opponent2),
             configuration: MatchConfiguration::from($type, $format),
             score: MatchScore::reconstitute($teamAScore, $teamBScore, $setsDetail, $setsToWin),
@@ -181,197 +173,118 @@ final class PadelMatch extends AggregateRoot
 
     public function canAcceptInvitation(PlayerId $playerId, Team $team): bool
     {
-        return ! $this->status->isValidated()
-            && ! $this->status->isCancelled()
-            && ! $this->isParticipant($playerId)
-            && ! $this->isTeamFull($team);
+        return $this->state->canAcceptInvitation($this, $playerId, $team);
+    }
+
+    public function ensureCanInvitePlayer(PlayerId $playerId, Team $team): void
+    {
+        $this->state->ensureCanInvitePlayer($this, $playerId, $team);
+    }
+
+    public function ensureCanRespondToInvitation(): void
+    {
+        $this->state->ensureCanRespondToInvitation();
+    }
+
+    public function ensureCanUpdate(): void
+    {
+        $this->state->ensureCanUpdate();
     }
 
     public function assignPlayer(PlayerId $playerId, Team $team): void
     {
-        if ($this->status->isValidated()) {
-            throw MatchAlreadyValidatedException::create();
-        }
-
-        if ($this->status->isCancelled()) {
-            throw MatchAlreadyCancelledException::create();
-        }
-
-        if ($this->isParticipant($playerId)) {
-            throw DuplicatePlayerInMatchException::create();
-        }
-
-        if ($this->isTeamFull($team)) {
-            throw MatchTeamFullException::create();
-        }
-
-        if ($team->isA()) {
-            $this->composition = $this->composition->withPartner($playerId);
-        } elseif ($this->composition->opponent1() === null) {
-            $this->composition = $this->composition->withOpponent1($playerId);
-        } else {
-            $this->composition = $this->composition->withOpponent2($playerId);
-        }
-
-        $this->resetConfirmations();
+        $this->state->assignPlayer($this, $playerId, $team);
     }
 
     public function removePlayer(PlayerId $playerId): void
     {
-        if ($this->composition->partner()?->equals($playerId) === true) {
-            $this->composition = $this->composition->withoutPartner();
-            $this->resetConfirmations();
-
-            return;
-        }
-
-        if ($this->composition->opponent1()?->equals($playerId) === true) {
-            $newComposition = $this->composition->withoutOpponent1();
-            if ($newComposition->opponent2() !== null) {
-                $newComposition = $newComposition
-                    ->withOpponent1($newComposition->opponent2())
-                    ->withoutOpponent2();
-            }
-
-            $this->composition = $newComposition;
-            $this->resetConfirmations();
-
-            return;
-        }
-
-        if ($this->composition->opponent2()?->equals($playerId) === true) {
-            $this->composition = $this->composition->withoutOpponent2();
-            $this->resetConfirmations();
-        }
+        $this->state->removePlayer($this, $playerId);
     }
 
     public function confirm(PlayerId $playerId): void
     {
-        if ($this->status->isValidated()) {
-            throw MatchAlreadyValidatedException::create();
-        }
-
-        if ($this->status->isCancelled()) {
-            throw MatchAlreadyCancelledException::create();
-        }
-
-        if (! $this->isReadyForConfirmation()) {
-            throw MatchNotReadyForConfirmationException::create();
-        }
-
-        if (! $this->isParticipant($playerId)) {
-            throw PlayerNotParticipantException::create();
-        }
-
-        foreach ($this->confirmedPlayerIds as $confirmed) {
-            if ($confirmed->equals($playerId)) {
-                throw PlayerAlreadyConfirmedException::create();
-            }
-        }
-
-        $this->confirmedPlayerIds[] = $playerId;
-        $this->recordDomainEvent(new MatchPlayerConfirmed($this->id->value(), $playerId->value()));
-
-        if ($this->hasAllParticipantsConfirmed()) {
-            $this->finalize();
-        }
-    }
-
-    private function finalize(): void
-    {
-        $this->score = $this->score->withFinalizedScores();
-        $this->status = MatchStatus::validated();
-        [$teamAScore, $teamBScore] = $this->derivedScores();
-
-        $this->recordDomainEvent(new MatchValidated(
-            matchId: $this->id->value(),
-            teamAPlayerIds: $this->playerIdValues([$this->teamAPlayer1Id(), $this->teamAPlayer2Id()]),
-            teamBPlayerIds: $this->playerIdValues([$this->teamBPlayer1Id(), $this->teamBPlayer2Id()]),
-            teamAScore: $teamAScore,
-            teamBScore: $teamBScore,
-            ranked: $this->type()->isRanked(),
-        ));
-    }
-
-    /**
-     * @param  list<PlayerId|null>  $playerIds
-     * @return list<string>
-     */
-    private function playerIdValues(array $playerIds): array
-    {
-        return array_values(array_map(
-            fn (PlayerId $playerId): string => $playerId->value(),
-            array_filter($playerIds),
-        ));
+        $this->state->confirm($this, $playerId);
     }
 
     public function updateCourtName(?CourtName $courtName): void
     {
-        $this->information = $this->information->withCourtName($courtName);
+        $this->state->updateCourtName($this, $courtName);
     }
 
     public function updateMatchDate(?DateTimeImmutable $matchDate): void
     {
-        $this->information = $this->information->withMatchDate($matchDate);
+        $this->state->updateMatchDate($this, $matchDate);
     }
 
     public function updateNotes(?Notes $notes): void
     {
-        $this->information = $this->information->withNotes($notes);
+        $this->state->updateNotes($this, $notes);
     }
 
     public function updateSetsDetail(?SetsDetail $setsDetail): void
     {
-        $this->score = $this->score->withSetsDetail($setsDetail);
-        $this->resetConfirmations();
+        $this->state->updateSetsDetail($this, $setsDetail);
     }
 
     public function updateSetsToWin(SetsToWin $setsToWin): void
     {
-        $this->score = $this->score->withSetsToWin($setsToWin);
-        $this->resetConfirmations();
+        $this->state->updateSetsToWin($this, $setsToWin);
     }
 
     public function updateFormat(MatchFormat $format): void
     {
-        if ($format->isSingles() && ($this->composition->partner() !== null || $this->composition->opponent2() !== null)) {
-            throw CannotSwitchToSinglesWithMultiplePlayersException::create();
-        }
-
-        $changed = $this->configuration->format()->value() !== $format->value();
-        $this->configuration = $this->configuration->withFormat($format);
-
-        if ($changed) {
-            $this->resetConfirmations();
-        }
+        $this->state->updateFormat($this, $format);
     }
 
     public function updateType(MatchType $type): void
     {
-        $this->configuration = $this->configuration->withType($type);
-        $this->resetConfirmations();
-    }
-
-    private function resetConfirmations(): void
-    {
-        if (! empty($this->confirmedPlayerIds)) {
-            $this->confirmedPlayerIds = [];
-            $this->recordDomainEvent(new MatchConfirmationsReset($this->id->value()));
-        }
+        $this->state->updateType($this, $type);
     }
 
     public function cancel(): void
     {
-        if ($this->status->isValidated()) {
-            throw MatchAlreadyValidatedException::create();
-        }
+        $this->state->cancel($this);
+    }
 
-        if ($this->status->isCancelled()) {
-            throw MatchAlreadyCancelledException::create();
-        }
+    public function replaceComposition(TeamComposition $composition): void
+    {
+        $this->composition = $composition;
+    }
 
-        $this->status = MatchStatus::cancelled();
-        $this->recordDomainEvent(new MatchCancelled($this->id->value()));
+    public function replaceConfiguration(MatchConfiguration $configuration): void
+    {
+        $this->configuration = $configuration;
+    }
+
+    public function replaceScore(MatchScore $score): void
+    {
+        $this->score = $score;
+    }
+
+    public function replaceInformation(MatchInformation $information): void
+    {
+        $this->information = $information;
+    }
+
+    /** @param list<PlayerId> $confirmedPlayerIds */
+    public function replaceConfirmedPlayerIds(array $confirmedPlayerIds): void
+    {
+        $this->confirmedPlayerIds = $confirmedPlayerIds;
+    }
+
+    public function addConfirmedPlayerId(PlayerId $playerId): void
+    {
+        $this->confirmedPlayerIds[] = $playerId;
+    }
+
+    public function transitionTo(MatchStateInterface $state): void
+    {
+        $this->state = $state;
+    }
+
+    public function recordMatchEvent(DomainEvent $event): void
+    {
+        $this->recordDomainEvent($event);
     }
 
     // --- Composite VO accessors ---
@@ -405,7 +318,7 @@ final class PadelMatch extends AggregateRoot
 
     public function status(): MatchStatus
     {
-        return $this->status;
+        return $this->state->status();
     }
 
     public function createdBy(): PlayerId
